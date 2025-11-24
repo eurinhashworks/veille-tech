@@ -32,5 +32,5 @@ TechPulse AI est une application web moderne qui utilise l'API Google Gemini pou
 - Google Gemini AI
 - Tailwind CSS (via classes utilitaires)
 
-**Version :** 0.0.0  
+**Version :** 0.0.0
 **Licence :** Privée

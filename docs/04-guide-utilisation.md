@@ -61,12 +61,12 @@ Un encadré violet avec l'analyse subjective et stratégique de l'IA :
 #### Contenu principal
 Sections thématiques :
 - **Résumé Flash** : Vue d'ensemble en 3 lignes
-- **🔍 Search & Web** : Actualités moteurs de recherche
-- **📱 Web & Mobile Dev** : Frameworks, langages, outils
-- **☁️ Cloud Computing** : AWS, Azure, GCP, Kubernetes
-- **🛠️ DevOps & Platform Engineering** : CI/CD, IaC, monitoring
-- **🔐 Cybersécurité** : Vulnérabilités, attaques, correctifs
-- **🤖 IA & Innovation** : LLM, modèles, recherche
+- **Search & Web** : Actualités moteurs de recherche
+- **Web & Mobile Dev** : Frameworks, langages, outils
+- **Cloud Computing** : AWS, Azure, GCP, Kubernetes
+- **DevOps & Platform Engineering** : CI/CD, IaC, monitoring
+- **Cybersécurité** : Vulnérabilités, attaques, correctifs
+- **IA & Innovation** : LLM, modèles, recherche
 - **Chiffres Clés** : Métriques importantes
 - **Insight du jour** : Analyse de marché
 - **Impact pour toi** : Actions concrètes
@@ -94,7 +94,7 @@ Affiche toutes les revues sous forme de cartes :
 
 ```
 ┌─────────────────────────────────┐
-│ 🤖 Vendredi 08 août 2025        │
+│ Vendredi 08 août 2025           │
 │ Par Eurin • Cloud               │
 │                                 │
 │ AWS lance une nouvelle          │

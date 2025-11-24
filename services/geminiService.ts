@@ -48,23 +48,23 @@ export const generateTechReview = async (date: string, username: string, isPubli
   ### Résumé Flash
   Un paragraphe de 3 lignes max résumant la journée.
 
-  ## 🔍 Search & Web
+  ## [SEARCH] Search & Web
   * **Titre News 1** : Description courte et percutante.
   * **Titre News 2** : Description...
 
-  ## 📱 Web & Mobile Dev
+  ## [WEB] Web & Mobile Dev
   * **Titre News** : ...
 
-  ## ☁️ Cloud Computing
+  ## [CLOUD] Cloud Computing
   ...
 
-  ## 🛠️ DevOps & Platform Engineering
+  ## [DEVOPS] DevOps & Platform Engineering
   ...
 
-  ## 🔐 Cybersécurité
+  ## [SECURITY] Cybersécurité
   ...
 
-  ## 🤖 IA & Innovation
+  ## [IA] IA & Innovation
   ...
   
   ## Chiffres Clés du Jour
@@ -74,9 +74,10 @@ export const generateTechReview = async (date: string, username: string, isPubli
   ## Insight du jour (Editorial)
   Un paragraphe d'analyse factuelle et stratégique sur le marché.
 
-  ## Impact pour toi
-  * **Dev** : Action...
-  * **Ops** : Action...
+  ## Impact
+  * **Pour les développeurs** : Implications concrètes et actions recommandées
+  * **Pour les entreprises** : Enjeux business et stratégiques
+  * **Pour l'écosystème tech** : Tendances et évolutions à anticiper
 
   ## À surveiller demain
   ...

@@ -36,3 +36,6 @@ dist-ssr
 .env.development.private
 .env.test.private
 .env.production.private
+.vercel
+
+/generated/prisma

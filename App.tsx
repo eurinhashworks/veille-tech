@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { Sparkles, Calendar, FolderOpen, BarChart3, Globe, Lock, Bot, Search as SearchIcon, Star, Settings as SettingsIcon, Info } from 'lucide-react';
 import Header from './components/Header';
 import Button from './components/Button';
 import MarkdownViewer from './components/MarkdownViewer';
 import Timeline from './components/Timeline';
 import HistoryTable from './components/HistoryTable';
 import Stats from './components/Stats';
+import Search from './pages/Search';
+import Settings from './pages/Settings';
+import About from './pages/About';
+import CalendarView from './pages/CalendarView';
+import Favorites from './pages/Favorites';
+import Export from './pages/Export';
 import { generateTechReview } from './services/geminiService';
 import { Review, GenerationStatus, CategoryType } from './types';
 
@@ -25,7 +32,7 @@ const MOCK_REVIEWS: Review[] = [
       aiAnalysis: "Mon analyse : La course à l'armement entre AWS et Azure ne se joue plus sur le prix, mais sur l'efficacité énergétique des puces custom. Kubernetes devient invisible, ce qui est son destin final.",
       isPublic: true
     },
-    content: "# Revue Tech — 08 Août 2025\n> L'innovation n'est pas une destination, c'est un état d'esprit permanent.\n\n### Résumé Flash\nUne journée marquée par l'avancée des processeurs ARM chez AWS et une adoption massive de Kubernetes en Edge Computing.\n\n## ☁️ Cloud Computing\n* **AWS Graviton4** : Amazon annonce la disponibilité générale de ses nouvelles instances, promettant 30% de perf en plus.\n* **Azure Arc Updates** : Microsoft facilite la gestion hybride avec de nouveaux contrôles de sécurité unifiés.\n* **Google Cloud Next** : Les rumeurs enflent sur une nouvelle offre de TPU v6 pour l'IA générative.\n\n## 🛠️ DevOps & Platform Engineering\n* **Kubernetes 1.31 Beta** : La nouvelle version met l'accent sur la sécurité des sidecars et le support natif de WASM.\n* **Terraform** : HashiCorp introduit de nouvelles politiques de gestion des états pour les grandes équipes.\n\n## 🔐 Cybersécurité\n* **Faille Zero-Day** : Une vulnérabilité critique dans certains routeurs Cisco nécessite un patch immédiat.\n* **Ransomware** : Le groupe LockBit revendique une nouvelle attaque sur un grand groupe logistique.\n\n## 🤖 IA & Innovation\n* **Model Collapse** : Une étude montre les risques de l'entraînement d'IA sur des données générées par IA.\n* **Mistral Large 2** : Le modèle français continue d'impressionner par ses capacités de raisonnement multilingue.",
+    content: "# Revue Tech — 08 Août 2025\n> L'innovation n'est pas une destination, c'est un état d'esprit permanent.\n\n### Résumé Flash\nUne journée marquée par l'avancée des processeurs ARM chez AWS et une adoption massive de Kubernetes en Edge Computing.\n\n## [CLOUD] Cloud Computing\n* **AWS Graviton4** : Amazon annonce la disponibilité générale de ses nouvelles instances, promettant 30% de perf en plus.\n* **Azure Arc Updates** : Microsoft facilite la gestion hybride avec de nouveaux contrôles de sécurité unifiés.\n* **Google Cloud Next** : Les rumeurs enflent sur une nouvelle offre de TPU v6 pour l'IA générative.\n\n## [DEVOPS] DevOps & Platform Engineering\n* **Kubernetes 1.31 Beta** : La nouvelle version met l'accent sur la sécurité des sidecars et le support natif de WASM.\n* **Terraform** : HashiCorp introduit de nouvelles politiques de gestion des états pour les grandes équipes.\n\n## [SECURITY] Cybersécurité\n* **Faille Zero-Day** : Une vulnérabilité critique dans certains routeurs Cisco nécessite un patch immédiat.\n* **Ransomware** : Le groupe LockBit revendique une nouvelle attaque sur un grand groupe logistique.\n\n## [IA] IA & Innovation\n* **Model Collapse** : Une étude montre les risques de l'entraînement d'IA sur des données générées par IA.\n* **Mistral Large 2** : Le modèle français continue d'impressionner par ses capacités de raisonnement multilingue.\n\n## Impact\n* **Pour les développeurs** : Migrer vers ARM devient incontournable pour optimiser les coûts cloud. Kubernetes 1.31 nécessite une revue des configurations de sécurité.\n* **Pour les entreprises** : L'efficacité énergétique des infrastructures devient un critère de choix stratégique face à la hausse des coûts.\n* **Pour l'écosystème tech** : La consolidation autour de quelques acteurs cloud majeurs s'accélère, réduisant la diversité du marché.",
     sources: []
   },
   {
@@ -43,7 +50,7 @@ const MOCK_REVIEWS: Review[] = [
       aiAnalysis: "Mon avis : Nous assistons à une fragilisation systémique. La dépendance à quelques librairies open-source critiques reste le talon d'Achille de toute l'industrie numérique.",
       isPublic: true
     },
-    content: "# Revue Tech — 07 Août 2025\n> La sécurité est un processus, pas un produit.\n\n## 🔐 Cybersécurité\n* **OpenSSH Critical** : La faille 'RegreSSHion' touche des millions de serveurs Linux. Patching impératif.\n* **CrowdStrike Analysis** : Retour sur l'incident mondial, l'entreprise publie un post-mortem détaillé.\n\n## 📱 Web & Mobile Dev\n* **React 19 RC** : La Release Candidate est disponible, introduisant le compilateur automatique.\n* **iOS 19 Beta** : Apple ouvre les APIs de son Neural Engine aux développeurs tiers.",
+    content: "# Revue Tech — 07 Août 2025\n> La sécurité est un processus, pas un produit.\n\n## [SECURITY] Cybersécurité\n* **OpenSSH Critical** : La faille 'RegreSSHion' touche des millions de serveurs Linux. Patching impératif.\n* **CrowdStrike Analysis** : Retour sur l'incident mondial, l'entreprise publie un post-mortem détaillé.\n\n## [WEB] Web & Mobile Dev\n* **React 19 RC** : La Release Candidate est disponible, introduisant le compilateur automatique.\n* **iOS 19 Beta** : Apple ouvre les APIs de son Neural Engine aux développeurs tiers.\n\n## Impact\n* **Pour les développeurs** : Patcher OpenSSH en urgence sur tous les serveurs. Tester React 19 RC pour anticiper la migration.\n* **Pour les entreprises** : Revoir les processus de gestion des dépendances critiques et mettre en place des audits de sécurité réguliers.\n* **Pour l'écosystème tech** : La fragilité des composants open-source essentiels soulève des questions sur la gouvernance et le financement.",
     sources: []
   },
   {
@@ -61,18 +68,19 @@ const MOCK_REVIEWS: Review[] = [
       aiAnalysis: "Mon analyse : La loi de Moore est morte, vive la loi de Huang. Si NVIDIA continue à ce rythme, le hardware dictera le software pour la prochaine décennie.",
       isPublic: true
     },
-    content: "# Revue Tech — 06 Août 2025\n> L'intelligence artificielle est le nouveau code binaire de notre réalité.\n\n## 🤖 IA & Innovation\n* **NVIDIA Blackwell** : La nouvelle architecture GPU promet de réduire les coûts d'inférence par 25.\n* **OpenAI** : Sam Altman évoque une 'intelligence de niveau doctorat' pour les prochains modèles.\n* **AI Act** : L'Europe finalise les directives d'application pour les modèles open-source.",
+    content: "# Revue Tech — 06 Août 2025\n> L'intelligence artificielle est le nouveau code binaire de notre réalité.\n\n## [IA] IA & Innovation\n* **NVIDIA Blackwell** : La nouvelle architecture GPU promet de réduire les coûts d'inférence par 25.\n* **OpenAI** : Sam Altman évoque une 'intelligence de niveau doctorat' pour les prochains modèles.\n* **AI Act** : L'Europe finalise les directives d'application pour les modèles open-source.\n\n## Impact\n* **Pour les développeurs** : Les nouveaux GPU Blackwell vont démocratiser l'accès aux modèles d'IA avancés. Préparer l'intégration de modèles plus puissants.\n* **Pour les entreprises** : L'AI Act européen impose de nouvelles contraintes de conformité. Anticiper les audits et la documentation des modèles.\n* **Pour l'écosystème tech** : La domination de NVIDIA sur le hardware IA crée une dépendance stratégique majeure pour toute l'industrie.",
     sources: []
   }
 ];
 
-type Tab = 'generator' | 'timeline' | 'table' | 'stats';
+type Tab = 'generator' | 'timeline' | 'table' | 'stats' | 'search' | 'calendar' | 'favorites' | 'settings' | 'about';
 
 const App: React.FC = () => {
   // Application State
   const [reviews, setReviews] = useState<Review[]>(MOCK_REVIEWS);
   const [currentTab, setCurrentTab] = useState<Tab>('generator');
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const [showExport, setShowExport] = useState(false);
 
   // Generation Form State
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
@@ -119,7 +127,7 @@ const App: React.FC = () => {
       // We append the AI analysis to the copy text if desired, or keep it strict markdown.
       // Let's keep strict markdown as per previous request, but maybe add the analysis at the top?
       // User asked for "copy paste to word", so mixing the AI Analysis block (which is metadata) into the copy string might be good.
-      const textToCopy = `🤖 L'AVIS DE L'IA :\n${selectedReview.metadata.aiAnalysis}\n\n-------------------\n\n${selectedReview.content}`;
+      const textToCopy = `L'AVIS DE L'IA :\n${selectedReview.metadata.aiAnalysis}\n\n-------------------\n\n${selectedReview.content}`;
       navigator.clipboard.writeText(textToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -130,34 +138,56 @@ const App: React.FC = () => {
     <div className="flex space-x-1 bg-dark-800/50 p-1 rounded-xl mb-8 border border-slate-700/50 backdrop-blur-sm overflow-x-auto scrollbar-hide">
        <button 
          onClick={() => { setCurrentTab('generator'); setSelectedReview(null); }}
-         className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${currentTab === 'generator' && !selectedReview ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
+         className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${currentTab === 'generator' && !selectedReview ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
        >
-         ✨ Générateur
+         <Sparkles className="w-4 h-4" /> Générateur
+       </button>
+       <button 
+         onClick={() => { setCurrentTab('search'); setSelectedReview(null); }}
+         className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${currentTab === 'search' && !selectedReview ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
+       >
+         <SearchIcon className="w-4 h-4" /> Recherche
        </button>
        <button 
          onClick={() => { setCurrentTab('timeline'); setSelectedReview(null); }}
-         className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${currentTab === 'timeline' && !selectedReview ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
+         className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${currentTab === 'timeline' && !selectedReview ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
        >
-         📅 Timeline
+         <Calendar className="w-4 h-4" /> Timeline
+       </button>
+       <button 
+         onClick={() => { setCurrentTab('calendar'); setSelectedReview(null); }}
+         className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${currentTab === 'calendar' && !selectedReview ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
+       >
+         <Calendar className="w-4 h-4" /> Calendrier
+       </button>
+       <button 
+         onClick={() => { setCurrentTab('favorites'); setSelectedReview(null); }}
+         className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${currentTab === 'favorites' && !selectedReview ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
+       >
+         <Star className="w-4 h-4" /> Favoris
        </button>
        <button 
          onClick={() => { setCurrentTab('table'); setSelectedReview(null); }}
-         className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${currentTab === 'table' && !selectedReview ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
+         className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${currentTab === 'table' && !selectedReview ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
        >
-         📂 Historique
+         <FolderOpen className="w-4 h-4" /> Archives
        </button>
        <button 
          onClick={() => { setCurrentTab('stats'); setSelectedReview(null); }}
-         className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${currentTab === 'stats' && !selectedReview ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
+         className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${currentTab === 'stats' && !selectedReview ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
        >
-         📊 Stats
+         <BarChart3 className="w-4 h-4" /> Stats
        </button>
     </div>
   );
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-dark-900 text-slate-200 selection:bg-primary/30">
-      <Header />
+      <Header 
+        onSearchClick={() => setCurrentTab('search')}
+        onSettingsClick={() => setCurrentTab('settings')}
+        onAboutClick={() => setCurrentTab('about')}
+      />
 
       <main className="flex-grow container mx-auto px-4 py-8 md:py-10 max-w-5xl">
         
@@ -207,13 +237,13 @@ const App: React.FC = () => {
                  </div>
 
                  <div className="flex gap-4">
-                    <label className={`flex-1 border ${isPublic ? 'border-primary bg-primary/10 text-primary' : 'border-slate-700 bg-dark-900 text-slate-500 hover:bg-dark-800'} rounded-lg p-3 cursor-pointer transition-all text-center text-sm font-medium`}>
+                    <label className={`flex-1 border ${isPublic ? 'border-primary bg-primary/10 text-primary' : 'border-slate-700 bg-dark-900 text-slate-500 hover:bg-dark-800'} rounded-lg p-3 cursor-pointer transition-all text-center text-sm font-medium flex items-center justify-center gap-2`}>
                        <input type="radio" checked={isPublic} onChange={() => setIsPublic(true)} className="hidden" />
-                       🌍 Publique
+                       <Globe className="w-4 h-4" /> Publique
                     </label>
-                    <label className={`flex-1 border ${!isPublic ? 'border-primary bg-primary/10 text-primary' : 'border-slate-700 bg-dark-900 text-slate-500 hover:bg-dark-800'} rounded-lg p-3 cursor-pointer transition-all text-center text-sm font-medium`}>
+                    <label className={`flex-1 border ${!isPublic ? 'border-primary bg-primary/10 text-primary' : 'border-slate-700 bg-dark-900 text-slate-500 hover:bg-dark-800'} rounded-lg p-3 cursor-pointer transition-all text-center text-sm font-medium flex items-center justify-center gap-2`}>
                        <input type="radio" checked={!isPublic} onChange={() => setIsPublic(false)} className="hidden" />
-                       🔒 Privée
+                       <Lock className="w-4 h-4" /> Privée
                     </label>
                  </div>
 
@@ -259,6 +289,31 @@ const App: React.FC = () => {
           </div>
         )}
 
+        {/* VIEW: SEARCH */}
+        {currentTab === 'search' && !selectedReview && (
+          <Search reviews={reviews} onSelectReview={handleViewReview} />
+        )}
+
+        {/* VIEW: CALENDAR */}
+        {currentTab === 'calendar' && !selectedReview && (
+          <CalendarView reviews={reviews} onSelectReview={handleViewReview} />
+        )}
+
+        {/* VIEW: FAVORITES */}
+        {currentTab === 'favorites' && !selectedReview && (
+          <Favorites reviews={reviews} onSelectReview={handleViewReview} />
+        )}
+
+        {/* VIEW: SETTINGS */}
+        {currentTab === 'settings' && !selectedReview && (
+          <Settings onClose={() => setCurrentTab('generator')} />
+        )}
+
+        {/* VIEW: ABOUT */}
+        {currentTab === 'about' && !selectedReview && (
+          <About />
+        )}
+
         {/* VIEW: SINGLE REVIEW (Detail) */}
         {selectedReview && (
           <div className="animate-fade-in-up">
@@ -286,6 +341,13 @@ const App: React.FC = () => {
                             </span>
                         )}
                     </button>
+                    <button 
+                        onClick={() => setShowExport(!showExport)}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-primary hover:bg-primary/80 text-white rounded-lg text-xs font-medium transition-all"
+                    >
+                        <Star className="w-3 h-3" />
+                        Export
+                    </button>
                 </div>
             </div>
 
@@ -307,19 +369,26 @@ const App: React.FC = () => {
                </div>
             </div>
 
+            {/* Export Panel */}
+            {showExport && selectedReview && (
+              <div className="mb-8">
+                <Export review={selectedReview} />
+              </div>
+            )}
+
             {/* AI Opinion Block */}
             {selectedReview.metadata.aiAnalysis && (
               <div className="bg-gradient-to-r from-indigo-900/30 to-purple-900/30 border border-indigo-500/20 p-6 rounded-xl mb-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
-                   <svg className="w-24 h-24 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A2.5 2.5 0 0 0 5 15.5A2.5 2.5 0 0 0 7.5 18A2.5 2.5 0 0 0 10 15.5A2.5 2.5 0 0 0 7.5 13m9 0a2.5 2.5 0 0 0-2.5 2.5a2.5 2.5 0 0 0 2.5 2.5a2.5 2.5 0 0 0 2.5-2.5a2.5 2.5 0 0 0-2.5-2.5"/></svg>
+                   <Bot className="w-24 h-24 text-white" />
                 </div>
                 <div className="relative z-10 flex gap-4">
                   <div className="hidden md:flex w-12 h-12 bg-indigo-500/20 rounded-full items-center justify-center shrink-0 border border-indigo-500/40">
-                    <span className="text-2xl">🤖</span>
+                    <Bot className="w-6 h-6 text-indigo-300" />
                   </div>
                   <div>
                     <h3 className="text-indigo-300 font-bold text-lg mb-2 flex items-center gap-2">
-                       <span className="md:hidden">🤖</span> L'avis de l'IA
+                       <Bot className="w-5 h-5 md:hidden" /> L'avis de l'IA
                     </h3>
                     <p className="text-slate-200 italic leading-relaxed text-sm md:text-base font-medium">
                       "{selectedReview.metadata.aiAnalysis}"
