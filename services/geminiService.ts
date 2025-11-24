@@ -1,7 +1,14 @@
 import { GoogleGenAI } from "@google/genai";
 import { Review, Source, CategoryType } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Initialisation avec la clé API par défaut de l'application
+const defaultApiKey = process.env.API_KEY || '';
+let ai = new GoogleGenAI({ apiKey: defaultApiKey });
+
+// Fonction pour mettre à jour la clé API
+export const updateApiKey = (newApiKey: string) => {
+  ai = new GoogleGenAI({ apiKey: newApiKey });
+};
 
 // Helper for simple ID generation
 const generateId = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -46,10 +53,25 @@ export const generateTechReview = async (
   date: string, 
   username: string, 
   isPublic: boolean,
-  aiPreferences?: AiPreferences
+  aiPreferences?: AiPreferences,
+  useCustomApiKey: boolean = false
 ): Promise<Review> => {
-  if (!process.env.API_KEY) {
-    throw new Error("Clé API manquante.");
+  // Déterminer quelle clé API utiliser
+  let currentAiInstance = ai;
+  let apiKeyToUse = defaultApiKey;
+  
+  // Si l'utilisateur a configuré sa propre clé API et souhaite l'utiliser
+  if (useCustomApiKey) {
+    const customApiKey = localStorage.getItem('gemini_api_key');
+    if (customApiKey) {
+      currentAiInstance = new GoogleGenAI({ apiKey: customApiKey });
+      apiKeyToUse = customApiKey;
+    }
+  }
+
+  // Vérifier si une clé API est disponible
+  if (!apiKeyToUse) {
+    throw new Error("Clé API manquante. L'application nécessite une clé API Google Gemini pour fonctionner.");
   }
 
   const startTime = Date.now();
@@ -147,7 +169,7 @@ export const generateTechReview = async (
 
     // Exécuter la requête avec un timeout de 60 secondes
     const response = await Promise.race([
-      ai.models.generateContent({
+      currentAiInstance.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
@@ -239,8 +261,14 @@ export const generateTechReview = async (
 
     return review;
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erreur génération:", error);
+    
+    // Si l'erreur est liée à une limite d'API, suggérer d'utiliser une clé personnalisée
+    if (error.message && (error.message.includes('quota') || error.message.includes('limit'))) {
+      throw new Error("Limite d'utilisation de l'API atteinte. Veuillez configurer votre propre clé API Google Gemini dans les paramètres.");
+    }
+    
     throw error;
   }
 };

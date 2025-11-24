@@ -28,7 +28,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
   };
 
   const handleExport = async () => {
-    const { exportAllData } = await import('../services/apiService');
+    const { exportAllData } = await import('../services/storageService');
     const data = await exportAllData();
     
     const exportData = {
@@ -60,7 +60,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
         const data = JSON.parse(event.target?.result as string);
         
         // Importer les données
-        const { importData } = await import('../services/apiService');
+        const { importData } = await import('../services/storageService');
         await importData(data);
         
         // Importer les paramètres
@@ -107,20 +107,20 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
-                Clé API Google Gemini
+                Clé API Google Gemini (Optionnelle)
               </label>
               <input
                 type="password"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder="AIza..."
+                placeholder="AIza... (utilisée uniquement si la limite de l'API principale est atteinte)"
                 className="bg-dark-900 border border-slate-700 text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-3 placeholder-slate-600"
               />
               <p className="text-xs text-slate-500 mt-2">
                 Obtenez votre clé sur{' '}
                 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                   Google AI Studio
-                </a>
+                </a>. Cette clé sera utilisée uniquement si la limite de l'API principale est atteinte.
               </p>
             </div>
           </div>
@@ -161,15 +161,19 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
                     Publique
                   </span>
                 </label>
-                <label className={`flex-1 border ${defaultVisibility === 'private' ? 'border-primary bg-primary/10' : 'border-slate-700'} rounded-lg p-3 cursor-pointer transition-all`}>
+                <label className={`flex-1 border ${defaultVisibility === 'private' ? 'border-primary bg-primary/10' : 'border-slate-700'} rounded-lg p-3 cursor-not-allowed transition-all relative opacity-50`}>
                   <input
                     type="radio"
                     checked={defaultVisibility === 'private'}
                     onChange={() => setDefaultVisibility('private')}
                     className="hidden"
+                    disabled
                   />
                   <span className={defaultVisibility === 'private' ? 'text-primary font-medium' : 'text-slate-400'}>
                     Privée
+                  </span>
+                  <span className="absolute -top-2 -right-2 bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full">
+                    BIENTÔT
                   </span>
                 </label>
               </div>

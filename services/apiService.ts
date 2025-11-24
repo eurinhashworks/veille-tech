@@ -1,202 +1,42 @@
-// API Service - Interface entre le client et le stockage des données
-// Pour l'instant utilise localStorage, mais peut être facilement remplacé par des appels API
+import { generateTechReview } from './geminiService';
 
-import { Review } from '../types';
-
-const STORAGE_KEYS = {
-  REVIEWS: 'techpulse_reviews',
-  FAVORITES: 'techpulse_favorites',
-  SEARCH_HISTORY: 'techpulse_search_history',
-  USER: 'techpulse_current_user',
-};
-
-// ==================== REVIEWS ====================
-
-export const saveReviewToStorage = async (review: Review): Promise<Review> => {
-  const reviews = await getAllReviewsFromStorage();
-  const existingIndex = reviews.findIndex(r => r.metadata.id === review.metadata.id);
-  
-  if (existingIndex >= 0) {
-    reviews[existingIndex] = review;
-  } else {
-    reviews.unshift(review);
-  }
-  
-  localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(reviews));
-  return review;
-};
-
-export const getAllReviewsFromStorage = async (): Promise<Review[]> => {
-  const stored = localStorage.getItem(STORAGE_KEYS.REVIEWS);
-  if (!stored) return [];
-  
+/**
+ * Génère une revue technique avec gestion automatique des limites d'API
+ * @param date La date pour laquelle générer la revue
+ * @param username Le nom d'utilisateur
+ * @param isPublic Si la revue est publique
+ * @param aiPreferences Les préférences d'IA
+ * @returns La revue générée
+ */
+export const generateReviewWithLimitHandling = async (
+  date: string,
+  username: string,
+  isPublic: boolean,
+  aiPreferences?: any
+) => {
+  // D'abord, essayer avec la clé API par défaut
   try {
-    return JSON.parse(stored);
-  } catch {
-    return [];
-  }
-};
-
-export const getReviewByDate = async (date: string): Promise<Review | null> => {
-  const reviews = await getAllReviewsFromStorage();
-  return reviews.find(r => r.metadata.date === date) || null;
-};
-
-export const deleteReview = async (id: string): Promise<void> => {
-  const reviews = await getAllReviewsFromStorage();
-  const filtered = reviews.filter(r => r.metadata.id !== id);
-  localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(filtered));
-};
-
-// ==================== FAVORITES ====================
-
-export const getFavorites = async (): Promise<string[]> => {
-  const stored = localStorage.getItem(STORAGE_KEYS.FAVORITES);
-  if (!stored) return [];
-  
-  try {
-    return JSON.parse(stored);
-  } catch {
-    return [];
-  }
-};
-
-export const addFavorite = async (reviewId: string): Promise<void> => {
-  const favorites = await getFavorites();
-  if (!favorites.includes(reviewId)) {
-    favorites.push(reviewId);
-    localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(favorites));
-  }
-};
-
-export const removeFavorite = async (reviewId: string): Promise<void> => {
-  const favorites = await getFavorites();
-  const filtered = favorites.filter(id => id !== reviewId);
-  localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(filtered));
-};
-
-export const isFavorite = async (reviewId: string): Promise<boolean> => {
-  const favorites = await getFavorites();
-  return favorites.includes(reviewId);
-};
-
-// ==================== SEARCH HISTORY ====================
-
-export interface SearchHistoryEntry {
-  id: string;
-  query: string;
-  filters: any;
-  results: number;
-  timestamp: number;
-}
-
-export const saveSearchHistory = async (
-  query: string,
-  filters: any,
-  results: number
-): Promise<void> => {
-  const history = await getSearchHistory();
-  const entry: SearchHistoryEntry = {
-    id: Date.now().toString(),
-    query,
-    filters,
-    results,
-    timestamp: Date.now(),
-  };
-  
-  history.unshift(entry);
-  
-  // Garder seulement les 50 dernières recherches
-  const limited = history.slice(0, 50);
-  localStorage.setItem(STORAGE_KEYS.SEARCH_HISTORY, JSON.stringify(limited));
-};
-
-export const getSearchHistory = async (limit = 10): Promise<SearchHistoryEntry[]> => {
-  const stored = localStorage.getItem(STORAGE_KEYS.SEARCH_HISTORY);
-  if (!stored) return [];
-  
-  try {
-    const history = JSON.parse(stored);
-    return history.slice(0, limit);
-  } catch {
-    return [];
-  }
-};
-
-export const clearSearchHistory = async (): Promise<void> => {
-  localStorage.removeItem(STORAGE_KEYS.SEARCH_HISTORY);
-};
-
-// ==================== STATISTICS ====================
-
-export const getStatistics = async () => {
-  const reviews = await getAllReviewsFromStorage();
-  
-  const totalReviews = reviews.length;
-  const totalNews = reviews.reduce((sum, r) => sum + r.metadata.newsCount, 0);
-  const avgGenerationTime = reviews.length > 0
-    ? reviews.reduce((sum, r) => sum + r.metadata.generationTime, 0) / reviews.length
-    : 0;
-  
-  // Distribution par catégorie
-  const categoryDistribution: Record<string, number> = {
-    'Web': 0,
-    'Cloud': 0,
-    'DevOps': 0,
-    'Security': 0,
-    'IA': 0,
-    'Mix': 0,
-  };
-  
-  reviews.forEach(r => {
-    categoryDistribution[r.metadata.dominantCategory]++;
-  });
-  
-  // Top catégorie
-  const topCategory = Object.entries(categoryDistribution)
-    .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Mix';
-  
-  return {
-    totalReviews,
-    totalNews,
-    avgGenerationTime: parseFloat(avgGenerationTime.toFixed(2)),
-    categoryDistribution,
-    topCategory,
-  };
-};
-
-// ==================== EXPORT ====================
-
-export const exportAllData = async () => {
-  const reviews = await getAllReviewsFromStorage();
-  const favorites = await getFavorites();
-  const searchHistory = await getSearchHistory(50);
-  
-  return {
-    reviews,
-    favorites,
-    searchHistory,
-    exportDate: new Date().toISOString(),
-  };
-};
-
-export const importData = async (data: any): Promise<void> => {
-  if (data.reviews) {
-    localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(data.reviews));
-  }
-  if (data.favorites) {
-    localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(data.favorites));
-  }
-  if (data.searchHistory) {
-    localStorage.setItem(STORAGE_KEYS.SEARCH_HISTORY, JSON.stringify(data.searchHistory));
-  }
-};
-
-// ==================== INITIALIZATION ====================
-
-export const initializeWithMockData = async (mockReviews: Review[]): Promise<void> => {
-  const existing = await getAllReviewsFromStorage();
-  if (existing.length === 0) {
-    localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(mockReviews));
+    return await generateTechReview(date, username, isPublic, aiPreferences, false);
+  } catch (error: any) {
+    // Si l'erreur est liée à une limite d'API, essayer avec la clé personnalisée
+    if (error.message && (error.message.includes('Limite') || error.message.includes('quota') || error.message.includes('limit'))) {
+      const customApiKey = localStorage.getItem('gemini_api_key');
+      
+      // Vérifier si l'utilisateur a configuré une clé API personnalisée
+      if (customApiKey) {
+        try {
+          return await generateTechReview(date, username, isPublic, aiPreferences, true);
+        } catch (customKeyError) {
+          // Si la clé personnalisée échoue aussi, renvoyer l'erreur d'origine avec un message plus clair
+          throw new Error(`Impossible de générer la revue avec votre clé API personnalisée. ${customKeyError.message || 'Veuillez vérifier votre clé API dans les paramètres.'}`);
+        }
+      } else {
+        // Si l'utilisateur n'a pas de clé personnalisée, renvoyer un message explicite
+        throw new Error("Limite d'utilisation de l'API atteinte. Veuillez configurer votre propre clé API Google Gemini dans les paramètres pour continuer à générer des revues.");
+      }
+    }
+    
+    // Pour toutes les autres erreurs, les renvoyer telles quelles
+    throw error;
   }
 };

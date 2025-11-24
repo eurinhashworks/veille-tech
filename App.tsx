@@ -14,7 +14,7 @@ import CalendarView from './pages/CalendarView';
 import Favorites from './pages/Favorites';
 import Export from './pages/Export';
 import History from './pages/History';
-import { generateTechReview } from './services/geminiService';
+import { generateReviewWithLimitHandling } from './services/apiService';
 import { Review, GenerationStatus, CategoryType } from './types';
 import { useCurrentUser } from './hooks/useCurrentUser';
 import { incrementDailyVisitors, incrementCurrentVisitors, decrementCurrentVisitors } from './services/visitorService';
@@ -146,8 +146,8 @@ const App: React.FC = () => {
         });
       }, 500);
 
-      // Générer la nouvelle revue avec les paramètres d'IA personnalisés
-      const newReview = await generateTechReview(date, username || 'Anonyme', isPublic, {
+      // Générer la nouvelle revue avec gestion automatique des limites
+      const newReview = await generateReviewWithLimitHandling(date, username || 'Anonyme', isPublic, {
         style: aiStyle,
         tone: aiTone,
         depth: aiDepth
@@ -344,9 +344,12 @@ ${selectedReview.content}`;
                     <input type="radio" checked={isPublic} onChange={() => setIsPublic(true)} className="hidden" />
                     <Globe className="w-4 h-4" /> Publique
                   </label>
-                  <label className={`flex-1 border ${!isPublic ? 'border-primary bg-primary/10 text-primary' : 'border-slate-700 bg-dark-900 text-slate-500 hover:bg-dark-800'} rounded-lg p-3 cursor-pointer transition-all text-center text-sm font-medium flex items-center justify-center gap-2`}>
-                    <input type="radio" checked={!isPublic} onChange={() => setIsPublic(false)} className="hidden" />
+                  <label className={`flex-1 border ${!isPublic ? 'border-primary bg-primary/10 text-primary' : 'border-slate-700 bg-dark-900 text-slate-500 hover:bg-dark-800'} rounded-lg p-3 cursor-not-allowed transition-all text-center text-sm font-medium flex items-center justify-center gap-2 relative opacity-50`}>
+                    <input type="radio" checked={!isPublic} onChange={() => setIsPublic(false)} className="hidden" disabled />
                     <Lock className="w-4 h-4" /> Privée
+                    <span className="absolute -top-2 -right-2 bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full">
+                      BIENTÔT
+                    </span>
                   </label>
                 </div>
 
