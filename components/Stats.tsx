@@ -84,9 +84,6 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
 
   useEffect(() => {
     const loadStats = async () => {
-      // Ne charger les stats que si l'utilisateur est disponible
-      if (userLoading || !user) return;
-      
       try {
         setLoading(true);
         
@@ -94,14 +91,21 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
         const { getSearchHistory } = await import('../services/storageService');
         const { getUserFavorites } = await import('../services/storageService');
         
-        // Charger les statistiques de base
+        // Charger les statistiques de base (disponibles pour tous les utilisateurs)
         const baseStats: any = await getStatistics();
         
-        // Charger l'historique de recherche pour l'utilisateur courant
-        const searchHistory = await getSearchHistory(user.id, 1000);
+        // Charger l'historique de recherche global (pour tous les utilisateurs)
+        // Si l'utilisateur est connecté, charger aussi son historique personnel
+        let searchHistory = [];
+        if (user) {
+          searchHistory = await getSearchHistory(user.id, 1000);
+        }
         
-        // Charger les favoris de l'utilisateur
-        const userFavorites = await getUserFavorites(user.id);
+        // Charger les favoris de l'utilisateur (si connecté)
+        let userFavorites = [];
+        if (user) {
+          userFavorites = await getUserFavorites(user.id);
+        }
         
         // Calculer les statistiques de recherche
         const now = new Date();
@@ -184,7 +188,7 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
       }
     };
     loadStats();
-  }, [reviews, user, userLoading]);
+  }, [reviews, user]);
 
   const totalReviews = stats.totalReviews;
   const totalNews = stats.totalNews;

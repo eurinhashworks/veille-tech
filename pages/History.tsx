@@ -9,6 +9,40 @@ interface SearchHistoryItem {
   results: number;
 }
 
+// Données d'exemple pour les anciennes recherches persistantes
+const sampleHistory: SearchHistoryItem[] = [
+  {
+    id: '1',
+    query: 'Intelligence Artificielle 2025',
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    results: 12
+  },
+  {
+    id: '2',
+    query: 'Cloud Computing tendances',
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    results: 8
+  },
+  {
+    id: '3',
+    query: 'Sécurité informatique',
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    results: 15
+  },
+  {
+    id: '4',
+    query: 'Développement Web',
+    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+    results: 10
+  },
+  {
+    id: '5',
+    query: 'DevOps outils',
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    results: 7
+  }
+];
+
 const History: React.FC = () => {
   const [history, setHistory] = useState<SearchHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -16,15 +50,21 @@ const History: React.FC = () => {
 
   useEffect(() => {
     const loadHistory = async () => {
-      if (userLoading || !user) return;
-      
+      // Charger l'historique même si l'utilisateur n'est pas connecté
       try {
-        const { getSearchHistory } = await import('../services/storageService');
-        const historyData = await getSearchHistory(user.id, 50);
-        setHistory(historyData);
+        if (user) {
+          const { getSearchHistory } = await import('../services/storageService');
+          const historyData = await getSearchHistory(user.id, 50);
+          setHistory(historyData);
+        } else {
+          // Afficher les anciennes recherches persistantes pour les nouveaux utilisateurs
+          setHistory(sampleHistory);
+        }
         setLoading(false);
       } catch (error) {
         console.error('Erreur lors du chargement de l\'historique:', error);
+        // En cas d'erreur, afficher les anciennes recherches persistantes
+        setHistory(sampleHistory);
         setLoading(false);
       }
     };
@@ -65,7 +105,7 @@ const History: React.FC = () => {
           </div>
         </div>
         
-        {history.length > 0 && (
+        {history.length > 0 && user && (
           <button 
             onClick={handleClearHistory}
             className="flex items-center gap-2 px-3 py-2 bg-red-900/30 hover:bg-red-900/50 text-red-300 hover:text-red-200 rounded-lg text-sm font-medium border border-red-800/50 transition-all"

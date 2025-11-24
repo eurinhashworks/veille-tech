@@ -334,8 +334,15 @@ export const getStatistics = async (userId?: string) => {
     console.log('✅ Statistiques chargées depuis PostgreSQL');
     return stats;
   } catch (error) {
-    console.warn('⚠️ Erreur Prisma, fallback vers localStorage:', error);
-    return await getStatisticsFromStorage();
+    console.warn('⚠️ Erreur Prisma, fallback vers statistiques par défaut:', error);
+    // Retourner des statistiques par défaut pour que l'interface ne soit jamais vide
+    return {
+      totalReviews: 0,
+      totalNews: 0,
+      avgGenerationTime: 0,
+      categoryDistribution: {},
+      topCategory: 'Mix'
+    };
   }
 };
 

@@ -14,6 +14,7 @@ import CalendarView from './pages/CalendarView';
 import Favorites from './pages/Favorites';
 import Export from './pages/Export';
 import History from './pages/History';
+import TechBackground from './components/TechBackground';
 import { generateReviewWithLimitHandling } from './services/apiService';
 import { Review, GenerationStatus, CategoryType } from './types';
 import { useCurrentUser } from './hooks/useCurrentUser';
@@ -296,11 +297,15 @@ ${selectedReview.content}`;
   );
 
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-dark-900 text-slate-200 selection:bg-primary/30">
+    <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 text-white">
+      {/* Fond technologique */}
+      <TechBackground />
+      
+      {/* Header */}
       <Header 
+        currentTab={currentTab} 
+        onTabChange={setCurrentTab}
         onSearchClick={() => setCurrentTab('search')}
-        onSettingsClick={() => setCurrentTab('settings')}
-        onAboutClick={() => setCurrentTab('about')}
       />
 
       <main className="flex-grow container mx-auto px-4 py-8 md:py-10 max-w-5xl">
