@@ -61,8 +61,9 @@ const Search: React.FC<SearchProps> = ({ reviews, onSelectReview }) => {
     
     // Sauvegarder l'historique de recherche si une recherche est effectuée
     if (searchQuery || selectedCategory !== 'all' || selectedTags.length > 0 || dateFrom || dateTo) {
-      import('../services/apiService').then(({ saveSearchHistory }) => {
-        saveSearchHistory(searchQuery, {
+      import('../services/storageService').then(({ saveSearch }) => {
+        // TODO: Récupérer le vrai userId depuis le contexte utilisateur
+        saveSearch('anonymous', searchQuery, {
           category: selectedCategory,
           tags: selectedTags,
           dateFrom,

@@ -13,8 +13,9 @@ const Favorites: React.FC<FavoritesProps> = ({ reviews, onSelectReview }) => {
 
   useEffect(() => {
     const loadFavorites = async () => {
-      const { getFavorites } = await import('../services/apiService');
-      const favs = await getFavorites();
+      const { getUserFavorites } = await import('../services/storageService');
+      // TODO: Récupérer le vrai userId depuis le contexte utilisateur
+      const favs = await getUserFavorites('anonymous');
       setFavorites(favs);
     };
     loadFavorites();
@@ -23,8 +24,9 @@ const Favorites: React.FC<FavoritesProps> = ({ reviews, onSelectReview }) => {
   const favoriteReviews = reviews.filter(r => favorites.includes(r.metadata.id));
 
   const handleRemoveFavorite = async (id: string) => {
-    const { removeFavorite } = await import('../services/apiService');
-    await removeFavorite(id);
+    const { removeFromFavorites } = await import('../services/storageService');
+    // TODO: Récupérer le vrai userId depuis le contexte utilisateur
+    await removeFromFavorites('anonymous', id);
     setFavorites(prev => prev.filter(fav => fav !== id));
   };
 

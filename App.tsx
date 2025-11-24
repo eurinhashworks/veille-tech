@@ -94,16 +94,21 @@ const App: React.FC = () => {
   // Charger les données au démarrage
   useEffect(() => {
     const loadData = async () => {
-      // Importer le service API
-      const { getAllReviewsFromStorage, initializeWithMockData } = await import('./services/apiService');
-      
-      // Initialiser avec les mock data si vide
-      await initializeWithMockData(MOCK_REVIEWS);
-      
-      // Charger les revues
-      const storedReviews = await getAllReviewsFromStorage();
-      setReviews(storedReviews);
-      setLoading(false);
+      try {
+        // Utiliser le nouveau service de stockage avec Prisma
+        const { getAllReviews, initializeStorage } = await import('./services/storageService');
+        
+        // Initialiser avec les mock data si vide
+        await initializeStorage(MOCK_REVIEWS);
+        
+        // Charger les revues depuis la base de données
+        const dbReviews = await getAllReviews();
+        setReviews(dbReviews);
+        setLoading(false);
+      } catch (error) {
+        console.error('Erreur lors du chargement des données:', error);
+        setLoading(false);
+      }
     };
     
     loadData();
@@ -115,7 +120,7 @@ const App: React.FC = () => {
     setSelectedReview(null);
 
     try {
-      const { getReviewByDate, saveReviewToStorage, getAllReviewsFromStorage } = await import('./services/apiService');
+      const { getReviewByDate, saveReview, getAllReviews } = await import('./services/storageService');
       
       // Vérifier si une revue existe déjà pour cette date
       const existing = await getReviewByDate(date);
@@ -128,13 +133,14 @@ const App: React.FC = () => {
         return;
       }
 
-      const newReview = await generateTechReview(date, username, isPublic);
+      // Générer la nouvelle revue
+      const newReview = await generateTechReview(date, username || 'Anonyme', isPublic);
       
-      // Sauvegarder dans le storage
-      await saveReviewToStorage(newReview);
+      // Sauvegarder dans la base de données PostgreSQL via Prisma
+      await saveReview(newReview);
       
-      // Recharger toutes les revues
-      const updatedReviews = await getAllReviewsFromStorage();
+      // Recharger toutes les revues depuis la base de données
+      const updatedReviews = await getAllReviews();
       setReviews(updatedReviews);
       setSelectedReview(newReview);
       setStatus(GenerationStatus.SUCCESS);
@@ -371,12 +377,15 @@ const App: React.FC = () => {
                     <button 
                         onClick={async () => {
                           if (!selectedReview) return;
-                          const { isFavorite, addFavorite, removeFavorite } = await import('./services/apiService');
-                          const isFav = await isFavorite(selectedReview.metadata.id);
+                          const { getUserFavorites, addToFavorites, removeFromFavorites } = await import('./services/storageService');
+                          // TODO: Récupérer le vrai userId depuis le contexte utilisateur
+                          const userId = 'anonymous';
+                          const favs = await getUserFavorites(userId);
+                          const isFav = favs.includes(selectedReview.metadata.id);
                           if (isFav) {
-                            await removeFavorite(selectedReview.metadata.id);
+                            await removeFromFavorites(userId, selectedReview.metadata.id);
                           } else {
-                            await addFavorite(selectedReview.metadata.id);
+                            await addToFavorites(userId, selectedReview.metadata.id);
                           }
                         }}
                         className="flex items-center gap-2 px-3 py-1.5 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg text-xs font-medium transition-all"
