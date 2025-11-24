@@ -146,7 +146,7 @@ const App: React.FC = () => {
         });
       }, 500);
 
-      // Générer la nouvelle revue avec gestion automatique des limites
+      // Générer la nouvelle revue avec les paramètres d'IA personnalisés
       const newReview = await generateReviewWithLimitHandling(date, username || 'Anonyme', isPublic, {
         style: aiStyle,
         tone: aiTone,
@@ -167,6 +167,17 @@ const App: React.FC = () => {
       setSelectedReview(newReview);
       setStatus(GenerationStatus.SUCCESS);
       setProgressMessage('Analyse terminée !');
+      
+      // Ajouter automatiquement aux favoris si l'utilisateur est connecté
+      if (user) {
+        const { addToFavorites } = await import('./services/storageService');
+        try {
+          await addToFavorites(user.id, newReview.metadata.id);
+          console.log('✅ Revue ajoutée aux favoris');
+        } catch (favError) {
+          console.warn('⚠️ Impossible d\'ajouter aux favoris:', favError);
+        }
+      }
       
       // Réinitialiser après 2 secondes
       setTimeout(() => {
@@ -565,22 +576,25 @@ ${selectedReview.content}`;
                         )}
                     </button>
                     <button 
-                        onClick={async () => {
-                          if (!selectedReview) return;
-                          const { getUserFavorites, addToFavorites, removeFromFavorites } = await import('./services/storageService');
-                          if (!user) return;
-                          const favs = await getUserFavorites(user.id);
-                          const isFav = favs.includes(selectedReview.metadata.id);
-                          if (isFav) {
-                            await removeFromFavorites(user.id, selectedReview.metadata.id);
-                          } else {
-                            await addToFavorites(user.id, selectedReview.metadata.id);
-                          }
-                        }}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg text-xs font-medium transition-all"
+                      onClick={async () => {
+                        if (!selectedReview) return;
+                        if (!user) return;
+                        const { getUserFavorites, addToFavorites, removeFromFavorites } = await import('./services/storageService');
+                        const favs = await getUserFavorites(user.id);
+                        const isFav = favs.includes(selectedReview.metadata.id);
+                        if (isFav) {
+                          await removeFromFavorites(user.id, selectedReview.metadata.id);
+                        } else {
+                          await addToFavorites(user.id, selectedReview.metadata.id);
+                        }
+                        // Recharger les favoris
+                        const updatedFavs = await getUserFavorites(user.id);
+                        // Mettre à jour l'état si nécessaire
+                      }}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg text-xs font-medium transition-all"
                     >
-                        <Star className="w-3 h-3" />
-                        Favori
+                      <Star className="w-3 h-3" />
+                      Favori
                     </button>
                     <button 
                         onClick={() => setShowExport(!showExport)}
