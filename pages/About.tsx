@@ -1,5 +1,5 @@
 import React from 'react';
-import { Info, Zap, Github, Mail, BookOpen, ExternalLink } from 'lucide-react';
+import { Info, Zap, Mail, BookOpen } from 'lucide-react';
 
 const About: React.FC = () => {
   return (
@@ -66,21 +66,19 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Links */}
+      {/* Contact */}
       <section className="bg-dark-800 border border-slate-700 rounded-xl p-6">
-        <h3 className="text-xl font-semibold text-white mb-4">Liens utiles</h3>
+        <h3 className="text-xl font-semibold text-white mb-4">Contact</h3>
         <div className="space-y-3">
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" 
-             className="flex items-center gap-3 p-3 rounded-lg hover:bg-dark-900 transition-colors group">
-            <Github className="w-5 h-5 text-slate-400 group-hover:text-white" />
-            <span className="text-slate-300 group-hover:text-white">Code source sur GitHub</span>
-            <ExternalLink className="w-4 h-4 text-slate-500 ml-auto" />
-          </a>
           <a href="mailto:contact@eurinhash.com" 
              className="flex items-center gap-3 p-3 rounded-lg hover:bg-dark-900 transition-colors group">
             <Mail className="w-5 h-5 text-slate-400 group-hover:text-white" />
             <span className="text-slate-300 group-hover:text-white">contact@eurinhash.com</span>
           </a>
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-dark-900/50">
+            <Info className="w-5 h-5 text-slate-400" />
+            <span className="text-slate-400 text-sm">Pour toute question ou suggestion</span>
+          </div>
         </div>
       </section>
 
