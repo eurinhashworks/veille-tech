@@ -1,120 +1,63 @@
-import { prisma } from '../lib/prisma';
 import { Review } from '../types';
+
+const API_BASE = '/api';
+
+async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_BASE}${endpoint}`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...options,
+  });
+
+  if (!response.ok) {
+    throw new Error(`API Error: ${response.statusText}`);
+  }
+
+  return response.json();
+}
 
 // ==================== USER OPERATIONS ====================
 
 export const createUser = async (username: string, email?: string) => {
-  return await prisma.user.create({
-    data: {
-      username,
-      email,
-      settings: {
-        create: {
-          theme: 'dark',
-          defaultVisibility: 'public',
-          notifications: false,
-          autoGenerate: false,
-        },
-      },
-    },
-    include: {
-      settings: true,
-    },
+  return await fetchApi('/users', {
+    method: 'POST',
+    body: JSON.stringify({ username, email }),
   });
 };
 
 export const getUserByUsername = async (username: string) => {
-  return await prisma.user.findUnique({
-    where: { username },
-    include: {
-      settings: true,
-    },
-  });
+  return await fetchApi(`/users?username=${encodeURIComponent(username)}`);
 };
 
 export const getOrCreateUser = async (username: string) => {
-  let user = await getUserByUsername(username);
-  if (!user) {
-    user = await createUser(username);
+  try {
+    return await getUserByUsername(username);
+  } catch (error) {
+    // If not found (or other error), try to create
+    return await createUser(username);
   }
-  return user;
 };
 
 // ==================== REVIEW OPERATIONS ====================
 
 export const saveReview = async (review: Review, userId: string) => {
-  // Créer ou récupérer les tags
-  const tagOperations = review.metadata.tags.map(async (tagName) => {
-    return await prisma.tag.upsert({
-      where: { name: tagName },
-      update: {},
-      create: { name: tagName },
-    });
-  });
-
-  const tags = await Promise.all(tagOperations);
-
-  // Créer la revue
-  return await prisma.review.create({
-    data: {
-      id: review.metadata.id,
-      date: review.metadata.date,
-      formattedDate: review.metadata.formattedDate,
-      content: review.content,
-      flashSummary: review.metadata.flashSummary,
-      aiAnalysis: review.metadata.aiAnalysis,
-      dominantCategory: review.metadata.dominantCategory,
-      newsCount: review.metadata.newsCount,
-      generationTime: review.metadata.generationTime,
-      isPublic: review.metadata.isPublic,
-      userId,
-      tags: {
-        connect: tags.map((tag) => ({ id: tag.id })),
-      },
-      sources: {
-        create: review.sources.map((source) => ({
-          title: source.title,
-          uri: source.uri,
-        })),
-      },
-    },
-    include: {
-      tags: true,
-      sources: true,
-    },
+  return await fetchApi('/reviews', {
+    method: 'POST',
+    body: JSON.stringify({ review, userId }),
   });
 };
 
 export const getReviewByDate = async (date: string) => {
-  return await prisma.review.findUnique({
-    where: { date },
-    include: {
-      tags: true,
-      sources: true,
-      user: true,
-    },
-  });
+  return await fetchApi(`/reviews?date=${encodeURIComponent(date)}`);
 };
 
 export const getAllReviews = async (userId?: string, isPublic?: boolean) => {
-  return await prisma.review.findMany({
-    where: {
-      ...(userId && { userId }),
-      ...(isPublic !== undefined && { isPublic }),
-    },
-    include: {
-      tags: true,
-      sources: true,
-      user: {
-        select: {
-          username: true,
-        },
-      },
-    },
-    orderBy: {
-      date: 'desc',
-    },
-  });
+  const params = new URLSearchParams();
+  if (userId) params.append('userId', userId);
+  if (isPublic !== undefined) params.append('isPublic', String(isPublic));
+
+  return await fetchApi(`/reviews?${params.toString()}`);
 };
 
 export const getReviewsByDateRange = async (
@@ -122,22 +65,10 @@ export const getReviewsByDateRange = async (
   endDate: string,
   userId?: string
 ) => {
-  return await prisma.review.findMany({
-    where: {
-      date: {
-        gte: startDate,
-        lte: endDate,
-      },
-      ...(userId && { userId }),
-    },
-    include: {
-      tags: true,
-      sources: true,
-    },
-    orderBy: {
-      date: 'desc',
-    },
-  });
+  const params = new URLSearchParams({ startDate, endDate });
+  if (userId) params.append('userId', userId);
+
+  return await fetchApi(`/reviews?${params.toString()}`);
 };
 
 export const searchReviews = async (
@@ -150,103 +81,40 @@ export const searchReviews = async (
     userId?: string;
   }
 ) => {
-  return await prisma.review.findMany({
-    where: {
-      AND: [
-        // Recherche textuelle
-        {
-          OR: [
-            { content: { contains: query, mode: 'insensitive' } },
-            { flashSummary: { contains: query, mode: 'insensitive' } },
-            { aiAnalysis: { contains: query, mode: 'insensitive' } },
-          ],
-        },
-        // Filtres
-        ...(filters?.category && filters.category !== 'all'
-          ? [{ dominantCategory: filters.category }]
-          : []),
-        ...(filters?.tags && filters.tags.length > 0
-          ? [
-              {
-                tags: {
-                  some: {
-                    name: {
-                      in: filters.tags,
-                    },
-                  },
-                },
-              },
-            ]
-          : []),
-        ...(filters?.dateFrom ? [{ date: { gte: filters.dateFrom } }] : []),
-        ...(filters?.dateTo ? [{ date: { lte: filters.dateTo } }] : []),
-        ...(filters?.userId ? [{ userId: filters.userId }] : []),
-      ],
-    },
-    include: {
-      tags: true,
-      sources: true,
-      user: {
-        select: {
-          username: true,
-        },
-      },
-    },
-    orderBy: {
-      date: 'desc',
-    },
-  });
+  const params = new URLSearchParams({ q: query });
+  if (filters?.category) params.append('category', filters.category);
+  if (filters?.tags && filters.tags.length > 0) params.append('tags', filters.tags.join(','));
+  if (filters?.dateFrom) params.append('dateFrom', filters.dateFrom);
+  if (filters?.dateTo) params.append('dateTo', filters.dateTo);
+  if (filters?.userId) params.append('userId', filters.userId);
+
+  return await fetchApi(`/search?${params.toString()}`);
 };
 
 // ==================== FAVORITE OPERATIONS ====================
 
 export const addFavorite = async (userId: string, reviewId: string) => {
-  return await prisma.favorite.create({
-    data: {
-      userId,
-      reviewId,
-    },
+  return await fetchApi('/favorites', {
+    method: 'POST',
+    body: JSON.stringify({ userId, reviewId }),
   });
 };
 
 export const removeFavorite = async (userId: string, reviewId: string) => {
-  return await prisma.favorite.delete({
-    where: {
-      userId_reviewId: {
-        userId,
-        reviewId,
-      },
-    },
+  return await fetchApi(`/favorites?userId=${userId}&reviewId=${reviewId}`, {
+    method: 'DELETE',
   });
 };
 
 export const getFavorites = async (userId: string) => {
-  return await prisma.favorite.findMany({
-    where: { userId },
-    include: {
-      review: {
-        include: {
-          tags: true,
-          sources: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+  return await fetchApi(`/favorites?userId=${userId}`);
 };
 
 export const isFavorite = async (userId: string, reviewId: string) => {
-  const favorite = await prisma.favorite.findUnique({
-    where: {
-      userId_reviewId: {
-        userId,
-        reviewId,
-      },
-    },
-  });
-  return !!favorite;
+  const result = await fetchApi<{ isFavorite: boolean }>(
+    `/favorites?userId=${userId}&reviewId=${reviewId}&check=true`
+  );
+  return result.isFavorite;
 };
 
 // ==================== SEARCH HISTORY OPERATIONS ====================
@@ -257,29 +125,19 @@ export const saveSearchHistory = async (
   filters: any,
   results: number
 ) => {
-  return await prisma.searchHistory.create({
-    data: {
-      userId,
-      query,
-      filters,
-      results,
-    },
+  return await fetchApi('/history', {
+    method: 'POST',
+    body: JSON.stringify({ userId, query, filters, results }),
   });
 };
 
 export const getSearchHistory = async (userId: string, limit = 10) => {
-  return await prisma.searchHistory.findMany({
-    where: { userId },
-    orderBy: {
-      createdAt: 'desc',
-    },
-    take: limit,
-  });
+  return await fetchApi(`/history?userId=${userId}&limit=${limit}`);
 };
 
 export const clearSearchHistory = async (userId: string) => {
-  return await prisma.searchHistory.deleteMany({
-    where: { userId },
+  return await fetchApi(`/history?userId=${userId}`, {
+    method: 'DELETE',
   });
 };
 
@@ -294,98 +152,30 @@ export const updateUserSettings = async (
     autoGenerate?: boolean;
   }
 ) => {
-  return await prisma.userSettings.upsert({
-    where: { userId },
-    update: settings,
-    create: {
-      userId,
-      ...settings,
-    },
+  return await fetchApi('/settings', {
+    method: 'POST',
+    body: JSON.stringify({ userId, settings }),
   });
 };
 
 export const getUserSettings = async (userId: string) => {
-  return await prisma.userSettings.findUnique({
-    where: { userId },
-  });
+  return await fetchApi(`/settings?userId=${userId}`);
 };
 
 // ==================== STATISTICS ====================
 
 export const getReviewStats = async (userId?: string) => {
-  const where = userId ? { userId } : {};
-
-  const [totalReviews, totalNews, avgGenerationTime, categoryDistribution] =
-    await Promise.all([
-      prisma.review.count({ where }),
-      prisma.review.aggregate({
-        where,
-        _sum: {
-          newsCount: true,
-        },
-      }),
-      prisma.review.aggregate({
-        where,
-        _avg: {
-          generationTime: true,
-        },
-      }),
-      prisma.review.groupBy({
-        by: ['dominantCategory'],
-        where,
-        _count: {
-          dominantCategory: true,
-        },
-      }),
-    ]);
-
-  return {
-    totalReviews,
-    totalNews: totalNews._sum.newsCount || 0,
-    avgGenerationTime: avgGenerationTime._avg.generationTime || 0,
-    categoryDistribution: categoryDistribution.reduce(
-      (acc, item) => {
-        acc[item.dominantCategory] = item._count.dominantCategory;
-        return acc;
-      },
-      {} as Record<string, number>
-    ),
-  };
+  const params = new URLSearchParams();
+  if (userId) params.append('userId', userId);
+  return await fetchApi(`/stats?${params.toString()}`);
 };
 
 // ==================== TAGS ====================
 
 export const getAllTags = async () => {
-  return await prisma.tag.findMany({
-    include: {
-      _count: {
-        select: {
-          reviews: true,
-        },
-      },
-    },
-    orderBy: {
-      reviews: {
-        _count: 'desc',
-      },
-    },
-  });
+  return await fetchApi('/tags');
 };
 
 export const getPopularTags = async (limit = 10) => {
-  return await prisma.tag.findMany({
-    include: {
-      _count: {
-        select: {
-          reviews: true,
-        },
-      },
-    },
-    orderBy: {
-      reviews: {
-        _count: 'desc',
-      },
-    },
-    take: limit,
-  });
+  return await fetchApi(`/tags?limit=${limit}`);
 };
