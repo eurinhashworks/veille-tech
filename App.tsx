@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sparkles, Calendar, FolderOpen, BarChart3, Globe, Lock, Bot, Search as SearchIcon, Star, Settings as SettingsIcon, Info, Clock } from 'lucide-react';
 import Header from './components/Header';
 import Button from './components/Button';
+import Spinner from './components/Spinner';
 import MarkdownViewer from './components/MarkdownViewer';
 import Timeline from './components/Timeline';
 import HistoryTable from './components/HistoryTable';
@@ -44,6 +45,10 @@ const App: React.FC = () => {
   const [aiTone, setAiTone] = useState<'formal' | 'casual' | 'humorous' | 'serious'>('formal');
   const [aiDepth, setAiDepth] = useState<'brief' | 'detailed' | 'comprehensive'>('detailed');
   const [showAiSettings, setShowAiSettings] = useState(false);
+  
+  // État de progression
+  const [progress, setProgress] = useState<number>(0);
+  const [progressMessage, setProgressMessage] = useState<string>('');
 
   // Charger les données au démarrage
   useEffect(() => {
@@ -103,6 +108,8 @@ const App: React.FC = () => {
     setStatus(GenerationStatus.LOADING);
     setError(null);
     setSelectedReview(null);
+    setProgress(0);
+    setProgressMessage('Initialisation de l\'analyse...');
 
     try {
       const { getReviewByDate, saveReview, getAllReviews } = await import('./services/storageService');
@@ -118,12 +125,38 @@ const App: React.FC = () => {
         return;
       }
 
+      // Simuler la progression pendant la génération
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+          if (prev < 90) {
+            // Messages de progression
+            const messages = [
+              'Recherche des actualités du jour...',
+              'Analyse des tendances technologiques...',
+              'Extraction des données pertinentes...',
+              'Structuration du contenu...',
+              'Génération de l\'analyse IA...',
+              'Finalisation de la revue...'
+            ];
+            const messageIndex = Math.floor(prev / 15);
+            setProgressMessage(messages[messageIndex] || messages[messages.length - 1]);
+            return prev + Math.random() * 5;
+          }
+          return prev;
+        });
+      }, 500);
+
       // Générer la nouvelle revue avec les paramètres d'IA personnalisés
       const newReview = await generateTechReview(date, username || 'Anonyme', isPublic, {
         style: aiStyle,
         tone: aiTone,
         depth: aiDepth
       });
+      
+      // Arrêter la simulation de progression
+      clearInterval(progressInterval);
+      setProgress(100);
+      setProgressMessage('Finalisation...');
       
       // Sauvegarder dans la base de données PostgreSQL via Prisma
       await saveReview(newReview);
@@ -133,9 +166,18 @@ const App: React.FC = () => {
       setReviews(updatedReviews);
       setSelectedReview(newReview);
       setStatus(GenerationStatus.SUCCESS);
+      setProgressMessage('Analyse terminée !');
+      
+      // Réinitialiser après 2 secondes
+      setTimeout(() => {
+        setProgress(0);
+        setProgressMessage('');
+      }, 2000);
     } catch (err: any) {
       setStatus(GenerationStatus.ERROR);
       setError(err.message || "Une erreur est survenue.");
+      setProgress(0);
+      setProgressMessage('');
     }
   };
 
@@ -275,145 +317,165 @@ ${selectedReview.content}`;
                {/* Background Glow */}
                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -z-10 -mr-16 -mt-16 transition-opacity opacity-75 group-hover:opacity-100"></div>
 
-               <div className="space-y-6">
-                 <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Date de la revue</label>
-                    <input 
-                      type="date" 
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      className="bg-dark-900 border border-slate-700 text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-3 transition-colors"
-                    />
-                 </div>
-                 
-                 <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">Votre pseudo (optionnel)</label>
-                    <input 
-                      type="text" 
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      placeholder="Anonyme"
-                      className="bg-dark-900 border border-slate-700 text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-3 placeholder-slate-600 transition-colors"
-                    />
-                 </div>
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Date de la revue</label>
+                  <input 
+                    type="date" 
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="bg-dark-900 border border-slate-700 text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-3 transition-colors"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Votre pseudo (optionnel)</label>
+                  <input 
+                    type="text" 
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Anonyme"
+                    className="bg-dark-900 border border-slate-700 text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-3 placeholder-slate-600 transition-colors"
+                  />
+                </div>
 
-                 <div className="flex gap-4">
-                    <label className={`flex-1 border ${isPublic ? 'border-primary bg-primary/10 text-primary' : 'border-slate-700 bg-dark-900 text-slate-500 hover:bg-dark-800'} rounded-lg p-3 cursor-pointer transition-all text-center text-sm font-medium flex items-center justify-center gap-2`}>
-                       <input type="radio" checked={isPublic} onChange={() => setIsPublic(true)} className="hidden" />
-                       <Globe className="w-4 h-4" /> Publique
-                    </label>
-                    <label className={`flex-1 border ${!isPublic ? 'border-primary bg-primary/10 text-primary' : 'border-slate-700 bg-dark-900 text-slate-500 hover:bg-dark-800'} rounded-lg p-3 cursor-pointer transition-all text-center text-sm font-medium flex items-center justify-center gap-2`}>
-                       <input type="radio" checked={!isPublic} onChange={() => setIsPublic(false)} className="hidden" />
-                       <Lock className="w-4 h-4" /> Privée
-                    </label>
-                 </div>
+                <div className="flex gap-4">
+                  <label className={`flex-1 border ${isPublic ? 'border-primary bg-primary/10 text-primary' : 'border-slate-700 bg-dark-900 text-slate-500 hover:bg-dark-800'} rounded-lg p-3 cursor-pointer transition-all text-center text-sm font-medium flex items-center justify-center gap-2`}>
+                    <input type="radio" checked={isPublic} onChange={() => setIsPublic(true)} className="hidden" />
+                    <Globe className="w-4 h-4" /> Publique
+                  </label>
+                  <label className={`flex-1 border ${!isPublic ? 'border-primary bg-primary/10 text-primary' : 'border-slate-700 bg-dark-900 text-slate-500 hover:bg-dark-800'} rounded-lg p-3 cursor-pointer transition-all text-center text-sm font-medium flex items-center justify-center gap-2`}>
+                    <input type="radio" checked={!isPublic} onChange={() => setIsPublic(false)} className="hidden" />
+                    <Lock className="w-4 h-4" /> Privée
+                  </label>
+                </div>
 
-                 {/* Paramètres d'IA personnalisés */}
-                 <div className="border-t border-slate-700/50 pt-4">
-                   <button 
-                     onClick={() => setShowAiSettings(!showAiSettings)}
-                     className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm w-full"
-                   >
-                     <SettingsIcon className="w-4 h-4" />
-                     Personnaliser le style de l'IA
-                     <span className="ml-auto">
-                       {showAiSettings ? '▲' : '▼'}
-                     </span>
-                   </button>
+                {/* Paramètres d'IA personnalisés */}
+                <div className="border-t border-slate-700/50 pt-4">
+                  <button 
+                    onClick={() => setShowAiSettings(!showAiSettings)}
+                    className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm w-full"
+                  >
+                    <SettingsIcon className="w-4 h-4" />
+                    Personnaliser le style de l'IA
+                    <span className="ml-auto">
+                      {showAiSettings ? '▲' : '▼'}
+                    </span>
+                  </button>
 
-                   {showAiSettings && (
-                     <div className="mt-4 space-y-4">
-                       <div>
-                         <label className="block text-sm font-medium text-slate-300 mb-2">Style d'analyse</label>
-                         <div className="grid grid-cols-2 gap-2">
-                           {([
-                             { value: 'analytical', label: 'Analytique', desc: 'Approche factuelle et logique' },
-                             { value: 'creative', label: 'Créatif', desc: 'Perspective originale et imaginative' },
-                             { value: 'technical', label: 'Technique', desc: 'Détails techniques approfondis' },
-                             { value: 'executive', label: 'Stratégique', desc: 'Focus sur l\'impact business' }
-                           ] as const).map((option) => (
-                             <button
-                               key={option.value}
-                               onClick={() => handleAiStyleChange(option.value)}
-                               className={`p-3 rounded-lg text-left transition-all ${
-                                 aiStyle === option.value
-                                   ? 'bg-primary/20 border border-primary text-white'
-                                   : 'bg-dark-900 border border-slate-700 text-slate-300 hover:border-slate-600'
-                               }`}
-                             >
-                               <div className="font-medium text-sm">{option.label}</div>
-                               <div className="text-xs opacity-75 mt-1">{option.desc}</div>
-                             </button>
-                           ))}
-                         </div>
-                       </div>
+                  {showAiSettings && (
+                    <div className="mt-4 space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-2">Style d'analyse</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {([
+                            { value: 'analytical', label: 'Analytique', desc: 'Approche factuelle et logique' },
+                            { value: 'creative', label: 'Créatif', desc: 'Perspective originale et imaginative' },
+                            { value: 'technical', label: 'Technique', desc: 'Détails techniques approfondis' },
+                            { value: 'executive', label: 'Stratégique', desc: 'Focus sur l\'impact business' }
+                          ] as const).map((option) => (
+                            <button
+                              key={option.value}
+                              onClick={() => handleAiStyleChange(option.value)}
+                              className={`p-3 rounded-lg text-left transition-all ${
+                                aiStyle === option.value
+                                  ? 'bg-primary/20 border border-primary text-white'
+                                  : 'bg-dark-900 border border-slate-700 text-slate-300 hover:border-slate-600'
+                              }`}
+                            >
+                              <div className="font-medium text-sm">{option.label}</div>
+                              <div className="text-xs opacity-75 mt-1">{option.desc}</div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
 
-                       <div>
-                         <label className="block text-sm font-medium text-slate-300 mb-2">Ton de l'IA</label>
-                         <div className="grid grid-cols-2 gap-2">
-                           {([
-                             { value: 'formal', label: 'Formel', desc: 'Langage professionnel' },
-                             { value: 'casual', label: 'Décontracté', desc: 'Ton conversationnel' },
-                             { value: 'humorous', label: 'Humoristique', desc: 'Avec touches d\'humour' },
-                             { value: 'serious', label: 'Sérieux', desc: 'Ton direct et grave' }
-                           ] as const).map((option) => (
-                             <button
-                               key={option.value}
-                               onClick={() => handleAiToneChange(option.value)}
-                               className={`p-3 rounded-lg text-left transition-all ${
-                                 aiTone === option.value
-                                   ? 'bg-primary/20 border border-primary text-white'
-                                   : 'bg-dark-900 border border-slate-700 text-slate-300 hover:border-slate-600'
-                               }`}
-                             >
-                               <div className="font-medium text-sm">{option.label}</div>
-                               <div className="text-xs opacity-75 mt-1">{option.desc}</div>
-                             </button>
-                           ))}
-                         </div>
-                       </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-2">Ton de l'IA</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {([
+                            { value: 'formal', label: 'Formel', desc: 'Langage professionnel' },
+                            { value: 'casual', label: 'Décontracté', desc: 'Ton conversationnel' },
+                            { value: 'humorous', label: 'Humoristique', desc: 'Avec touches d\'humour' },
+                            { value: 'serious', label: 'Sérieux', desc: 'Ton direct et grave' }
+                          ] as const).map((option) => (
+                            <button
+                              key={option.value}
+                              onClick={() => handleAiToneChange(option.value)}
+                              className={`p-3 rounded-lg text-left transition-all ${
+                                aiTone === option.value
+                                  ? 'bg-primary/20 border border-primary text-white'
+                                  : 'bg-dark-900 border border-slate-700 text-slate-300 hover:border-slate-600'
+                              }`}
+                            >
+                              <div className="font-medium text-sm">{option.label}</div>
+                              <div className="text-xs opacity-75 mt-1">{option.desc}</div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
 
-                       <div>
-                         <label className="block text-sm font-medium text-slate-300 mb-2">Profondeur</label>
-                         <div className="grid grid-cols-3 gap-2">
-                           {([
-                             { value: 'brief', label: 'Concis', desc: 'Essentiel uniquement' },
-                             { value: 'detailed', label: 'Détaillé', desc: 'Bon équilibre' },
-                             { value: 'comprehensive', label: 'Complet', desc: 'Analyse approfondie' }
-                           ] as const).map((option) => (
-                             <button
-                               key={option.value}
-                               onClick={() => handleAiDepthChange(option.value)}
-                               className={`p-3 rounded-lg text-left transition-all ${
-                                 aiDepth === option.value
-                                   ? 'bg-primary/20 border border-primary text-white'
-                                   : 'bg-dark-900 border border-slate-700 text-slate-300 hover:border-slate-600'
-                               }`}
-                             >
-                               <div className="font-medium text-sm">{option.label}</div>
-                               <div className="text-xs opacity-75 mt-1">{option.desc}</div>
-                             </button>
-                           ))}
-                         </div>
-                       </div>
-                     </div>
-                   )}
-                 </div>
-
-                 <Button 
-                    onClick={handleGenerate} 
-                    isLoading={status === GenerationStatus.LOADING}
-                    className="w-full h-12 text-lg"
-                 >
-                    {status === GenerationStatus.LOADING ? 'Analyse de l\'actualité...' : 'Générer la revue'}
-                 </Button>
-
-                 {status === GenerationStatus.ERROR && (
-                    <div className="p-3 bg-red-900/20 border border-red-800 rounded text-red-300 text-sm text-center">
-                       {error}
+                      <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-2">Profondeur</label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {([
+                            { value: 'brief', label: 'Concis', desc: 'Essentiel uniquement' },
+                            { value: 'detailed', label: 'Détaillé', desc: 'Bon équilibre' },
+                            { value: 'comprehensive', label: 'Complet', desc: 'Analyse approfondie' }
+                          ] as const).map((option) => (
+                            <button
+                              key={option.value}
+                              onClick={() => handleAiDepthChange(option.value)}
+                              className={`p-3 rounded-lg text-left transition-all ${
+                                aiDepth === option.value
+                                  ? 'bg-primary/20 border border-primary text-white'
+                                  : 'bg-dark-900 border border-slate-700 text-slate-300 hover:border-slate-600'
+                              }`}
+                            >
+                              <div className="font-medium text-sm">{option.label}</div>
+                              <div className="text-xs opacity-75 mt-1">{option.desc}</div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                 )}
-               </div>
+                  )}
+                </div>
+
+                {/* Indicateur de progression */}
+                {status === GenerationStatus.LOADING && (
+                  <div className="bg-dark-900/50 border border-slate-700 rounded-xl p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-300 text-sm font-medium">{progressMessage}</span>
+                      <span className="text-primary font-mono text-sm">{Math.round(progress)}%</span>
+                    </div>
+                    <div className="w-full bg-slate-800 rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-primary to-accent-ia h-2 rounded-full transition-all duration-300 ease-out"
+                        style={{ width: `${progress}%` }}
+                      ></div>
+                    </div>
+                    <div className="flex justify-center">
+                      <Spinner size="md" color="primary" />
+                    </div>
+                  </div>
+                )}
+
+                <Button 
+                  onClick={handleGenerate} 
+                  isLoading={status === GenerationStatus.LOADING}
+                  disabled={status === GenerationStatus.LOADING}
+                  className="w-full h-12 text-lg"
+                >
+                  {status === GenerationStatus.LOADING ? 'Analyse en cours...' : 'Générer la revue'}
+                </Button>
+
+                {status === GenerationStatus.ERROR && (
+                  <div className="p-3 bg-red-900/20 border border-red-800 rounded text-red-300 text-sm text-center">
+                    {error}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

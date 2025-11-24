@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Activity, Clock, Search, Calendar, Users, Eye } from 'lucide-react';
 import { Review } from '../types';
 import { useCurrentUser } from '../hooks/useCurrentUser';
+import Spinner from './Spinner';
 
 interface StatsProps {
   reviews: Review[];
@@ -51,94 +52,105 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
   
   // Utiliser le hook utilisateur pour obtenir l'utilisateur courant
   const { user, loading: userLoading } = useCurrentUser();
+  
+  // État de chargement
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadStats = async () => {
       // Ne charger les stats que si l'utilisateur est disponible
       if (userLoading || !user) return;
       
-      const { getStatistics } = await import('../services/storageService');
-      const { getSearchHistory } = await import('../services/storageService');
-      
-      // Charger les statistiques de base
-      const baseStats: any = await getStatistics();
-      
-      // Charger l'historique de recherche pour l'utilisateur courant
-      const searchHistory = await getSearchHistory(user.id, 1000);
-      
-      // Calculer les statistiques de recherche
-      const now = new Date();
-      const today = now.toDateString();
-      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      
-      const searchesToday = searchHistory.filter((s: any) => 
-        new Date(s.timestamp || s.createdAt).toDateString() === today
-      ).length;
-      
-      const searchesThisWeek = searchHistory.filter((s: any) => 
-        new Date(s.timestamp || s.createdAt) >= weekAgo
-      ).length;
-      
-      const searchesThisMonth = searchHistory.filter((s: any) => 
-        new Date(s.timestamp || s.createdAt) >= monthAgo
-      ).length;
-      
-      // Calculer les revues récentes
-      const reviewsThisWeek = reviews.filter(r => 
-        new Date(r.metadata.date) >= weekAgo
-      ).length;
-      
-      const reviewsThisMonth = reviews.filter(r => 
-        new Date(r.metadata.date) >= monthAgo
-      ).length;
-      
-      // Calculer la moyenne de news par revue
-      const avgNewsPerReview = reviews.length > 0 
-        ? Math.round(reviews.reduce((sum, r) => sum + r.metadata.newsCount, 0) / reviews.length)
-        : 0;
-      
-      // Trouver le jour le plus actif
-      const dayCount: Record<string, number> = {};
-      reviews.forEach(r => {
-        const day = new Date(r.metadata.date).toLocaleDateString('fr-FR', { weekday: 'long' });
-        dayCount[day] = (dayCount[day] || 0) + 1;
-      });
-      const mostActiveDay = Object.entries(dayCount).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
-      
-      // Distribution des tags
-      const tagDist: Record<string, number> = {};
-      reviews.forEach(r => {
-        r.metadata.tags.forEach(tag => {
-          tagDist[tag] = (tagDist[tag] || 0) + 1;
+      try {
+        setLoading(true);
+        
+        const { getStatistics } = await import('../services/storageService');
+        const { getSearchHistory } = await import('../services/storageService');
+        
+        // Charger les statistiques de base
+        const baseStats: any = await getStatistics();
+        
+        // Charger l'historique de recherche pour l'utilisateur courant
+        const searchHistory = await getSearchHistory(user.id, 1000);
+        
+        // Calculer les statistiques de recherche
+        const now = new Date();
+        const today = now.toDateString();
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        
+        const searchesToday = searchHistory.filter((s: any) => 
+          new Date(s.timestamp || s.createdAt).toDateString() === today
+        ).length;
+        
+        const searchesThisWeek = searchHistory.filter((s: any) => 
+          new Date(s.timestamp || s.createdAt) >= weekAgo
+        ).length;
+        
+        const searchesThisMonth = searchHistory.filter((s: any) => 
+          new Date(s.timestamp || s.createdAt) >= monthAgo
+        ).length;
+        
+        // Calculer les revues récentes
+        const reviewsThisWeek = reviews.filter(r => 
+          new Date(r.metadata.date) >= weekAgo
+        ).length;
+        
+        const reviewsThisMonth = reviews.filter(r => 
+          new Date(r.metadata.date) >= monthAgo
+        ).length;
+        
+        // Calculer la moyenne de news par revue
+        const avgNewsPerReview = reviews.length > 0 
+          ? Math.round(reviews.reduce((sum, r) => sum + r.metadata.newsCount, 0) / reviews.length)
+          : 0;
+        
+        // Trouver le jour le plus actif
+        const dayCount: Record<string, number> = {};
+        reviews.forEach(r => {
+          const day = new Date(r.metadata.date).toLocaleDateString('fr-FR', { weekday: 'long' });
+          dayCount[day] = (dayCount[day] || 0) + 1;
         });
-      });
-      
-      // Charger les statistiques des visiteurs
-      const { getDailyVisitorStats, getTotalVisitors, getCurrentVisitors } = await import('../services/visitorService');
-      const dailyStats = await getDailyVisitorStats();
-      const totalVisitors = await getTotalVisitors();
-      const currentVisitors = await getCurrentVisitors();
-      
-      setStats({
-        totalReviews: baseStats.totalReviews,
-        totalNews: baseStats.totalNews,
-        avgGenerationTime: baseStats.avgGenerationTime,
-        categoryDistribution: baseStats.categoryDistribution,
-        topCategory: baseStats.topCategory,
-        searchesToday,
-        searchesThisWeek,
-        searchesThisMonth,
-        totalSearches: searchHistory.length,
-        reviewsThisWeek,
-        reviewsThisMonth,
-        avgNewsPerReview,
-        mostActiveDay,
-        tagDistribution: tagDist,
-        dailyVisitors: dailyStats?.count || 0,
-        totalVisitors,
-        currentVisitors
-      });
+        const mostActiveDay = Object.entries(dayCount).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
+        
+        // Distribution des tags
+        const tagDist: Record<string, number> = {};
+        reviews.forEach(r => {
+          r.metadata.tags.forEach(tag => {
+            tagDist[tag] = (tagDist[tag] || 0) + 1;
+          });
+        });
+        
+        // Charger les statistiques des visiteurs
+        const { getDailyVisitorStats, getTotalVisitors, getCurrentVisitors } = await import('../services/visitorService');
+        const dailyStats = await getDailyVisitorStats();
+        const totalVisitors = await getTotalVisitors();
+        const currentVisitors = await getCurrentVisitors();
+        
+        setStats({
+          totalReviews: baseStats.totalReviews,
+          totalNews: baseStats.totalNews,
+          avgGenerationTime: baseStats.avgGenerationTime,
+          categoryDistribution: baseStats.categoryDistribution,
+          topCategory: baseStats.topCategory,
+          searchesToday,
+          searchesThisWeek,
+          searchesThisMonth,
+          totalSearches: searchHistory.length,
+          reviewsThisWeek,
+          reviewsThisMonth,
+          avgNewsPerReview,
+          mostActiveDay,
+          tagDistribution: tagDist,
+          dailyVisitors: dailyStats?.count || 0,
+          totalVisitors,
+          currentVisitors
+        });
+      } catch (error) {
+        console.error('Erreur lors du chargement des statistiques:', error);
+      } finally {
+        setLoading(false);
+      }
     };
     loadStats();
   }, [reviews, user, userLoading]);
@@ -152,6 +164,15 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
   const topTags = Object.entries(stats.tagDistribution)
     .sort((a, b) => (b[1] as number) - (a[1] as number))
     .slice(0, 5);
+
+  if (loading || userLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16">
+        <Spinner size="lg" color="primary" />
+        <p className="text-slate-400 mt-4">Chargement des statistiques...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

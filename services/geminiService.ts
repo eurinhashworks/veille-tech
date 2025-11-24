@@ -141,15 +141,25 @@ export const generateTechReview = async (
   `;
 
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: {
-        tools: [{ googleSearch: {} }],
-      },
-    });
+    // Créer un contrôleur d'abandon pour pouvoir annuler la requête si nécessaire
+    const controller = new AbortController();
+    const { signal } = controller;
 
-    const text = response.text || "";
+    // Exécuter la requête avec un timeout de 60 secondes
+    const response = await Promise.race([
+      ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+        config: {
+          tools: [{ googleSearch: {} }],
+        },
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout: La génération prend trop de temps')), 60000)
+      )
+    ]);
+
+    const text = (response as any).text || "";
     
     // 1. Extract Metadata (JSON)
     let parsedMeta: any = {
@@ -187,12 +197,12 @@ export const generateTechReview = async (
         // Fallback: remove metadata part and take the rest
         markdownContent = text.replace(/---METADATA---[\s\S]*?---END METADATA---/, '').trim();
         // Cleanup accidental code blocks
-        markdownContent = markdownContent.replace(/```json/g, '').replace(/```markdown/g, '').replace(/```/g, '').trim();
+        markdownContent = markdownContent.replace(/```json/g, '').replace(/```/g, '').trim();
     }
     
     // Extract sources from grounding metadata
     const sources: Source[] = [];
-    const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
+    const chunks = (response as any).candidates?.[0]?.groundingMetadata?.groundingChunks;
     if (chunks) {
       chunks.forEach((chunk: any) => {
         if (chunk.web?.uri) {

@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Search as SearchIcon, Filter, X, Calendar, Tag, User, TrendingUp } from 'lucide-react';
+import { Search as SearchIcon, Filter, X, Calendar, Tag, User, TrendingUp, Loader } from 'lucide-react';
 import { Review, CategoryType } from '../types';
 import Timeline from '../components/Timeline';
+import Spinner from '../components/Spinner';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 
 interface SearchProps {
@@ -19,6 +20,9 @@ const Search: React.FC<SearchProps> = ({ reviews, onSelectReview }) => {
   
   // Utiliser le hook utilisateur pour obtenir l'utilisateur courant
   const { user, loading: userLoading } = useCurrentUser();
+  
+  // État de recherche
+  const [isSearching, setIsSearching] = useState(false);
 
   // Extract all unique tags
   const allTags = useMemo(() => {
@@ -92,6 +96,14 @@ const Search: React.FC<SearchProps> = ({ reviews, onSelectReview }) => {
     setDateTo('');
   };
 
+  const handleSearch = () => {
+    setIsSearching(true);
+    // Simuler un traitement de recherche
+    setTimeout(() => {
+      setIsSearching(false);
+    }, 800);
+  };
+
   const categories: (CategoryType | 'all')[] = ['all', 'Web', 'Cloud', 'DevOps', 'Security', 'IA', 'Mix'];
 
   return (
@@ -111,9 +123,22 @@ const Search: React.FC<SearchProps> = ({ reviews, onSelectReview }) => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             placeholder="Rechercher dans les revues, tags, auteurs..."
             className="w-full pl-12 pr-4 py-4 bg-dark-800 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-primary focus:border-primary placeholder-slate-500 text-lg"
           />
+          {isSearching ? (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+              <Spinner size="sm" color="primary" />
+            </div>
+          ) : (
+            <button
+              onClick={handleSearch}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary/80 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+            >
+              Rechercher
+            </button>
+          )}
         </div>
 
         {/* Filter Toggle */}
@@ -240,7 +265,12 @@ const Search: React.FC<SearchProps> = ({ reviews, onSelectReview }) => {
       </div>
 
       {/* Results */}
-      {filteredReviews.length > 0 ? (
+      {isSearching ? (
+        <div className="flex flex-col items-center justify-center py-16">
+          <Spinner size="lg" color="primary" />
+          <p className="text-slate-400 mt-4">Recherche en cours...</p>
+        </div>
+      ) : filteredReviews.length > 0 ? (
         <Timeline reviews={filteredReviews} onSelectReview={onSelectReview} />
       ) : (
         <div className="text-center py-16">
