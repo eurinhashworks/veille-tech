@@ -63,6 +63,7 @@ CREATE TABLE "search_history" (
     "filters" JSONB,
     "results" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
     "userId" TEXT NOT NULL,
 
     CONSTRAINT "search_history_pkey" PRIMARY KEY ("id")
@@ -75,11 +76,34 @@ CREATE TABLE "user_settings" (
     "defaultVisibility" TEXT NOT NULL DEFAULT 'public',
     "notifications" BOOLEAN NOT NULL DEFAULT false,
     "autoGenerate" BOOLEAN NOT NULL DEFAULT false,
+    "aiPreferences" JSONB,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "userId" TEXT NOT NULL,
 
     CONSTRAINT "user_settings_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "visitor_stats" (
+    "id" TEXT NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL,
+    "count" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "visitor_stats_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "current_visitors" (
+    "id" TEXT NOT NULL,
+    "count" INTEGER NOT NULL DEFAULT 0,
+    "lastReset" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "current_visitors_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -134,6 +158,9 @@ CREATE INDEX "search_history_createdAt_idx" ON "search_history"("createdAt");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "user_settings_userId_key" ON "user_settings"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "visitor_stats_date_key" ON "visitor_stats"("date");
 
 -- CreateIndex
 CREATE INDEX "_ReviewToTag_B_index" ON "_ReviewToTag"("B");

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, Activity, Clock, Search, Calendar } from 'lucide-react';
+import { TrendingUp, TrendingDown, Activity, Clock, Search, Calendar, Users, Eye } from 'lucide-react';
 import { Review } from '../types';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 
 interface StatsProps {
   reviews: Review[];
@@ -21,6 +22,10 @@ interface ExtendedStats {
   avgNewsPerReview: number;
   mostActiveDay: string;
   tagDistribution: Record<string, number>;
+  // Statistiques des visiteurs
+  dailyVisitors: number;
+  totalVisitors: number;
+  currentVisitors: number;
 }
 
 const Stats: React.FC<StatsProps> = ({ reviews }) => {
@@ -39,18 +44,27 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
     avgNewsPerReview: 0,
     mostActiveDay: '-',
     tagDistribution: {},
+    dailyVisitors: 0,
+    totalVisitors: 0,
+    currentVisitors: 0
   });
+  
+  // Utiliser le hook utilisateur pour obtenir l'utilisateur courant
+  const { user, loading: userLoading } = useCurrentUser();
 
   useEffect(() => {
     const loadStats = async () => {
+      // Ne charger les stats que si l'utilisateur est disponible
+      if (userLoading || !user) return;
+      
       const { getStatistics } = await import('../services/storageService');
       const { getSearchHistory } = await import('../services/storageService');
       
       // Charger les statistiques de base
       const baseStats: any = await getStatistics();
       
-      // Charger l'historique de recherche
-      const searchHistory = await getSearchHistory('anonymous', 1000);
+      // Charger l'historique de recherche pour l'utilisateur courant
+      const searchHistory = await getSearchHistory(user.id, 1000);
       
       // Calculer les statistiques de recherche
       const now = new Date();
@@ -100,6 +114,12 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
         });
       });
       
+      // Charger les statistiques des visiteurs
+      const { getDailyVisitorStats, getTotalVisitors, getCurrentVisitors } = await import('../services/visitorService');
+      const dailyStats = await getDailyVisitorStats();
+      const totalVisitors = await getTotalVisitors();
+      const currentVisitors = await getCurrentVisitors();
+      
       setStats({
         totalReviews: baseStats.totalReviews,
         totalNews: baseStats.totalNews,
@@ -115,10 +135,13 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
         avgNewsPerReview,
         mostActiveDay,
         tagDistribution: tagDist,
+        dailyVisitors: dailyStats?.count || 0,
+        totalVisitors,
+        currentVisitors
       });
     };
     loadStats();
-  }, [reviews]);
+  }, [reviews, user, userLoading]);
 
   const totalReviews = stats.totalReviews;
   const totalNews = stats.totalNews;
@@ -142,7 +165,7 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
       </div>
 
       {/* Métriques Principales */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div className="bg-dark-800 p-4 rounded-xl border border-slate-700 hover:border-primary/50 transition-colors">
            <div className="flex items-center justify-between mb-2">
              <p className="text-slate-400 text-xs font-mono uppercase">Total Revues</p>
@@ -178,6 +201,15 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
            <p className="text-2xl font-bold text-accent-ia mt-1">{stats.topCategory}</p>
            <p className="text-xs text-slate-500 mt-1">Plus fréquente</p>
         </div>
+        
+        <div className="bg-dark-800 p-4 rounded-xl border border-slate-700 hover:border-primary/50 transition-colors">
+           <div className="flex items-center justify-between mb-2">
+             <p className="text-slate-400 text-xs font-mono uppercase">Visiteurs</p>
+             <Users className="w-4 h-4 text-purple-500" />
+           </div>
+           <p className="text-2xl font-bold text-purple-500">{stats.currentVisitors}</p>
+           <p className="text-xs text-slate-500 mt-1">en ligne</p>
+        </div>
       </div>
 
       {/* Statistiques de Recherche */}
@@ -202,6 +234,28 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
           <div className="text-center p-4 bg-dark-900/50 rounded-lg border border-slate-700/50">
             <p className="text-2xl font-bold text-accent-devops">{stats.totalSearches}</p>
             <p className="text-xs text-slate-400 mt-1">Total</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Statistiques des Visiteurs */}
+      <div className="bg-dark-800/50 p-6 rounded-xl border border-slate-700">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <Eye className="w-5 h-5 text-purple-500" />
+          Statistiques des Visiteurs
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="text-center p-4 bg-dark-900/50 rounded-lg border border-slate-700/50">
+            <p className="text-3xl font-bold text-purple-500">{stats.dailyVisitors}</p>
+            <p className="text-xs text-slate-400 mt-1">Visiteurs aujourd'hui</p>
+          </div>
+          <div className="text-center p-4 bg-dark-900/50 rounded-lg border border-slate-700/50">
+            <p className="text-3xl font-bold text-indigo-500">{stats.totalVisitors}</p>
+            <p className="text-xs text-slate-400 mt-1">Total visiteurs</p>
+          </div>
+          <div className="text-center p-4 bg-dark-900/50 rounded-lg border border-slate-700/50">
+            <p className="text-3xl font-bold text-pink-500">{stats.currentVisitors}</p>
+            <p className="text-xs text-slate-400 mt-1">Actuellement en ligne</p>
           </div>
         </div>
       </div>
@@ -337,10 +391,10 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
             </p>
           </div>
           <div className="flex items-start gap-3">
-            <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5" />
+            <div className="w-2 h-2 rounded-full bg-purple-500 mt-1.5" />
             <p className="text-slate-300">
-              <span className="text-white font-semibold">{stats.searchesThisMonth} recherches</span> effectuées ce mois,{' '}
-              dont <span className="text-green-500 font-semibold">{stats.searchesToday} aujourd'hui</span>.
+              <span className="text-purple-500 font-semibold">{stats.dailyVisitors} visiteurs</span> aujourd'hui,{' '}
+              pour un total de <span className="text-indigo-500 font-semibold">{stats.totalVisitors} visiteurs</span> depuis le début.
             </p>
           </div>
         </div>

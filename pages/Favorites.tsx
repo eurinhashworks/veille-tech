@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Star, Trash2, FolderOpen } from 'lucide-react';
 import { Review } from '../types';
 import Timeline from '../components/Timeline';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 
 interface FavoritesProps {
   reviews: Review[];
@@ -10,25 +11,33 @@ interface FavoritesProps {
 
 const Favorites: React.FC<FavoritesProps> = ({ reviews, onSelectReview }) => {
   const [favorites, setFavorites] = useState<string[]>([]);
+  const { user, loading: userLoading } = useCurrentUser();
 
   useEffect(() => {
     const loadFavorites = async () => {
+      // Ne charger les favoris que si l'utilisateur est disponible
+      if (userLoading || !user) return;
+      
       const { getUserFavorites } = await import('../services/storageService');
-      // TODO: Récupérer le vrai userId depuis le contexte utilisateur
-      const favs = await getUserFavorites('anonymous');
+      const favs = await getUserFavorites(user.id);
       setFavorites(favs);
     };
     loadFavorites();
-  }, []);
+  }, [user, userLoading]);
 
   const favoriteReviews = reviews.filter(r => favorites.includes(r.metadata.id));
 
   const handleRemoveFavorite = async (id: string) => {
+    if (!user) return;
+    
     const { removeFromFavorites } = await import('../services/storageService');
-    // TODO: Récupérer le vrai userId depuis le contexte utilisateur
-    await removeFromFavorites('anonymous', id);
+    await removeFromFavorites(user.id, id);
     setFavorites(prev => prev.filter(fav => fav !== id));
   };
+
+  if (userLoading) {
+    return <div className="text-center py-8 text-slate-500">Chargement...</div>;
+  }
 
   return (
     <div className="animate-fade-in-up">

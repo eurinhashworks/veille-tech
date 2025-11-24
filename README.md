@@ -10,6 +10,8 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.2-646CFF?logo=vite)](https://vitejs.dev/)
 [![Google Gemini](https://img.shields.io/badge/Google_Gemini-2.5_Flash-4285F4?logo=google)](https://ai.google.dev/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16.3-4169E1?logo=postgresql)](https://www.postgresql.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-5.15-2D3748?logo=prisma)](https://www.prisma.io/)
 
 ## Aperçu
 
@@ -23,6 +25,11 @@ TechPulse AI est une application web moderne qui révolutionne la veille technol
 - **Timeline interactive** : Visualisez vos revues sous forme de fil d'actualité
 - **Analytics** : Métriques et statistiques sur vos revues
 - **Export facile** : Copiez le contenu pour Word, Notion, Email en un clic
+- **Historique de recherche** : Toutes les recherches sont sauvegardées avec horodatage
+- **Persistance des données** : Toutes les données sont stockées dans une base PostgreSQL
+- **Multi-utilisateurs** : Plusieurs personnes peuvent utiliser l'application simultanément
+- **Personnalisation de l'IA** : Ajustez le style, le ton et la profondeur des analyses
+- **Suivi des visiteurs** : Comptage des visiteurs quotidiens et en temps réel
 
 ### Catégories couvertes
 
@@ -52,6 +59,7 @@ Une documentation détaillée est disponible dans le dossier [`docs/`](./docs/) 
 ### Prérequis
 
 - **Node.js** 18+ ([Télécharger](https://nodejs.org/))
+- **PostgreSQL** 13+ ([Télécharger](https://www.postgresql.org/))
 - Une clé API Google Gemini ([Obtenir gratuitement](https://ai.google.dev/))
 
 ### Installation
@@ -64,11 +72,18 @@ cd techpulse-ai
 # 2. Installer les dépendances
 npm install
 
-# 3. Configurer la clé API
+# 3. Configurer la base de données
+# Créez une base de données PostgreSQL et configurez les variables d'environnement
+
+# 4. Configurer les clés API
 # Éditez le fichier .env.local et ajoutez :
 # GEMINI_API_KEY=votre_clé_api_ici
+# DATABASE_URL=postgresql://utilisateur:motdepasse@localhost:5432/nomdelabase
 
-# 4. Lancer l'application
+# 5. Appliquer les migrations
+npx prisma migrate dev
+
+# 6. Lancer l'application
 npm run dev
 ```
 
@@ -88,6 +103,8 @@ Contenu structuré avec l'avis de l'IA et sources vérifiées.
 ## Technologies utilisées
 
 - **Frontend** : React 19, TypeScript
+- **Backend** : Node.js, PostgreSQL
+- **ORM** : Prisma
 - **Build Tool** : Vite 6.2
 - **IA** : Google Gemini 2.5 Flash
 - **Styling** : Tailwind CSS (utility classes)
@@ -99,6 +116,7 @@ Contenu structuré avec l'avis de l'IA et sources vérifiées.
 npm run dev      # Lancer le serveur de développement
 npm run build    # Compiler pour la production
 npm run preview  # Prévisualiser le build de production
+npm run migrate  # Appliquer les migrations de base de données
 ```
 
 ## Configuration de l'API
@@ -107,6 +125,7 @@ npm run preview  # Prévisualiser le build de production
 2. Créez/éditez le fichier `.env.local` à la racine :
    ```env
    GEMINI_API_KEY=votre_clé_api_ici
+   DATABASE_URL=postgresql://utilisateur:motdepasse@localhost:5432/nomdelabase
    ```
 3. Redémarrez le serveur de développement
 
@@ -159,14 +178,17 @@ Ce projet est sous licence privée. Tous droits réservés.
 - [Documentation Gemini](https://ai.google.dev/docs)
 - [Documentation React](https://react.dev/)
 - [Documentation Vite](https://vitejs.dev/)
+- [Documentation Prisma](https://www.prisma.io/docs/)
 
 ## Roadmap
 
-- [ ] Sauvegarde persistante (LocalStorage/IndexedDB)
-- [ ] Export PDF des revues
-- [ ] Partage par lien unique
-- [ ] Système de favoris
-- [ ] Mode sombre/clair
+- [x] Sauvegarde persistante dans PostgreSQL
+- [x] Export PDF des revues
+- [x] Partage par lien unique
+- [x] Système de favoris
+- [x] Mode sombre/clair
+- [x] Personnalisation de l'IA
+- [x] Suivi des visiteurs
 - [ ] Intégrations (Slack, Email, Notion)
 - [ ] Backend API avec authentification
 - [ ] Support multi-langues

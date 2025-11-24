@@ -104,6 +104,7 @@ model SearchHistory {
   filters   Json? // Stocke les filtres appliqués (catégorie, tags, dates)
   results   Int // Nombre de résultats trouvés
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   userId String
@@ -121,6 +122,7 @@ model UserSettings {
   defaultVisibility  String   @default("public") // public, private
   notifications      Boolean  @default(false)
   autoGenerate       Boolean  @default(false)
+  aiPreferences      Json? // Préférences d'IA personnalisées
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -129,4 +131,26 @@ model UserSettings {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_settings")
+}
+
+// Modèle VisitorStats - Statistiques des visiteurs
+model VisitorStats {
+  id        String   @id @default(cuid())
+  date      DateTime @unique // Date du jour
+  count     Int      @default(0) // Nombre de visiteurs pour cette date
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("visitor_stats")
+}
+
+// Modèle CurrentVisitors - Visiteurs en temps réel
+model CurrentVisitors {
+  id        String   @id @default(cuid())
+  count     Int      @default(0) // Nombre de visiteurs actuellement en ligne
+  lastReset DateTime @default(now()) // Dernière réinitialisation du compteur
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("current_visitors")
 }

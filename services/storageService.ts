@@ -201,30 +201,56 @@ export const getStatistics = async (userId?: string) => {
   }
 };
 
+// ==================== AI PREFERENCES ====================
+
+export const saveAiPreferences = async (
+  userId: string,
+  preferences: {
+    style: 'analytical' | 'creative' | 'technical' | 'executive';
+    tone: 'formal' | 'casual' | 'humorous' | 'serious';
+    depth: 'brief' | 'detailed' | 'comprehensive';
+  }
+): Promise<void> => {
+  try {
+    const { updateUserSettings } = await import('./databaseService');
+    await updateUserSettings(userId, {
+      aiPreferences: preferences
+    });
+    console.log('✅ Préférences IA sauvegardées dans PostgreSQL');
+  } catch (error) {
+    console.warn('⚠️ Erreur lors de la sauvegarde des préférences IA:', error);
+  }
+};
+
+export const getAiPreferences = async (
+  userId: string
+): Promise<{
+  style: 'analytical' | 'creative' | 'technical' | 'executive';
+  tone: 'formal' | 'casual' | 'humorous' | 'serious';
+  depth: 'brief' | 'detailed' | 'comprehensive';
+} | null> => {
+  try {
+    const { getUserSettings } = await import('./databaseService');
+    const settings: any = await getUserSettings(userId);
+    
+    if (settings?.aiPreferences) {
+      return settings.aiPreferences;
+    }
+    
+    return null;
+  } catch (error) {
+    console.warn('⚠️ Erreur lors de la récupération des préférences IA:', error);
+    return null;
+  }
+};
+
 // ==================== INITIALIZATION ====================
 
-export const initializeStorage = async (mockReviews: Review[]): Promise<void> => {
+export const initializeStorage = async (): Promise<void> => {
   try {
-    // Vérifier si des revues existent déjà
-    const existing = await getAllReviews();
-    
-    if (existing.length === 0) {
-      console.log('📦 Initialisation avec les données mock...');
-      
-      // Créer un utilisateur par défaut
-      const { getOrCreateUser } = await import('./databaseService');
-      const user = await getOrCreateUser('Anonyme');
-      
-      // Sauvegarder les mock reviews
-      for (const review of mockReviews) {
-        await saveReview(review);
-      }
-      
-      console.log(`✅ ${mockReviews.length} revues mock initialisées`);
-    }
+    // Ne plus initialiser avec des données mock
+    console.log('📦 Initialisation du stockage sans données mock');
   } catch (error) {
-    console.warn('⚠️ Erreur lors de l\'initialisation, utilisation de localStorage');
-    const { initializeWithMockData } = await import('./apiService');
-    await initializeWithMockData(mockReviews);
+    console.warn('⚠️ Erreur lors de l\'initialisation');
   }
 };

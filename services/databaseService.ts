@@ -150,6 +150,11 @@ export const updateUserSettings = async (
     defaultVisibility?: string;
     notifications?: boolean;
     autoGenerate?: boolean;
+    aiPreferences?: {
+      style: 'analytical' | 'creative' | 'technical' | 'executive';
+      tone: 'formal' | 'casual' | 'humorous' | 'serious';
+      depth: 'brief' | 'detailed' | 'comprehensive';
+    };
   }
 ) => {
   return await fetchApi('/settings', {

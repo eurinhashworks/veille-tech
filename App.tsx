@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Calendar, FolderOpen, BarChart3, Globe, Lock, Bot, Search as SearchIcon, Star, Settings as SettingsIcon, Info } from 'lucide-react';
+import { Sparkles, Calendar, FolderOpen, BarChart3, Globe, Lock, Bot, Search as SearchIcon, Star, Settings as SettingsIcon, Info, Clock } from 'lucide-react';
 import Header from './components/Header';
 import Button from './components/Button';
 import MarkdownViewer from './components/MarkdownViewer';
@@ -12,68 +12,13 @@ import About from './pages/About';
 import CalendarView from './pages/CalendarView';
 import Favorites from './pages/Favorites';
 import Export from './pages/Export';
+import History from './pages/History';
 import { generateTechReview } from './services/geminiService';
 import { Review, GenerationStatus, CategoryType } from './types';
+import { useCurrentUser } from './hooks/useCurrentUser';
+import { incrementDailyVisitors, incrementCurrentVisitors, decrementCurrentVisitors } from './services/visitorService';
 
-// Mock Data for initial population to make the UI look alive
-const MOCK_REVIEWS: Review[] = [
-  {
-    metadata: {
-      id: 'mock-1',
-      date: '2025-08-08',
-      formattedDate: 'Vendredi 08 août 2025',
-      username: 'Eurin',
-      timestamp: 1754636400000,
-      generationTime: 2.8,
-      tags: ['Cloud', 'Kubernetes', 'AWS'],
-      dominantCategory: 'Cloud',
-      newsCount: 27,
-      flashSummary: 'AWS lance une nouvelle instance Graviton4 et Kubernetes 1.31 sort en beta.',
-      aiAnalysis: "Mon analyse : La course à l'armement entre AWS et Azure ne se joue plus sur le prix, mais sur l'efficacité énergétique des puces custom. Kubernetes devient invisible, ce qui est son destin final.",
-      isPublic: true
-    },
-    content: "# Revue Tech — 08 Août 2025\n> L'innovation n'est pas une destination, c'est un état d'esprit permanent.\n\n### Résumé Flash\nUne journée marquée par l'avancée des processeurs ARM chez AWS et une adoption massive de Kubernetes en Edge Computing.\n\n## [CLOUD] Cloud Computing\n* **AWS Graviton4** : Amazon annonce la disponibilité générale de ses nouvelles instances, promettant 30% de perf en plus.\n* **Azure Arc Updates** : Microsoft facilite la gestion hybride avec de nouveaux contrôles de sécurité unifiés.\n* **Google Cloud Next** : Les rumeurs enflent sur une nouvelle offre de TPU v6 pour l'IA générative.\n\n## [DEVOPS] DevOps & Platform Engineering\n* **Kubernetes 1.31 Beta** : La nouvelle version met l'accent sur la sécurité des sidecars et le support natif de WASM.\n* **Terraform** : HashiCorp introduit de nouvelles politiques de gestion des états pour les grandes équipes.\n\n## [SECURITY] Cybersécurité\n* **Faille Zero-Day** : Une vulnérabilité critique dans certains routeurs Cisco nécessite un patch immédiat.\n* **Ransomware** : Le groupe LockBit revendique une nouvelle attaque sur un grand groupe logistique.\n\n## [IA] IA & Innovation\n* **Model Collapse** : Une étude montre les risques de l'entraînement d'IA sur des données générées par IA.\n* **Mistral Large 2** : Le modèle français continue d'impressionner par ses capacités de raisonnement multilingue.\n\n## Impact\n* **Pour les développeurs** : Migrer vers ARM devient incontournable pour optimiser les coûts cloud. Kubernetes 1.31 nécessite une revue des configurations de sécurité.\n* **Pour les entreprises** : L'efficacité énergétique des infrastructures devient un critère de choix stratégique face à la hausse des coûts.\n* **Pour l'écosystème tech** : La consolidation autour de quelques acteurs cloud majeurs s'accélère, réduisant la diversité du marché.",
-    sources: []
-  },
-  {
-    metadata: {
-      id: 'mock-2',
-      date: '2025-08-07',
-      formattedDate: 'Jeudi 07 août 2025',
-      username: 'Anonyme',
-      timestamp: 1754550000000,
-      generationTime: 3.1,
-      tags: ['ZeroTrust', 'CrowdStrike', 'CVE'],
-      dominantCategory: 'Security',
-      newsCount: 24,
-      flashSummary: 'Faille critique détectée dans OpenSSH, correctif urgent déployé.',
-      aiAnalysis: "Mon avis : Nous assistons à une fragilisation systémique. La dépendance à quelques librairies open-source critiques reste le talon d'Achille de toute l'industrie numérique.",
-      isPublic: true
-    },
-    content: "# Revue Tech — 07 Août 2025\n> La sécurité est un processus, pas un produit.\n\n## [SECURITY] Cybersécurité\n* **OpenSSH Critical** : La faille 'RegreSSHion' touche des millions de serveurs Linux. Patching impératif.\n* **CrowdStrike Analysis** : Retour sur l'incident mondial, l'entreprise publie un post-mortem détaillé.\n\n## [WEB] Web & Mobile Dev\n* **React 19 RC** : La Release Candidate est disponible, introduisant le compilateur automatique.\n* **iOS 19 Beta** : Apple ouvre les APIs de son Neural Engine aux développeurs tiers.\n\n## Impact\n* **Pour les développeurs** : Patcher OpenSSH en urgence sur tous les serveurs. Tester React 19 RC pour anticiper la migration.\n* **Pour les entreprises** : Revoir les processus de gestion des dépendances critiques et mettre en place des audits de sécurité réguliers.\n* **Pour l'écosystème tech** : La fragilité des composants open-source essentiels soulève des questions sur la gouvernance et le financement.",
-    sources: []
-  },
-  {
-    metadata: {
-      id: 'mock-3',
-      date: '2025-08-06',
-      formattedDate: 'Mercredi 06 août 2025',
-      username: 'Clara IA',
-      timestamp: 1754463600000,
-      generationTime: 2.7,
-      tags: ['GPT-5', 'NVIDIA', 'LLM'],
-      dominantCategory: 'IA',
-      newsCount: 29,
-      flashSummary: 'NVIDIA dévoile sa puce B200 et OpenAI tease GPT-5 pour l\'automne.',
-      aiAnalysis: "Mon analyse : La loi de Moore est morte, vive la loi de Huang. Si NVIDIA continue à ce rythme, le hardware dictera le software pour la prochaine décennie.",
-      isPublic: true
-    },
-    content: "# Revue Tech — 06 Août 2025\n> L'intelligence artificielle est le nouveau code binaire de notre réalité.\n\n## [IA] IA & Innovation\n* **NVIDIA Blackwell** : La nouvelle architecture GPU promet de réduire les coûts d'inférence par 25.\n* **OpenAI** : Sam Altman évoque une 'intelligence de niveau doctorat' pour les prochains modèles.\n* **AI Act** : L'Europe finalise les directives d'application pour les modèles open-source.\n\n## Impact\n* **Pour les développeurs** : Les nouveaux GPU Blackwell vont démocratiser l'accès aux modèles d'IA avancés. Préparer l'intégration de modèles plus puissants.\n* **Pour les entreprises** : L'AI Act européen impose de nouvelles contraintes de conformité. Anticiper les audits et la documentation des modèles.\n* **Pour l'écosystème tech** : La domination de NVIDIA sur le hardware IA crée une dépendance stratégique majeure pour toute l'industrie.",
-    sources: []
-  }
-];
-
-type Tab = 'generator' | 'timeline' | 'table' | 'stats' | 'search' | 'calendar' | 'favorites' | 'settings' | 'about';
+type Tab = 'generator' | 'timeline' | 'table' | 'stats' | 'search' | 'calendar' | 'favorites' | 'history' | 'settings' | 'about';
 
 const App: React.FC = () => {
   // Application State
@@ -82,6 +27,9 @@ const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<Tab>('generator');
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [showExport, setShowExport] = useState(false);
+  
+  // Utiliser le hook utilisateur pour obtenir l'utilisateur courant
+  const { user, loading: userLoading } = useCurrentUser();
 
   // Generation Form State
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
@@ -90,16 +38,26 @@ const App: React.FC = () => {
   const [status, setStatus] = useState<GenerationStatus>(GenerationStatus.IDLE);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  
+  // Paramètres d'IA personnalisés
+  const [aiStyle, setAiStyle] = useState<'analytical' | 'creative' | 'technical' | 'executive'>('analytical');
+  const [aiTone, setAiTone] = useState<'formal' | 'casual' | 'humorous' | 'serious'>('formal');
+  const [aiDepth, setAiDepth] = useState<'brief' | 'detailed' | 'comprehensive'>('detailed');
+  const [showAiSettings, setShowAiSettings] = useState(false);
 
   // Charger les données au démarrage
   useEffect(() => {
     const loadData = async () => {
+      // Attendre que l'utilisateur soit chargé
+      if (userLoading) return;
+      
       try {
-        // Utiliser le nouveau service de stockage avec Prisma
-        const { getAllReviews, initializeStorage } = await import('./services/storageService');
+        // Incrémenter les compteurs de visiteurs
+        await incrementDailyVisitors();
+        await incrementCurrentVisitors();
         
-        // Initialiser avec les mock data si vide
-        await initializeStorage(MOCK_REVIEWS);
+        // Utiliser le nouveau service de stockage avec Prisma
+        const { getAllReviews } = await import('./services/storageService');
         
         // Charger les revues depuis la base de données
         const dbReviews = await getAllReviews();
@@ -112,7 +70,34 @@ const App: React.FC = () => {
     };
     
     loadData();
-  }, []);
+    
+    // Décrémenter le compteur de visiteurs actuels lors du démontage du composant
+    return () => {
+      decrementCurrentVisitors();
+    };
+  }, [userLoading]);
+
+  // Charger les préférences d'IA de l'utilisateur
+  useEffect(() => {
+    const loadAiPreferences = async () => {
+      if (userLoading || !user) return;
+      
+      try {
+        const { getAiPreferences } = await import('./services/storageService');
+        const preferences = await getAiPreferences(user.id);
+        
+        if (preferences) {
+          setAiStyle(preferences.style);
+          setAiTone(preferences.tone);
+          setAiDepth(preferences.depth);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des préférences IA:', error);
+      }
+    };
+    
+    loadAiPreferences();
+  }, [user, userLoading]);
 
   const handleGenerate = async () => {
     setStatus(GenerationStatus.LOADING);
@@ -133,8 +118,12 @@ const App: React.FC = () => {
         return;
       }
 
-      // Générer la nouvelle revue
-      const newReview = await generateTechReview(date, username || 'Anonyme', isPublic);
+      // Générer la nouvelle revue avec les paramètres d'IA personnalisés
+      const newReview = await generateTechReview(date, username || 'Anonyme', isPublic, {
+        style: aiStyle,
+        tone: aiTone,
+        depth: aiDepth
+      });
       
       // Sauvegarder dans la base de données PostgreSQL via Prisma
       await saveReview(newReview);
@@ -150,6 +139,34 @@ const App: React.FC = () => {
     }
   };
 
+  // Sauvegarder les préférences d'IA lorsque l'utilisateur les modifie
+  const handleAiStyleChange = (style: 'analytical' | 'creative' | 'technical' | 'executive') => {
+    setAiStyle(style);
+    if (user) {
+      import('./services/storageService').then(({ saveAiPreferences }) => {
+        saveAiPreferences(user.id, { style, tone: aiTone, depth: aiDepth });
+      });
+    }
+  };
+
+  const handleAiToneChange = (tone: 'formal' | 'casual' | 'humorous' | 'serious') => {
+    setAiTone(tone);
+    if (user) {
+      import('./services/storageService').then(({ saveAiPreferences }) => {
+        saveAiPreferences(user.id, { style: aiStyle, tone, depth: aiDepth });
+      });
+    }
+  };
+
+  const handleAiDepthChange = (depth: 'brief' | 'detailed' | 'comprehensive') => {
+    setAiDepth(depth);
+    if (user) {
+      import('./services/storageService').then(({ saveAiPreferences }) => {
+        saveAiPreferences(user.id, { style: aiStyle, tone: aiTone, depth });
+      });
+    }
+  };
+
   const handleViewReview = (review: Review) => {
     setSelectedReview(review);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -160,7 +177,12 @@ const App: React.FC = () => {
       // We append the AI analysis to the copy text if desired, or keep it strict markdown.
       // Let's keep strict markdown as per previous request, but maybe add the analysis at the top?
       // User asked for "copy paste to word", so mixing the AI Analysis block (which is metadata) into the copy string might be good.
-      const textToCopy = `L'AVIS DE L'IA :\n${selectedReview.metadata.aiAnalysis}\n\n-------------------\n\n${selectedReview.content}`;
+      const textToCopy = `L'AVIS DE CLARA L'IA :
+${selectedReview.metadata.aiAnalysis}
+
+-------------------
+
+${selectedReview.content}`;
       navigator.clipboard.writeText(textToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -171,7 +193,7 @@ const App: React.FC = () => {
     <div className="flex space-x-1 bg-dark-800/50 p-1 rounded-xl mb-8 border border-slate-700/50 backdrop-blur-sm overflow-x-auto scrollbar-hide">
        <button 
          onClick={() => { setCurrentTab('generator'); setSelectedReview(null); }}
-         className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${currentTab === 'generator' && !selectedReview ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
+         className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${currentTab === 'generator' && !selectedReview ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-700/550'}`}
        >
          <Sparkles className="w-4 h-4" /> Générateur
        </button>
@@ -198,6 +220,12 @@ const App: React.FC = () => {
          className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${currentTab === 'favorites' && !selectedReview ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
        >
          <Star className="w-4 h-4" /> Favoris
+       </button>
+       <button 
+         onClick={() => { setCurrentTab('history'); setSelectedReview(null); }}
+         className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${currentTab === 'history' && !selectedReview ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
+       >
+         <Clock className="w-4 h-4" /> Historique
        </button>
        <button 
          onClick={() => { setCurrentTab('table'); setSelectedReview(null); }}
@@ -280,6 +308,98 @@ const App: React.FC = () => {
                     </label>
                  </div>
 
+                 {/* Paramètres d'IA personnalisés */}
+                 <div className="border-t border-slate-700/50 pt-4">
+                   <button 
+                     onClick={() => setShowAiSettings(!showAiSettings)}
+                     className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm w-full"
+                   >
+                     <SettingsIcon className="w-4 h-4" />
+                     Personnaliser le style de l'IA
+                     <span className="ml-auto">
+                       {showAiSettings ? '▲' : '▼'}
+                     </span>
+                   </button>
+
+                   {showAiSettings && (
+                     <div className="mt-4 space-y-4">
+                       <div>
+                         <label className="block text-sm font-medium text-slate-300 mb-2">Style d'analyse</label>
+                         <div className="grid grid-cols-2 gap-2">
+                           {([
+                             { value: 'analytical', label: 'Analytique', desc: 'Approche factuelle et logique' },
+                             { value: 'creative', label: 'Créatif', desc: 'Perspective originale et imaginative' },
+                             { value: 'technical', label: 'Technique', desc: 'Détails techniques approfondis' },
+                             { value: 'executive', label: 'Stratégique', desc: 'Focus sur l\'impact business' }
+                           ] as const).map((option) => (
+                             <button
+                               key={option.value}
+                               onClick={() => handleAiStyleChange(option.value)}
+                               className={`p-3 rounded-lg text-left transition-all ${
+                                 aiStyle === option.value
+                                   ? 'bg-primary/20 border border-primary text-white'
+                                   : 'bg-dark-900 border border-slate-700 text-slate-300 hover:border-slate-600'
+                               }`}
+                             >
+                               <div className="font-medium text-sm">{option.label}</div>
+                               <div className="text-xs opacity-75 mt-1">{option.desc}</div>
+                             </button>
+                           ))}
+                         </div>
+                       </div>
+
+                       <div>
+                         <label className="block text-sm font-medium text-slate-300 mb-2">Ton de l'IA</label>
+                         <div className="grid grid-cols-2 gap-2">
+                           {([
+                             { value: 'formal', label: 'Formel', desc: 'Langage professionnel' },
+                             { value: 'casual', label: 'Décontracté', desc: 'Ton conversationnel' },
+                             { value: 'humorous', label: 'Humoristique', desc: 'Avec touches d\'humour' },
+                             { value: 'serious', label: 'Sérieux', desc: 'Ton direct et grave' }
+                           ] as const).map((option) => (
+                             <button
+                               key={option.value}
+                               onClick={() => handleAiToneChange(option.value)}
+                               className={`p-3 rounded-lg text-left transition-all ${
+                                 aiTone === option.value
+                                   ? 'bg-primary/20 border border-primary text-white'
+                                   : 'bg-dark-900 border border-slate-700 text-slate-300 hover:border-slate-600'
+                               }`}
+                             >
+                               <div className="font-medium text-sm">{option.label}</div>
+                               <div className="text-xs opacity-75 mt-1">{option.desc}</div>
+                             </button>
+                           ))}
+                         </div>
+                       </div>
+
+                       <div>
+                         <label className="block text-sm font-medium text-slate-300 mb-2">Profondeur</label>
+                         <div className="grid grid-cols-3 gap-2">
+                           {([
+                             { value: 'brief', label: 'Concis', desc: 'Essentiel uniquement' },
+                             { value: 'detailed', label: 'Détaillé', desc: 'Bon équilibre' },
+                             { value: 'comprehensive', label: 'Complet', desc: 'Analyse approfondie' }
+                           ] as const).map((option) => (
+                             <button
+                               key={option.value}
+                               onClick={() => handleAiDepthChange(option.value)}
+                               className={`p-3 rounded-lg text-left transition-all ${
+                                 aiDepth === option.value
+                                   ? 'bg-primary/20 border border-primary text-white'
+                                   : 'bg-dark-900 border border-slate-700 text-slate-300 hover:border-slate-600'
+                               }`}
+                             >
+                               <div className="font-medium text-sm">{option.label}</div>
+                               <div className="text-xs opacity-75 mt-1">{option.desc}</div>
+                             </button>
+                           ))}
+                         </div>
+                       </div>
+                     </div>
+                   )}
+                 </div>
+
                  <Button 
                     onClick={handleGenerate} 
                     isLoading={status === GenerationStatus.LOADING}
@@ -337,6 +457,11 @@ const App: React.FC = () => {
           <Favorites reviews={reviews} onSelectReview={handleViewReview} />
         )}
 
+        {/* VIEW: HISTORY */}
+        {currentTab === 'history' && !selectedReview && (
+          <History />
+        )}
+
         {/* VIEW: SETTINGS */}
         {currentTab === 'settings' && !selectedReview && (
           <Settings onClose={() => setCurrentTab('generator')} />
@@ -378,14 +503,13 @@ const App: React.FC = () => {
                         onClick={async () => {
                           if (!selectedReview) return;
                           const { getUserFavorites, addToFavorites, removeFromFavorites } = await import('./services/storageService');
-                          // TODO: Récupérer le vrai userId depuis le contexte utilisateur
-                          const userId = 'anonymous';
-                          const favs = await getUserFavorites(userId);
+                          if (!user) return;
+                          const favs = await getUserFavorites(user.id);
                           const isFav = favs.includes(selectedReview.metadata.id);
                           if (isFav) {
-                            await removeFromFavorites(userId, selectedReview.metadata.id);
+                            await removeFromFavorites(user.id, selectedReview.metadata.id);
                           } else {
-                            await addToFavorites(userId, selectedReview.metadata.id);
+                            await addToFavorites(user.id, selectedReview.metadata.id);
                           }
                         }}
                         className="flex items-center gap-2 px-3 py-1.5 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg text-xs font-medium transition-all"

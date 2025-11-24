@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Search as SearchIcon, Filter, X, Calendar, Tag, User, TrendingUp } from 'lucide-react';
 import { Review, CategoryType } from '../types';
 import Timeline from '../components/Timeline';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 
 interface SearchProps {
   reviews: Review[];
@@ -15,6 +16,9 @@ const Search: React.FC<SearchProps> = ({ reviews, onSelectReview }) => {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Utiliser le hook utilisateur pour obtenir l'utilisateur courant
+  const { user, loading: userLoading } = useCurrentUser();
 
   // Extract all unique tags
   const allTags = useMemo(() => {
@@ -60,10 +64,9 @@ const Search: React.FC<SearchProps> = ({ reviews, onSelectReview }) => {
     });
     
     // Sauvegarder l'historique de recherche si une recherche est effectuée
-    if (searchQuery || selectedCategory !== 'all' || selectedTags.length > 0 || dateFrom || dateTo) {
+    if ((searchQuery || selectedCategory !== 'all' || selectedTags.length > 0 || dateFrom || dateTo) && user) {
       import('../services/storageService').then(({ saveSearch }) => {
-        // TODO: Récupérer le vrai userId depuis le contexte utilisateur
-        saveSearch('anonymous', searchQuery, {
+        saveSearch(user.id, searchQuery, {
           category: selectedCategory,
           tags: selectedTags,
           dateFrom,
@@ -73,7 +76,7 @@ const Search: React.FC<SearchProps> = ({ reviews, onSelectReview }) => {
     }
     
     return results;
-  }, [reviews, searchQuery, selectedCategory, selectedTags, dateFrom, dateTo]);
+  }, [reviews, searchQuery, selectedCategory, selectedTags, dateFrom, dateTo, user]);
 
   const toggleTag = (tag: string) => {
     setSelectedTags(prev =>
