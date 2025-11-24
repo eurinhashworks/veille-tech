@@ -303,9 +303,9 @@ ${selectedReview.content}`;
       
       {/* Header */}
       <Header 
-        currentTab={currentTab} 
-        onTabChange={setCurrentTab}
         onSearchClick={() => setCurrentTab('search')}
+        onSettingsClick={() => setCurrentTab('settings')}
+        onAboutClick={() => setCurrentTab('about')}
       />
 
       <main className="flex-grow container mx-auto px-4 py-8 md:py-10 max-w-5xl">
