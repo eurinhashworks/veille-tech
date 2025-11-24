@@ -12,18 +12,20 @@ const Favorites: React.FC<FavoritesProps> = ({ reviews, onSelectReview }) => {
   const [favorites, setFavorites] = useState<string[]>([]);
 
   useEffect(() => {
-    const stored = localStorage.getItem('favorites');
-    if (stored) {
-      setFavorites(JSON.parse(stored));
-    }
+    const loadFavorites = async () => {
+      const { getFavorites } = await import('../services/apiService');
+      const favs = await getFavorites();
+      setFavorites(favs);
+    };
+    loadFavorites();
   }, []);
 
   const favoriteReviews = reviews.filter(r => favorites.includes(r.metadata.id));
 
-  const removeFavorite = (id: string) => {
-    const updated = favorites.filter(fav => fav !== id);
-    setFavorites(updated);
-    localStorage.setItem('favorites', JSON.stringify(updated));
+  const handleRemoveFavorite = async (id: string) => {
+    const { removeFavorite } = await import('../services/apiService');
+    await removeFavorite(id);
+    setFavorites(prev => prev.filter(fav => fav !== id));
   };
 
   return (

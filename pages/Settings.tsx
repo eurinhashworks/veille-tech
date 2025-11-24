@@ -27,9 +27,12 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const handleExport = () => {
-    const data = {
-      reviews: JSON.parse(localStorage.getItem('reviews') || '[]'),
+  const handleExport = async () => {
+    const { exportAllData } = await import('../services/apiService');
+    const data = await exportAllData();
+    
+    const exportData = {
+      ...data,
       settings: {
         username,
         theme,
@@ -39,7 +42,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
       }
     };
     
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -47,15 +50,20 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
     a.click();
   };
 
-  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       try {
         const data = JSON.parse(event.target?.result as string);
-        if (data.reviews) localStorage.setItem('reviews', JSON.stringify(data.reviews));
+        
+        // Importer les données
+        const { importData } = await import('../services/apiService');
+        await importData(data);
+        
+        // Importer les paramètres
         if (data.settings) {
           setUsername(data.settings.username || '');
           setTheme(data.settings.theme || 'dark');
@@ -64,6 +72,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           setDefaultVisibility(data.settings.defaultVisibility || 'public');
         }
         alert('Données importées avec succès!');
+        window.location.reload(); // Recharger pour afficher les nouvelles données
       } catch (err) {
         alert('Erreur lors de l\'importation du fichier');
       }

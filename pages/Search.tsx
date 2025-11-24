@@ -27,7 +27,7 @@ const Search: React.FC<SearchProps> = ({ reviews, onSelectReview }) => {
 
   // Filter reviews
   const filteredReviews = useMemo(() => {
-    return reviews.filter(review => {
+    const results = reviews.filter(review => {
       // Search query
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
@@ -58,6 +58,20 @@ const Search: React.FC<SearchProps> = ({ reviews, onSelectReview }) => {
 
       return true;
     });
+    
+    // Sauvegarder l'historique de recherche si une recherche est effectuée
+    if (searchQuery || selectedCategory !== 'all' || selectedTags.length > 0 || dateFrom || dateTo) {
+      import('../services/apiService').then(({ saveSearchHistory }) => {
+        saveSearchHistory(searchQuery, {
+          category: selectedCategory,
+          tags: selectedTags,
+          dateFrom,
+          dateTo,
+        }, results.length);
+      });
+    }
+    
+    return results;
   }, [reviews, searchQuery, selectedCategory, selectedTags, dateFrom, dateTo]);
 
   const toggleTag = (tag: string) => {

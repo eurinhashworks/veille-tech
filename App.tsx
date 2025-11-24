@@ -77,7 +77,8 @@ type Tab = 'generator' | 'timeline' | 'table' | 'stats' | 'search' | 'calendar' 
 
 const App: React.FC = () => {
   // Application State
-  const [reviews, setReviews] = useState<Review[]>(MOCK_REVIEWS);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentTab, setCurrentTab] = useState<Tab>('generator');
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [showExport, setShowExport] = useState(false);
@@ -90,13 +91,34 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
+  // Charger les données au démarrage
+  useEffect(() => {
+    const loadData = async () => {
+      // Importer le service API
+      const { getAllReviewsFromStorage, initializeWithMockData } = await import('./services/apiService');
+      
+      // Initialiser avec les mock data si vide
+      await initializeWithMockData(MOCK_REVIEWS);
+      
+      // Charger les revues
+      const storedReviews = await getAllReviewsFromStorage();
+      setReviews(storedReviews);
+      setLoading(false);
+    };
+    
+    loadData();
+  }, []);
+
   const handleGenerate = async () => {
     setStatus(GenerationStatus.LOADING);
     setError(null);
     setSelectedReview(null);
 
     try {
-      const existing = reviews.find(r => r.metadata.date === date);
+      const { getReviewByDate, saveReviewToStorage, getAllReviewsFromStorage } = await import('./services/apiService');
+      
+      // Vérifier si une revue existe déjà pour cette date
+      const existing = await getReviewByDate(date);
       
       if (existing) {
         setTimeout(() => {
@@ -108,7 +130,12 @@ const App: React.FC = () => {
 
       const newReview = await generateTechReview(date, username, isPublic);
       
-      setReviews(prev => [newReview, ...prev]);
+      // Sauvegarder dans le storage
+      await saveReviewToStorage(newReview);
+      
+      // Recharger toutes les revues
+      const updatedReviews = await getAllReviewsFromStorage();
+      setReviews(updatedReviews);
       setSelectedReview(newReview);
       setStatus(GenerationStatus.SUCCESS);
     } catch (err: any) {
@@ -340,6 +367,22 @@ const App: React.FC = () => {
                                 Copier texte
                             </span>
                         )}
+                    </button>
+                    <button 
+                        onClick={async () => {
+                          if (!selectedReview) return;
+                          const { isFavorite, addFavorite, removeFavorite } = await import('./services/apiService');
+                          const isFav = await isFavorite(selectedReview.metadata.id);
+                          if (isFav) {
+                            await removeFavorite(selectedReview.metadata.id);
+                          } else {
+                            await addFavorite(selectedReview.metadata.id);
+                          }
+                        }}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg text-xs font-medium transition-all"
+                    >
+                        <Star className="w-3 h-3" />
+                        Favori
                     </button>
                     <button 
                         onClick={() => setShowExport(!showExport)}

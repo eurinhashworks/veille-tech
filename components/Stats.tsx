@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Review, CategoryType } from '../types';
 
 interface StatsProps {
@@ -6,19 +6,27 @@ interface StatsProps {
 }
 
 const Stats: React.FC<StatsProps> = ({ reviews }) => {
-  const totalReviews = reviews.length;
-  const totalNews = reviews.reduce((acc, curr) => acc + curr.metadata.newsCount, 0);
-  
-  // Calculate category distribution
-  const distribution: Record<string, number> = {
-    'Web': 0, 'Cloud': 0, 'DevOps': 0, 'Security': 0, 'IA': 0, 'Mix': 0
-  };
-  
-  reviews.forEach(r => {
-    distribution[r.metadata.dominantCategory]++;
+  const [stats, setStats] = useState({
+    totalReviews: 0,
+    totalNews: 0,
+    avgGenerationTime: 0,
+    categoryDistribution: {} as Record<string, number>,
+    topCategory: 'Mix',
   });
 
-  const maxVal = Math.max(...Object.values(distribution));
+  useEffect(() => {
+    const loadStats = async () => {
+      const { getStatistics } = await import('../services/apiService');
+      const statistics = await getStatistics();
+      setStats(statistics);
+    };
+    loadStats();
+  }, [reviews]);
+
+  const totalReviews = stats.totalReviews;
+  const totalNews = stats.totalNews;
+  const distribution = stats.categoryDistribution;
+  const maxVal = Math.max(...Object.values(distribution).map(v => Number(v) || 0), 1);
 
   return (
     <div className="space-y-8">
@@ -35,13 +43,13 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
         <div className="bg-dark-800 p-4 rounded-xl border border-slate-700">
            <p className="text-slate-400 text-xs font-mono uppercase">Temps Moyen</p>
            <p className="text-3xl font-bold text-accent-devops mt-1">
-             {totalReviews > 0 ? (reviews.reduce((acc, r) => acc + r.metadata.generationTime, 0) / totalReviews).toFixed(1) : 0}s
+             {stats.avgGenerationTime}s
            </p>
         </div>
         <div className="bg-dark-800 p-4 rounded-xl border border-slate-700">
            <p className="text-slate-400 text-xs font-mono uppercase">Top Catégorie</p>
            <p className="text-2xl font-bold text-accent-ia mt-2 truncate">
-             {Object.entries(distribution).sort((a,b) => b[1] - a[1])[0]?.[0] || '-'}
+             {stats.topCategory}
            </p>
         </div>
       </div>
@@ -51,7 +59,8 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
         <h3 className="text-slate-200 font-semibold mb-6">Répartition par thématique</h3>
         <div className="flex items-end justify-between h-48 gap-2 md:gap-4">
           {Object.entries(distribution).map(([cat, count]) => {
-            const height = maxVal > 0 ? (count / maxVal) * 100 : 0;
+            const numCount = Number(count) || 0;
+            const height = maxVal > 0 ? (numCount / maxVal) * 100 : 0;
             const colors: any = {
                 'Web': 'bg-accent-web',
                 'Cloud': 'bg-accent-cloud',
@@ -67,7 +76,7 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
                     style={{ height: `${height}%` }} 
                     className={`w-full max-w-[40px] rounded-t-sm opacity-80 group-hover:opacity-100 transition-all ${colors[cat]}`}
                    ></div>
-                   <span className="absolute -top-6 text-xs font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity">{count}</span>
+                   <span className="absolute -top-6 text-xs font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity">{Number(count) || 0}</span>
                 </div>
                 <span className="text-[10px] md:text-xs text-slate-400 mt-2 font-mono uppercase">{cat.substring(0, 3)}</span>
               </div>
