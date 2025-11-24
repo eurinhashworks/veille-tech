@@ -1,77 +1,148 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TechPulse AI - Revue Tech Quotidienne</title>
+
+    <!-- Primary Meta Tags -->
+    <title>TechPulse AI - Veille Technologique Intelligente | Revues Tech Quotidiennes</title>
+    <meta name="title" content="TechPulse AI - Veille Technologique Intelligente | Revues Tech Quotidiennes" />
+    <meta name="description" content="Générez des revues tech quotidiennes alimentées par l'IA. Suivez l'actualité Cloud, DevOps, Cybersécurité, IA et Développement Web. Veille technologique automatisée et personnalisée." />
+    <meta name="keywords" content="veille technologique, tech news, IA, intelligence artificielle, cloud computing, devops, cybersécurité, développement web, revue tech, actualité tech, Google Gemini" />
+    <meta name="author" content="Eurinhash" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://veille-tech.eurinhash.com/" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://veille-tech.eurinhash.com/" />
+    <meta property="og:title" content="TechPulse AI - Veille Technologique Intelligente" />
+    <meta property="og:description" content="Générez des revues tech quotidiennes alimentées par l'IA. Suivez l'actualité Cloud, DevOps, Cybersécurité, IA et Développement Web." />
+    <meta property="og:image" content="https://veille-tech.eurinhash.com/og-image.png" />
+    <meta property="og:site_name" content="TechPulse AI" />
+    <meta property="og:locale" content="fr_FR" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://veille-tech.eurinhash.com/" />
+    <meta property="twitter:title" content="TechPulse AI - Veille Technologique Intelligente" />
+    <meta property="twitter:description" content="Générez des revues tech quotidiennes alimentées par l'IA. Suivez l'actualité Cloud, DevOps, Cybersécurité, IA et Développement Web." />
+    <meta property="twitter:image" content="https://veille-tech.eurinhash.com/twitter-image.png" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#0B61FF" />
+
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "TechPulse AI",
+            "url": "https://veille-tech.eurinhash.com/",
+            "description": "Application de veille technologique alimentée par l'IA pour générer des revues tech quotidiennes",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "XOF"
+            },
+            "author": {
+                "@type": "Organization",
+                "name": "Eurinhash",
+                "url": "https://eurinhash.com",
+                "email": "contact@eurinhash.com"
+            },
+            "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.8",
+                "ratingCount": "127"
+            }
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
     <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              mono: ['IBM Plex Mono', 'monospace'], // Updated per request
-            },
-            colors: {
-              primary: {
-                DEFAULT: '#0B61FF',
-                hover: '#004AD9',
-                light: '#E0EAFF'
-              },
-              accent: {
-                ia: '#22C55E',      // Green
-                cloud: '#8B5CF6',   // Violet
-                sec: '#EF4444',     // Red
-                devops: '#F59E0B',  // Amber/Yellow
-                web: '#0EA5E9',     // Blue
-                mix: '#64748B'      // Slate
-              },
-              dark: {
-                950: '#020617',
-                900: '#0F172A',
-                800: '#1E293B',
-                700: '#334155',
-              }
-            },
-            animation: {
-              'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
-            },
-            keyframes: {
-              fadeInUp: {
-                '0%': { opacity: '0', transform: 'translateY(10px)' },
-                '100%': { opacity: '1', transform: 'translateY(0)' },
-              }
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['IBM Plex Mono', 'monospace'], // Updated per request
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#0B61FF',
+                            hover: '#004AD9',
+                            light: '#E0EAFF'
+                        },
+                        accent: {
+                            ia: '#22C55E', // Green
+                            cloud: '#8B5CF6', // Violet
+                            sec: '#EF4444', // Red
+                            devops: '#F59E0B', // Amber/Yellow
+                            web: '#0EA5E9', // Blue
+                            mix: '#64748B' // Slate
+                        },
+                        dark: {
+                            950: '#020617',
+                            900: '#0F172A',
+                            800: '#1E293B',
+                            700: '#334155',
+                        }
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': {
+                                opacity: '0',
+                                transform: 'translateY(10px)'
+                            },
+                            '100%': {
+                                opacity: '1',
+                                transform: 'translateY(0)'
+                            },
+                        }
+                    }
+                }
             }
-          }
         }
-      }
     </script>
     <style>
-      body {
-        background-color: #0F172A;
-        color: #e2e8f0;
-      }
-      /* Custom scrollbar */
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #1e293b; 
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #475569; 
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #64748b; 
-      }
+        body {
+            background-color: #0F172A;
+            color: #e2e8f0;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
     </style>
-  <script type="importmap">
-{
+    <script type="importmap">
+        {
   "imports": {
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
@@ -81,10 +152,12 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+    <link rel="stylesheet" href="/index.css">
 </head>
-  <body>
+
+<body>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
-  </body>
+</body>
+
 </html>

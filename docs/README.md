@@ -13,6 +13,8 @@ Bienvenue dans la documentation complète de **TechPulse AI**, votre générateu
 7. [Personnalisation](./07-personnalisation.md)
 8. [Déploiement](./08-deploiement.md)
 9. [FAQ et Dépannage](./09-faq.md)
+10. [Outils Similaires et Projets Futurs](./15-outils-similaires.md)
+11. [Évaluation des Projets Futurs : Potentiel et Faisabilité](./16-evaluation-projets-futurs.md)
 
 ## Liens rapides
 

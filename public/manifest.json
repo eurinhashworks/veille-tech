@@ -1,0 +1,40 @@
+{
+    "name": "TechPulse AI - Veille Technologique Intelligente",
+    "short_name": "TechPulse AI",
+    "description": "Application de veille technologique alimentée par l'IA pour générer des revues tech quotidiennes",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0F172A",
+    "theme_color": "#0B61FF",
+    "orientation": "portrait-primary",
+    "icons": [{
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["productivity", "business", "news"],
+    "lang": "fr",
+    "dir": "ltr",
+    "scope": "/",
+    "screenshots": [{
+            "src": "/screenshot-desktop.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide"
+        },
+        {
+            "src": "/screenshot-mobile.png",
+            "sizes": "750x1334",
+            "type": "image/png",
+            "form_factor": "narrow"
+        }
+    ]
+}

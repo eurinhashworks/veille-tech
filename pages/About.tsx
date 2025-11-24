@@ -76,10 +76,10 @@ const About: React.FC = () => {
             <span className="text-slate-300 group-hover:text-white">Code source sur GitHub</span>
             <ExternalLink className="w-4 h-4 text-slate-500 ml-auto" />
           </a>
-          <a href="mailto:contact@techpulse.ai" 
+          <a href="mailto:contact@eurinhash.com" 
              className="flex items-center gap-3 p-3 rounded-lg hover:bg-dark-900 transition-colors group">
             <Mail className="w-5 h-5 text-slate-400 group-hover:text-white" />
-            <span className="text-slate-300 group-hover:text-white">Contact & Support</span>
+            <span className="text-slate-300 group-hover:text-white">contact@eurinhash.com</span>
           </a>
         </div>
       </section>

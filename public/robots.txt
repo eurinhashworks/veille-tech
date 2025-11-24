@@ -1,0 +1,23 @@
+# robots.txt for TechPulse AI
+# https://veille-tech.eurinhash.com/
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /.env
+
+# Sitemaps
+Sitemap: https://veille-tech.eurinhash.com/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Specific bot rules
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
