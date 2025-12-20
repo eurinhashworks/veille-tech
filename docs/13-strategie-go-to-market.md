@@ -1,6 +1,6 @@
-# Stratégie Go-to-Market de TechPulse AI
+# Stratégie Go-to-Market de EUREKA
 
-Ce document détaille la stratégie pour introduire TechPulse AI sur le marché, acquérir des utilisateurs, et construire une base commerciale solide.
+Ce document détaille la stratégie pour introduire EUREKA sur le marché, acquérir des utilisateurs, et construire une base commerciale solide.
 
 ---
 
@@ -8,7 +8,7 @@ Ce document détaille la stratégie pour introduire TechPulse AI sur le marché,
 
 Nous ciblons trois personas principaux, chacun avec des besoins et des cas d'usage distincts.
 
-| Persona | Rôle | Principal "Pain Point" (Douleur) | Cas d'Usage de TechPulse AI |
+| Persona | Rôle | Principal "Pain Point" (Douleur) | Cas d'Usage de EUREKA |
 | :--- | :--- | :--- | :--- |
 | **"Le Développeur Ambitieux"** | Développeur Senior / Tech Lead | Peur d'être dépassé par la vélocité des nouvelles technologies ; manque de temps pour la veille ; difficulté à justifier des choix techniques. | Obtenir une revue quotidienne personnalisée ; suivre les tendances sur ses langages/frameworks ; détecter les failles de sécurité dans ses dépendances. |
 | **"Le Leader Stratégique"** | CTO / VP of Engineering / Architecte | Prendre des décisions technologiques à long terme (build vs. buy, adoption de nouvelles plateformes) ; aligner la stratégie tech avec la stratégie business ; gérer le risque technologique. | Utiliser le Radar de Tendances et le moteur de Simulation ; obtenir des analyses SWOT automatiques ; évaluer le sentiment du marché avant une migration majeure. |
@@ -42,7 +42,7 @@ Le lancement se fera en trois phases pour minimiser les risques, maximiser l'app
 
 ## 3. Stratégie d'Acquisition et de Marketing
 
-*   **Marketing de Contenu ("Content is King")** : Le blog et les rapports publics de TechPulse AI seront notre principal outil marketing. En publiant les meilleures analyses de tendances du marché (générées par notre propre plateforme), nous prouvons notre valeur et attirons notre audience cible de manière organique (SEO).
+*   **Marketing de Contenu ("Content is King")** : Le blog et les rapports publics de EUREKA seront notre principal outil marketing. En publiant les meilleures analyses de tendances du marché (générées par notre propre plateforme), nous prouvons notre valeur et attirons notre audience cible de manière organique (SEO).
 *   **Marketing Communautaire ("Build in Public")** : Maintenir une communication transparente sur nos progrès, nos défis et notre roadmap. Interagir sur les plateformes où se trouvent nos utilisateurs (Hacker News, Reddit, Twitter/X) pour construire une relation de confiance et obtenir des feedbacks.
 *   **Marketing d'Influence ("Leverage the Experts")** : Offrir un accès gratuit et premium aux influenceurs et leaders d'opinion reconnus dans le monde de la tech. Leurs témoignages et partages seront un puissant levier de crédibilité.
 

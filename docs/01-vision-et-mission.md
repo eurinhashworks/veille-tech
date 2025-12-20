@@ -1,6 +1,6 @@
-# Vision et Mission de TechPulse AI
+# Vision et Mission de EUREKA
 
-Ce document est la pierre angulaire de TechPulse AI. Il définit notre raison d'être, le futur que nous construisons, et les principes qui nous guident.
+Ce document est la pierre angulaire de EUREKA. Il définit notre raison d'être, le futur que nous construisons, et les principes qui nous guident.
 
 ---
 

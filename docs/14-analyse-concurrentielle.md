@@ -1,16 +1,16 @@
 # Analyse Concurrentielle et Positionnement Stratégique
 
-Ce document analyse l'environnement concurrentiel de TechPulse AI, identifie ses avantages uniques et définit son positionnement stratégique.
+Ce document analyse l'environnement concurrentiel de EUREKA, identifie ses avantages uniques et définit son positionnement stratégique.
 
 ---
 
 ## 1. Paysage Concurrentiel
 
-Il n'existe pas aujourd'hui de concurrent direct qui couvre l'ensemble du périmètre de TechPulse AI. La concurrence est fragmentée et composée d'acteurs qui ne résolvent qu'une partie du problème.
+Il n'existe pas aujourd'hui de concurrent direct qui couvre l'ensemble du périmètre de EUREKA. La concurrence est fragmentée et composée d'acteurs qui ne résolvent qu'une partie du problème.
 
 ### Concurrents Directs (Outils de Veille et d'Agrégation)
 
-| Concurrent | Forces | Faiblesses | Opportunité pour TechPulse AI |
+| Concurrent | Forces | Faiblesses | Opportunité pour EUREKA |
 | :--- | :--- | :--- | :--- |
 | **Feedly, Inoreader** | Excellents pour agréger des flux RSS et des sources définies par l'utilisateur. | Totalement passifs ; pas d'analyse, de synthèse ou de priorisation par IA ; créent une surcharge informationnelle. | **Offrir la synthèse et l'analyse** au lieu du bruit. Passer de "tout lire" à "comprendre l'essentiel". |
 | **Google Actualités, Techmeme** | Bons pour suivre l'actualité généraliste en temps réel. | Pas de personnalisation profonde ; pas de vision à long terme ou d'analyse de tendance ; focus sur l'actualité chaude uniquement. | **Fournir une vision personnalisée et stratégique** au-delà du cycle de news quotidien. |
@@ -18,7 +18,7 @@ Il n'existe pas aujourd'hui de concurrent direct qui couvre l'ensemble du périm
 
 ### Concurrents Indirects (Sources d'Intelligence Stratégique)
 
-| Concurrent | Forces | Faiblesses | Opportunité pour TechPulse AI |
+| Concurrent | Forces | Faiblesses | Opportunité pour EUREKA |
 | :--- | :--- | :--- | :--- |
 | **Gartner, Forrester** | Grande autorité, analyses stratégiques profondes (ex: Magic Quadrant). | Coût exorbitant (dizaines de milliers d'euros) ; lents, rapports publiés trimestriellement ou annuellement ; inaccessibles aux individus et aux petites entreprises. | **Démocratiser l'accès à l'intelligence stratégique**, la rendre temps réel, personnalisée et abordable. |
 | **Newsletters Tech (ex: Stratechery)** | Analyses humaines très pointues et respectées. | Vision d'un seul expert ; pas de personnalisation ; couverture de sujets limitée par le temps de l'auteur. | **Offrir une couverture exhaustive et personnalisée** qui combine la puissance de l'IA avec une analyse de type "expert". |
@@ -26,7 +26,7 @@ Il n'existe pas aujourd'hui de concurrent direct qui couvre l'ensemble du périm
 
 ---
 
-## 2. Analyse SWOT de TechPulse AI
+## 2. Analyse SWOT de EUREKA
 
 | Catégorie | Analyse |
 | :--- | :--- |
@@ -39,7 +39,7 @@ Il n'existe pas aujourd'hui de concurrent direct qui couvre l'ensemble du périm
 
 ## 3. Positionnement Stratégique : L'Océan Bleu
 
-Le positionnement de TechPulse AI n'est pas de concurrencer frontalement un acteur existant, mais de **créer un nouvel espace de marché** en combinant des axes que personne ne combine aujourd'hui.
+Le positionnement de EUREKA n'est pas de concurrencer frontalement un acteur existant, mais de **créer un nouvel espace de marché** en combinant des axes que personne ne combine aujourd'hui.
 
 Notre stratégie est de nous positionner à l'intersection de :
 *   **L'Automatisation (vs. Manuel)** : Contrairement aux agrégateurs passifs.
@@ -47,4 +47,4 @@ Notre stratégie est de nous positionner à l'intersection de :
 *   **Le Temps Réel (vs. Lent)** : Contrairement aux cabinets d'analystes traditionnels.
 *   **L'Accessibilité (vs. Élitiste)** : Contrairement aux services qui coûtent des dizaines de milliers d'euros.
 
-**En résumé, TechPulse AI n'est pas un meilleur agrégateur de news, ni un Gartner moins cher. C'est une nouvelle catégorie d'outil : une plateforme d'intelligence augmentée, autonome et accessible, qui transforme la manière dont les décisions technologiques sont prises.**
+**En résumé, EUREKA n'est pas un meilleur agrégateur de news, ni un Gartner moins cher. C'est une nouvelle catégorie d'outil : une plateforme d'intelligence augmentée, autonome et accessible, qui transforme la manière dont les décisions technologiques sont prises.**

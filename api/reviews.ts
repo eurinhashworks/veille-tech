@@ -24,7 +24,11 @@ export default async function handler(req: any, res: any) {
                 const review = await prisma.review.findUnique({
                     where: { date: String(date) },
                     include: {
-                        tags: true,
+                        ReviewToTag: {
+                            include: {
+                                tags: true
+                            }
+                        },
                         sources: true,
                         user: true,
                     },
@@ -43,7 +47,11 @@ export default async function handler(req: any, res: any) {
                         ...(userId ? { userId: String(userId) } : {}),
                     },
                     include: {
-                        tags: true,
+                        ReviewToTag: {
+                            include: {
+                                tags: true
+                            }
+                        },
                         sources: true,
                     },
                     orderBy: {
@@ -61,7 +69,11 @@ export default async function handler(req: any, res: any) {
             const reviews = await prisma.review.findMany({
                 where,
                 include: {
-                    tags: true,
+                    ReviewToTag: {
+                        include: {
+                            tags: true
+                        }
+                    },
                     sources: true,
                     user: {
                         select: {
@@ -114,8 +126,8 @@ export default async function handler(req: any, res: any) {
                     generationTime: review.metadata.generationTime,
                     isPublic: review.metadata.isPublic,
                     userId,
-                    tags: {
-                        connect: tags.map((tag: any) => ({ id: tag.id })),
+                    ReviewToTag: {
+                        create: tags.map((tag: any) => ({ tags: { connect: { id: tag.id } } })),
                     },
                     sources: {
                         create: review.sources.map((source: any) => ({
@@ -125,7 +137,11 @@ export default async function handler(req: any, res: any) {
                     },
                 },
                 include: {
-                    tags: true,
+                    ReviewToTag: {
+                        include: {
+                            tags: true
+                        }
+                    },
                     sources: true,
                 },
             });

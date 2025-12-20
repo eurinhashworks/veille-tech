@@ -1,4 +1,4 @@
-# robots.txt for TechPulse AI
+# robots.txt for EUREKA
 # https://veille-tech.eurinhash.com/
 
 User-agent: *

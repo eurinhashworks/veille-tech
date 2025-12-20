@@ -1,12 +1,12 @@
 # Analyse de la Valeur Stratégique et Recommandation
 
-Ce document synthétise la valeur potentielle de la plateforme TechPulse AI si la roadmap complète est implémentée, et formule une recommandation cruciale concernant la gestion de son dépôt.
+Ce document synthétise la valeur potentielle de la plateforme EUREKA si la roadmap complète est implémentée, et formule une recommandation cruciale concernant la gestion de son dépôt.
 
 ---
 
 ## 1. Valeur Stratégique de la Plateforme Complète
 
-Si l'ensemble de la roadmap de développement de TechPulse AI était réalisé, la plateforme se transformerait en une **infrastructure critique et indispensable** pour l'écosystème technologique mondial. Sa valeur serait intrinsèquement liée à sa capacité à :
+Si l'ensemble de la roadmap de développement de EUREKA était réalisé, la plateforme se transformerait en une **infrastructure critique et indispensable** pour l'écosystème technologique mondial. Sa valeur serait intrinsèquement liée à sa capacité à :
 
 *   **Pour l'individu (Développeur, Ingénieur, Chef de Produit)** : Transformer la veille de tâche passive en une expérience proactive et personnalisée. Elle agirait comme un **"coach de carrière IA"** identifiant les compétences du futur, libérant un temps précieux pour la créativité et le "deep work" en automatisant les tâches à faible valeur ajoutée (veille, suivi de vulnérabilités, mises à jour). Elle démocratiserait l'accès à une vision stratégique des tendances, auparavant réservée à des experts.
 
@@ -18,7 +18,7 @@ Si l'ensemble de la roadmap de développement de TechPulse AI était réalisé, 
 
 ## 2. Positionnement sur le Marché et Avantage Compétitif
 
-La réalisation de cette roadmap permettrait à TechPulse AI de ne pas simplement concurrencer les acteurs existants (agrégateurs de news, cabinets d'analyse, outils de veille). Elle **créerait une nouvelle catégorie de marché** : celle de l'Intelligence Stratégique Autonome en temps réel (`Real-time Autonomous Strategic Intelligence`).
+La réalisation de cette roadmap permettrait à EUREKA de ne pas simplement concurrencer les acteurs existants (agrégateurs de news, cabinets d'analyse, outils de veille). Elle **créerait une nouvelle catégorie de marché** : celle de l'Intelligence Stratégique Autonome en temps réel (`Real-time Autonomous Strategic Intelligence`).
 
 Son **"fossé compétitif" (moat) serait immense et quasiment infranchissable**, en raison de :
 
@@ -42,7 +42,7 @@ Des revenus additionnels pourraient provenir de l'**accès API** aux données an
 
 ## 4. Recommandation : Gestion du Dépôt (Privé)
 
-Au vu du potentiel de valeur stratégique et commercial de TechPulse AI, la recommandation est catégorique :
+Au vu du potentiel de valeur stratégique et commercial de EUREKA, la recommandation est catégorique :
 
 **Le projet doit être maintenu en dépôt privé.**
 

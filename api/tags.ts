@@ -21,14 +21,19 @@ export default async function handler(req: any, res: any) {
         try {
             const tags = await prisma.tag.findMany({
                 include: {
+                    ReviewToTag: {
+                        include: {
+                            reviews: true
+                        }
+                    },
                     _count: {
                         select: {
-                            reviews: true,
+                            ReviewToTag: true,
                         },
                     },
                 },
                 orderBy: {
-                    reviews: {
+                    ReviewToTag: {
                         _count: 'desc',
                     },
                 },

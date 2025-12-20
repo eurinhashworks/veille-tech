@@ -2,7 +2,7 @@
 
 ## Vue d'ensemble
 
-TechPulse AI utilise une architecture de composants React modulaires et réutilisables.
+EUREKA utilise une architecture de composants React modulaires et réutilisables.
 
 ## Composant App.tsx
 
@@ -131,7 +131,7 @@ Affiche un spinner animé automatiquement.
 const Header: React.FC = () => (
   <header className="bg-dark-800 border-b border-slate-700">
     <div className="container mx-auto px-4 py-4">
-      <h1>TechPulse AI</h1>
+      <h1>EUREKA</h1>
       <p>Revue Quotidienne</p>
     </div>
   </header>

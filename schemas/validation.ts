@@ -58,7 +58,7 @@ export const removeFavoriteSchema = z.object({
 export const saveSearchHistorySchema = z.object({
     userId: z.string().min(1, 'UserId requis'),
     query: z.string().min(1, 'Query requis'),
-    filters: z.record(z.any()).optional(),
+    filters: z.record(z.string(), z.any()).optional(),
     results: z.number().int().nonnegative(),
 });
 

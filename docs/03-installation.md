@@ -149,7 +149,7 @@ Configuration TypeScript pour React et Vite :
 
 Une fois l'application lancée, vous devriez voir :
 
-1. L'interface TechPulse AI avec 4 onglets
+1. L'interface EUREKA avec 4 onglets
 2. Trois revues de démonstration (mock data)
 3. Le formulaire de génération fonctionnel
 

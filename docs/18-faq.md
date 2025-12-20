@@ -4,9 +4,9 @@
 
 ### Général
 
-#### Qu'est-ce que TechPulse AI ?
+#### Qu'est-ce que EUREKA ?
 
-TechPulse AI est une application web qui utilise l'intelligence artificielle (Google Gemini) pour générer automatiquement des revues technologiques quotidiennes. Elle agrège et synthétise les actualités en développement web, cloud, DevOps, cybersécurité et IA.
+EUREKA est une application web qui utilise l'intelligence artificielle (Google Gemini) pour générer automatiquement des revues technologiques quotidiennes. Elle agrège et synthétise les actualités en développement web, cloud, DevOps, cybersécurité et IA.
 
 #### Est-ce gratuit ?
 

@@ -42,7 +42,11 @@ export default async function handler(req: any, res: any) {
                 include: {
                     review: {
                         include: {
-                            tags: true,
+                            ReviewToTag: {
+                                include: {
+                                    tags: true
+                                }
+                            },
                             sources: true,
                         },
                     },

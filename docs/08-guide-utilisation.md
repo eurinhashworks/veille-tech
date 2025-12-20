@@ -2,7 +2,7 @@
 
 ## Interface principale
 
-L'application TechPulse AI est organisée en 4 onglets principaux :
+L'application EUREKA est organisée en 4 onglets principaux :
 
 1. **✨ Générateur** : Créer de nouvelles revues
 2. **📅 Timeline** : Visualiser les revues en fil chronologique

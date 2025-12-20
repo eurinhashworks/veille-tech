@@ -1,6 +1,6 @@
 # Roadmap Stratégique : Évolutions et IA
 
-Ce document détaille les futures évolutions majeures pour transformer TechPulse AI en une plateforme d'intelligence technologique inégalée. Chaque proposition inclut sa vision, son impact, la méthodologie pour y parvenir et les ressources nécessaires.
+Ce document détaille les futures évolutions majeures pour transformer EUREKA en une plateforme d'intelligence technologique inégalée. Chaque proposition inclut sa vision, son impact, la méthodologie pour y parvenir et les ressources nécessaires.
 
 ---
 
@@ -111,7 +111,7 @@ Ce document détaille les futures évolutions majeures pour transformer TechPuls
 
 ## Horizons Futurs : Vers une Intelligence Augmentée
 
-Cette section explore des évolutions visionnaires qui positionneraient TechPulse AI non plus comme un outil, mais comme un partenaire décisionnel autonome.
+Cette section explore des évolutions visionnaires qui positionneraient EUREKA non plus comme un outil, mais comme un partenaire décisionnel autonome.
 
 ### Horizon 1 : L'IA "Agent" Proactif et Autonome
 

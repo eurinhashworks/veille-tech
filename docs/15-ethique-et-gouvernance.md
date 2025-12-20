@@ -1,6 +1,6 @@
 # Charte d'Éthique et de Gouvernance des Données
 
-Ce document établit les principes fondamentaux qui guident le développement et l'opération de TechPulse AI. La confiance de nos utilisateurs est notre actif le plus précieux, et cette charte est notre engagement pour la mériter et la préserver.
+Ce document établit les principes fondamentaux qui guident le développement et l'opération de EUREKA. La confiance de nos utilisateurs est notre actif le plus précieux, et cette charte est notre engagement pour la mériter et la préserver.
 
 ---
 
@@ -50,6 +50,6 @@ Un modèle "boîte noire" est un obstacle à la confiance. Nous nous engageons �
 
 ## 4. Responsabilité
 
-TechPulse AI est un outil puissant. Nous nous engageons à mettre en place des garde-fous pour empêcher son utilisation à des fins malveillantes, telles que la manipulation de l'opinion ou l'espionnage industriel à grande échelle.
+EUREKA est un outil puissant. Nous nous engageons à mettre en place des garde-fous pour empêcher son utilisation à des fins malveillantes, telles que la manipulation de l'opinion ou l'espionnage industriel à grande échelle.
 
 Cette charte n'est pas un document statique. Elle évoluera avec notre technologie et avec le dialogue que nous entretiendrons avec notre communauté d'utilisateurs. Elle représente notre promesse de construire non seulement une plateforme puissante, mais aussi une plateforme juste et digne de confiance.

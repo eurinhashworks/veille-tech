@@ -1,8 +1,8 @@
 # Vue d'ensemble
 
-## Qu'est-ce que TechPulse AI ?
+## Qu'est-ce que EUREKA ?
 
-TechPulse AI est une application web innovante qui révolutionne la veille technologique en automatisant la création de revues quotidiennes grâce à l'intelligence artificielle.
+EUREKA est une application web innovante qui révolutionne la veille technologique en automatisant la création de revues quotidiennes grâce à l'intelligence artificielle.
 
 ### Problème résolu
 
@@ -12,7 +12,7 @@ Les professionnels de la tech passent des heures chaque jour à :
 - Synthétiser les informations pertinentes
 - Rédiger des résumés structurés
 
-TechPulse AI automatise ce processus en quelques secondes.
+EUREKA automatise ce processus en quelques secondes.
 
 ## Fonctionnalités principales
 
@@ -67,7 +67,7 @@ TechPulse AI automatise ce processus en quelques secondes.
 
 ## Philosophie du projet
 
-TechPulse AI repose sur trois piliers :
+EUREKA repose sur trois piliers :
 
 1. **Automatisation intelligente** : L'IA fait le travail de recherche et de synthèse
 2. **Qualité éditoriale** : Format structuré, lisible, prêt à partager
@@ -75,4 +75,4 @@ TechPulse AI repose sur trois piliers :
 
 ## Prochaines étapes
 
-Consultez le [guide d'installation](./02-installation.md) pour démarrer avec TechPulse AI.
+Consultez le [guide d'installation](./02-installation.md) pour démarrer avec EUREKA.

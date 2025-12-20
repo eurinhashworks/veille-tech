@@ -1,20 +1,24 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 const TechBackground: React.FC = () => {
+  // Memoize dots to prevent recalculation on every render
+  const dots = useMemo(() =>
+    Array.from({ length: 50 }).map((_, i) => ({
+      width: `${Math.random() * 3 + 1}px`,
+      height: `${Math.random() * 3 + 1}px`,
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+    })), []);
+
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
       {/* Grille de points technologiques */}
       <div className="absolute inset-0 opacity-10">
-        {Array.from({ length: 50 }).map((_, i) => (
+        {dots.map((style, i) => (
           <div
             key={i}
             className="absolute rounded-full bg-primary"
-            style={{
-              width: `${Math.random() * 3 + 1}px`,
-              height: `${Math.random() * 3 + 1}px`,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-            }}
+            style={style}
           />
         ))}
       </div>
@@ -24,7 +28,7 @@ const TechBackground: React.FC = () => {
       <div className="absolute top-1/3 right-1/4 w-24 h-24 border border-accent-ia/20 rounded-full animate-float-delayed" />
       <div className="absolute bottom-1/4 left-1/3 w-16 h-16 bg-primary/5 rotate-12 animate-float-slow" />
       <div className="absolute bottom-1/3 right-1/3 w-20 h-20 border-t-2 border-r-2 border-primary/30 animate-float" />
-      
+
       {/* Lignes de connexion technologiques */}
       <div className="absolute top-0 left-0 w-full h-full">
         <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -54,4 +58,4 @@ const TechBackground: React.FC = () => {
   );
 };
 
-export default TechBackground;
+export default React.memo(TechBackground);

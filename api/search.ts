@@ -44,10 +44,12 @@ export default async function handler(req: any, res: any) {
                             : {},
                         tagList.length > 0
                             ? {
-                                tags: {
+                                ReviewToTag: {
                                     some: {
-                                        name: {
-                                            in: tagList,
+                                        tags: {
+                                            name: {
+                                                in: tagList,
+                                            },
                                         },
                                     },
                                 },
@@ -59,7 +61,11 @@ export default async function handler(req: any, res: any) {
                     ],
                 },
                 include: {
-                    tags: true,
+                    ReviewToTag: {
+                        include: {
+                            tags: true
+                        }
+                    },
                     sources: true,
                     user: {
                         select: {

@@ -2,7 +2,7 @@
 
 ## Architecture du service Gemini
 
-Le fichier `services/geminiService.ts` est le cœur de la logique métier de TechPulse AI.
+Le fichier `services/geminiService.ts` est le cœur de la logique métier de EUREKA.
 
 ## Initialisation de l'API
 

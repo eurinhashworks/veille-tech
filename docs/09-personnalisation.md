@@ -462,7 +462,7 @@ Pour de grandes quantités de données :
 ```typescript
 import { openDB } from 'idb';
 
-const db = await openDB('TechPulseDB', 1, {
+const db = await openDB('EUREKADB', 1, {
   upgrade(db) {
     db.createObjectStore('reviews', { keyPath: 'metadata.id' });
   }

@@ -22,7 +22,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
     localStorage.setItem('auto_generate', autoGenerate.toString());
     localStorage.setItem('notifications', notifications.toString());
     localStorage.setItem('default_visibility', defaultVisibility);
-    
+
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -30,7 +30,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
   const handleExport = async () => {
     const { exportAllData } = await import('../services/storageService');
     const data = await exportAllData();
-    
+
     const exportData = {
       ...data,
       settings: {
@@ -41,12 +41,12 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
         defaultVisibility
       }
     };
-    
+
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `techpulse-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `eureka-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
   };
 
@@ -58,11 +58,11 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
     reader.onload = async (event) => {
       try {
         const data = JSON.parse(event.target?.result as string);
-        
+
         // Importer les données
         const { importData } = await import('../services/storageService');
         await importData(data);
-        
+
         // Importer les paramètres
         if (data.settings) {
           setUsername(data.settings.username || '');
@@ -89,7 +89,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           </div>
           <h1 className="text-3xl font-bold text-white">Paramètres</h1>
         </div>
-        <button 
+        <button
           onClick={onClose}
           className="text-slate-400 hover:text-white transition-colors"
         >

@@ -1,8 +1,8 @@
-# Base de Données - TechPulse AI
+# Base de Données - EUREKA
 
 ## 📊 Vue d'ensemble
 
-TechPulse AI utilise **PostgreSQL** hébergé sur **Neon** avec **Prisma** comme ORM.
+EUREKA utilise **PostgreSQL** hébergé sur **Neon** avec **Prisma** comme ORM.
 
 ## 🗄️ Schéma de Base de Données
 

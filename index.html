@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Primary Meta Tags -->
-    <title>TechPulse AI - Veille Tech Intelligente par IA</title>
-    <meta name="title" content="TechPulse AI - Veille Tech Intelligente par IA">
+    <title>EUREKA - Veille Tech Intelligente par IA</title>
+    <meta name="title" content="EUREKA - Veille Tech Intelligente par IA">
     <meta name="description" content="Générez des revues tech quotidiennes alimentées par l'IA. Suivez l'actualité Cloud, DevOps, Cybersécurité, IA et Développement Web. Veille technologique automatisée et personnalisée.">
     <meta name="keywords" content="veille technologique, tech news, IA, intelligence artificielle, cloud computing, devops, cybersécurité, développement web, revue tech, actualité tech, Google Gemini">
     <meta name="author" content="Eurinhash">
@@ -17,21 +17,21 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://veille-tech.eurinhash.com/">
-    <meta property="og:title" content="TechPulse AI - Veille Technologique Intelligente">
+    <meta property="og:title" content="EUREKA - Veille Technologique Intelligente">
     <meta property="og:description" content="Générez des revues tech quotidiennes alimentées par l'IA. Suivez l'actualité Cloud, DevOps, Cybersécurité, IA et Développement Web.">
     <meta property="og:image" content="https://veille-tech.eurinhash.com/og-image.png">
-    <meta property="og:site_name" content="TechPulse AI">
+    <meta property="og:site_name" content="EUREKA">
     <meta property="og:locale" content="fr_FR">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://veille-tech.eurinhash.com/">
-    <meta property="twitter:title" content="TechPulse AI - Veille Technologique Intelligente">
+    <meta property="twitter:title" content="EUREKA - Veille Technologique Intelligente">
     <meta property="twitter:description" content="Générez des revues tech quotidiennes alimentées par l'IA. Suivez l'actualité Cloud, DevOps, Cybersécurité, IA et Développement Web.">
     <meta property="twitter:image" content="https://veille-tech.eurinhash.com/twitter-image.png">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
     <!-- Theme Color -->
@@ -42,7 +42,7 @@
         {
             "@context": "https://schema.org",
             "@type": "WebApplication",
-            "name": "TechPulse AI",
+            "name": "EUREKA",
             "url": "https://veille-tech.eurinhash.com/",
             "description": "Application de veille technologique alimentée par l'IA pour générer des revues tech quotidiennes",
             "applicationCategory": "BusinessApplication",
@@ -65,23 +65,27 @@
             }
         }
     </script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['IBM Plex Mono', 'monospace'], // Updated per request
-                    },
                     colors: {
-                        primary: {
-                            DEFAULT: '#0B61FF',
-                            hover: '#004AD9',
-                            light: '#E0EAFF'
-                        },
+                        primary: "#f95d25", // Orange from the logo
+                        secondary: "#ccf281", // Light green button color
+                        darkblue: "#021a2f", // Footer and dark section color
+                        "background-light": "#ffffff",
+                        "background-dark": "#0f172a",
+                        "surface-light": "#f3f4f6",
+                        "surface-dark": "#1e293b",
                         accent: {
                             ia: '#22C55E', // Green
                             cloud: '#8B5CF6', // Violet
@@ -96,6 +100,17 @@
                             800: '#1E293B',
                             700: '#334155',
                         }
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['IBM Plex Mono', 'monospace'],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                        'xl': "1rem",
+                        '2xl': "1.5rem",
+                        '3xl': "2rem",
                     },
                     animation: {
                         'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
@@ -135,11 +150,20 @@
         }
     </script>
     <style>
-        body {
-            background-color: #0F172A;
-            color: #e2e8f0;
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-mesh-1 {
+            background: radial-gradient(circle at 10% 20%, rgb(204, 242, 129) 0%, rgb(186, 230, 253) 90%);
         }
-
+        .gradient-card-1 {
+            background: linear-gradient(135deg, #eaddd3 0%, #ffffff 100%);
+        }
+        .gradient-card-2 {
+            background: linear-gradient(135deg, #d3dde6 0%, #ffffff 100%);
+        }
+        .gradient-card-3 {
+            background: linear-gradient(135deg, #d3e6d8 0%, #ffffff 100%);
+        }
+        
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -157,37 +181,6 @@
 
         ::-webkit-scrollbar-thumb:hover {
             background: #64748b;
-        }
-        
-        /* Animations pour le fond technologique */
-        @keyframes float {
-            0%, 100% { transform: translateY(0) translateX(0); }
-            50% { transform: translateY(-20px) translateX(10px); }
-        }
-        
-        @keyframes float-delayed {
-            0%, 100% { transform: translateY(0) translateX(0); }
-            50% { transform: translateY(-15px) translateX(-10px); }
-        }
-        
-        @keyframes float-slow {
-            0%, 100% { transform: translateY(0) translateX(0); }
-            50% { transform: translateY(-10px) translateX(5px); }
-        }
-        
-        @keyframes spin-slow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        @keyframes ping-slow {
-            0% { transform: scale(1); opacity: 1; }
-            75%, 100% { transform: scale(1.5); opacity: 0; }
-        }
-        
-        @keyframes ping-slower {
-            0% { transform: scale(1); opacity: 1; }
-            75%, 100% { transform: scale(2); opacity: 0; }
         }
     </style>
     <script type="importmap">
