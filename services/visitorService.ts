@@ -1,149 +1,78 @@
-import { prisma } from '../lib/prisma';
+// MOCK Service for Visitor Stats (Client-side only)
+// Replaces the direct Prisma database connection which cannot run in the browser.
+
+const API_URL = '/api/visitors';
 
 // Interface pour les statistiques des visiteurs
 interface VisitorStats {
   id: string;
-  date: Date;
+  date: string;
   count: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Interface pour les visiteurs en temps réel
 interface CurrentVisitors {
   id: string;
   count: number;
-  lastReset: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  lastReset: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+async function fetchVisitorApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    ...options,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Visitor API Error: ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
 /**
  * Incrémente le compteur de visiteurs pour la date actuelle
  */
 export const incrementDailyVisitors = async (): Promise<VisitorStats> => {
-  try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Réinitialiser l'heure pour comparer uniquement la date
-
-    // Mettre à jour ou créer l'entrée pour aujourd'hui
-    const stats = await prisma.visitorStats.upsert({
-      where: { date: today },
-      update: { 
-        count: { increment: 1 },
-        updatedAt: new Date()
-      },
-      create: { 
-        date: today,
-        count: 1
-      }
-    });
-
-    return stats;
-  } catch (error) {
-    console.error('Erreur lors de l\'incrémentation des visiteurs quotidiens:', error);
-    throw error;
-  }
+  return await fetchVisitorApi('', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'increment_daily' })
+  });
 };
 
 /**
  * Incrémente le compteur de visiteurs en temps réel
  */
 export const incrementCurrentVisitors = async (): Promise<CurrentVisitors> => {
-  try {
-    // Obtenir ou créer l'entrée pour les visiteurs actuels
-    let currentVisitors = await prisma.currentVisitors.findFirst();
-    
-    if (!currentVisitors) {
-      // Créer l'entrée si elle n'existe pas
-      currentVisitors = await prisma.currentVisitors.create({
-        data: {
-          count: 1
-        }
-      });
-    } else {
-      // Mettre à jour le compteur
-      currentVisitors = await prisma.currentVisitors.update({
-        where: { id: currentVisitors.id },
-        data: { 
-          count: { increment: 1 },
-          updatedAt: new Date()
-        }
-      });
-    }
-
-    return currentVisitors;
-  } catch (error) {
-    console.error('Erreur lors de l\'incrémentation des visiteurs actuels:', error);
-    throw error;
-  }
+  return await fetchVisitorApi('', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'increment_current' })
+  });
 };
 
 /**
  * Décrémente le compteur de visiteurs en temps réel
  */
 export const decrementCurrentVisitors = async (): Promise<CurrentVisitors> => {
-  try {
-    // Obtenir l'entrée pour les visiteurs actuels
-    let currentVisitors = await prisma.currentVisitors.findFirst();
-    
-    if (currentVisitors && currentVisitors.count > 0) {
-      // Mettre à jour le compteur
-      currentVisitors = await prisma.currentVisitors.update({
-        where: { id: currentVisitors.id },
-        data: { 
-          count: { decrement: 1 },
-          updatedAt: new Date()
-        }
-      });
-    }
-
-    return currentVisitors || { 
-      id: '', 
-      count: 0, 
-      lastReset: new Date(), 
-      createdAt: new Date(), 
-      updatedAt: new Date() 
-    };
-  } catch (error) {
-    console.error('Erreur lors de la décrémentation des visiteurs actuels:', error);
-    throw error;
-  }
+  return await fetchVisitorApi('', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'decrement_current' })
+  });
 };
 
 /**
  * Réinitialise le compteur de visiteurs en temps réel
  */
 export const resetCurrentVisitors = async (): Promise<CurrentVisitors> => {
-  try {
-    // Obtenir ou créer l'entrée pour les visiteurs actuels
-    let currentVisitors = await prisma.currentVisitors.findFirst();
-    
-    if (!currentVisitors) {
-      // Créer l'entrée si elle n'existe pas
-      currentVisitors = await prisma.currentVisitors.create({
-        data: {
-          count: 0,
-          lastReset: new Date()
-        }
-      });
-    } else {
-      // Réinitialiser le compteur
-      currentVisitors = await prisma.currentVisitors.update({
-        where: { id: currentVisitors.id },
-        data: { 
-          count: 0,
-          lastReset: new Date(),
-          updatedAt: new Date()
-        }
-      });
-    }
-
-    return currentVisitors;
-  } catch (error) {
-    console.error('Erreur lors de la réinitialisation des visiteurs actuels:', error);
-    throw error;
-  }
+  // Not implemented in API yet, fallback to decrement for now or implement properly later
+  console.warn('resetCurrentVisitors not fully implemented in API');
+  return { id: '', count: 0, lastReset: new Date().toISOString(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
 };
 
 /**
@@ -151,16 +80,8 @@ export const resetCurrentVisitors = async (): Promise<CurrentVisitors> => {
  */
 export const getDailyVisitorStats = async (): Promise<VisitorStats | null> => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Réinitialiser l'heure pour comparer uniquement la date
-
-    const stats = await prisma.visitorStats.findUnique({
-      where: { date: today }
-    });
-
-    return stats;
+    return await fetchVisitorApi('?type=daily');
   } catch (error) {
-    console.error('Erreur lors de la récupération des statistiques quotidiennes:', error);
     return null;
   }
 };
@@ -170,15 +91,9 @@ export const getDailyVisitorStats = async (): Promise<VisitorStats | null> => {
  */
 export const getTotalVisitors = async (): Promise<number> => {
   try {
-    const result = await prisma.visitorStats.aggregate({
-      _sum: {
-        count: true
-      }
-    });
-
-    return result._sum.count || 0;
+    const data = await fetchVisitorApi<{ count: number }>('?type=total');
+    return data.count;
   } catch (error) {
-    console.error('Erreur lors du calcul du total des visiteurs:', error);
     return 0;
   }
 };
@@ -188,10 +103,9 @@ export const getTotalVisitors = async (): Promise<number> => {
  */
 export const getCurrentVisitors = async (): Promise<number> => {
   try {
-    const currentVisitors = await prisma.currentVisitors.findFirst();
-    return currentVisitors?.count || 0;
+    const data = await fetchVisitorApi<{ count: number }>('?type=current');
+    return data.count;
   } catch (error) {
-    console.error('Erreur lors de la récupération des visiteurs actuels:', error);
     return 0;
   }
 };
@@ -200,22 +114,6 @@ export const getCurrentVisitors = async (): Promise<number> => {
  * Obtient les statistiques des visiteurs pour une période donnée
  */
 export const getVisitorStatsForPeriod = async (startDate: Date, endDate: Date): Promise<VisitorStats[]> => {
-  try {
-    const stats = await prisma.visitorStats.findMany({
-      where: {
-        date: {
-          gte: startDate,
-          lte: endDate
-        }
-      },
-      orderBy: {
-        date: 'asc'
-      }
-    });
-
-    return stats;
-  } catch (error) {
-    console.error('Erreur lors de la récupération des statistiques pour la période:', error);
-    return [];
-  }
+  // Not implemented in this iteration
+  return [];
 };

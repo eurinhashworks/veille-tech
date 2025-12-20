@@ -1,52 +1,45 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
-// Modèle User - Utilisateurs de l'application
 model User {
-  id        String   @id @default(cuid())
-  username  String   @unique
-  email     String?  @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  reviews       Review[]
+  id            String          @id @default(cuid())
+  username      String          @unique
+  email         String?         @unique
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
   favorites     Favorite[]
+  reviews       Review[]
   searchHistory SearchHistory[]
   settings      UserSettings?
 
   @@map("users")
 }
 
-// Modèle Review - Revues tech générées
 model Review {
-  id                String   @id @default(cuid())
-  date              String   @unique // Format: YYYY-MM-DD
-  formattedDate     String
-  content           String   @db.Text
-  flashSummary      String   @db.Text
-  aiAnalysis        String   @db.Text
-  dominantCategory  String
-  newsCount         Int
-  generationTime    Float
-  isPublic          Boolean  @default(true)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  // Relations
-  userId    String
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tags      Tag[]
-  sources   Source[]
-  favorites Favorite[]
+  id               String        @id @default(cuid())
+  date             String        @unique
+  formattedDate    String
+  content          String
+  flashSummary     String
+  aiAnalysis       String
+  dominantCategory String
+  newsCount        Int
+  generationTime   Float
+  isPublic         Boolean       @default(true)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  userId           String
+  ReviewToTag      ReviewToTag[]
+  favorites        Favorite[]
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sources          Source[]
 
   @@index([userId])
   @@index([date])
@@ -55,24 +48,18 @@ model Review {
   @@map("reviews")
 }
 
-// Modèle Tag - Tags associés aux revues
 model Tag {
-  id   String @id @default(cuid())
-  name String @unique
-
-  // Relations
-  reviews Review[]
+  id          String        @id @default(cuid())
+  name        String        @unique
+  ReviewToTag ReviewToTag[]
 
   @@map("tags")
 }
 
-// Modèle Source - Sources des actualités
 model Source {
-  id    String @id @default(cuid())
-  title String
-  uri   String @db.Text
-
-  // Relations
+  id       String @id @default(cuid())
+  title    String
+  uri      String
   reviewId String
   review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 
@@ -80,16 +67,13 @@ model Source {
   @@map("sources")
 }
 
-// Modèle Favorite - Revues favorites des utilisateurs
 model Favorite {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
-
-  // Relations
-  userId   String
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reviewId String
-  review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  userId    String
+  reviewId  String
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, reviewId])
   @@index([userId])
@@ -97,60 +81,63 @@ model Favorite {
   @@map("favorites")
 }
 
-// Modèle SearchHistory - Historique des recherches
 model SearchHistory {
   id        String   @id @default(cuid())
   query     String
-  filters   Json? // Stocke les filtres appliqués (catégorie, tags, dates)
-  results   Int // Nombre de résultats trouvés
+  filters   Json?
+  results   Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Relations
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([createdAt])
   @@map("search_history")
 }
 
-// Modèle UserSettings - Paramètres utilisateur
 model UserSettings {
-  id                 String   @id @default(cuid())
-  theme              String   @default("dark") // dark, light, auto
-  defaultVisibility  String   @default("public") // public, private
-  notifications      Boolean  @default(false)
-  autoGenerate       Boolean  @default(false)
-  aiPreferences      Json? // Préférences d'IA personnalisées
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  // Relations
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String   @id @default(cuid())
+  theme             String   @default("dark")
+  defaultVisibility String   @default("public")
+  notifications     Boolean  @default(false)
+  autoGenerate      Boolean  @default(false)
+  aiPreferences     Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_settings")
 }
 
-// Modèle VisitorStats - Statistiques des visiteurs
 model VisitorStats {
   id        String   @id @default(cuid())
-  date      DateTime @unique // Date du jour
-  count     Int      @default(0) // Nombre de visiteurs pour cette date
+  date      DateTime @unique
+  count     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("visitor_stats")
 }
 
-// Modèle CurrentVisitors - Visiteurs en temps réel
 model CurrentVisitors {
   id        String   @id @default(cuid())
-  count     Int      @default(0) // Nombre de visiteurs actuellement en ligne
-  lastReset DateTime @default(now()) // Dernière réinitialisation du compteur
+  count     Int      @default(0)
+  lastReset DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("current_visitors")
+}
+
+model ReviewToTag {
+  A       String
+  B       String
+  reviews Review @relation(fields: [A], references: [id], onDelete: Cascade)
+  tags    Tag    @relation(fields: [B], references: [id], onDelete: Cascade)
+
+  @@id([A, B], map: "_ReviewToTag_AB_pkey")
+  @@index([B], map: "_ReviewToTag_B_index")
+  @@map("_ReviewToTag")
 }
