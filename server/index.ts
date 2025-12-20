@@ -1,13 +1,52 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import { prisma } from '../lib/prisma';
+import { apiLimiter } from '../middleware/rateLimiter';
 
 const app = express();
 const port = 3001;
 
-app.use(cors());
+// Security: Helmet for HTTP headers
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            scriptSrc: ["'self'"],
+            imgSrc: ["'self'", "data:", "https:"],
+        },
+    },
+}));
+
+// Security: CORS configuration with whitelist
+const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'http://192.168.100.10:3000',
+    // Add production domain when deployed
+    // 'https://veille-tech.eurinhash.com'
+];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+}));
+
 app.use(express.json());
+
+// Apply rate limiting to all API routes
+app.use('/api', apiLimiter);
 
 // API Handling Helper
 const handleApi = (handler: any) => async (req: express.Request, res: express.Response) => {

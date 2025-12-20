@@ -1,4 +1,5 @@
 import { prisma } from '../lib/prisma';
+import { createUserSchema, getUserSchema, validateRequest } from '../schemas/validation';
 
 export default async function handler(req: any, res: any) {
     // Enable CORS
@@ -16,13 +17,14 @@ export default async function handler(req: any, res: any) {
     }
 
     if (req.method === 'GET') {
-        const { username } = req.query;
-
-        if (!username) {
-            return res.status(400).json({ error: 'Username is required' });
-        }
-
         try {
+            // Validate query parameters
+            const { username } = validateRequest(getUserSchema, req.query);
+
+            if (!username) {
+                return res.status(400).json({ error: 'Username is required' });
+            }
+
             const user = await prisma.user.findUnique({
                 where: { username: String(username) },
                 include: {
@@ -35,32 +37,22 @@ export default async function handler(req: any, res: any) {
             }
 
             return res.status(200).json(user);
-        } catch (error) {
+        } catch (error: any) {
+            if (error.name === 'ZodError') {
+                return res.status(400).json({ error: error.errors[0].message });
+            }
             console.error('Error fetching user:', error);
             return res.status(500).json({ error: 'Internal server error' });
         }
     }
 
     if (req.method === 'POST') {
-        const { username, email } = req.body;
-
-        if (!username) {
-            return res.status(400).json({ error: 'Username is required' });
-        }
-
         try {
-            // Check if user exists first
-            let user = await prisma.user.findUnique({
-                where: { username },
-                include: { settings: true },
-            });
-
-            if (user) {
-                return res.status(200).json(user);
-            }
+            // Validate request body
+            const { username, email } = validateRequest(createUserSchema, req.body);
 
             // Create user
-            user = await prisma.user.create({
+            const user = await prisma.user.create({
                 data: {
                     username,
                     email,
@@ -79,7 +71,10 @@ export default async function handler(req: any, res: any) {
             });
 
             return res.status(201).json(user);
-        } catch (error) {
+        } catch (error: any) {
+            if (error.name === 'ZodError') {
+                return res.status(400).json({ error: error.errors[0].message });
+            }
             console.error('Error creating user:', error);
             return res.status(500).json({ error: 'Internal server error' });
         }
