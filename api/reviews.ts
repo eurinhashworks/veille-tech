@@ -1,8 +1,11 @@
+import express from 'express';
 import { prisma } from '../lib/prisma';
 
-export default async function handler(req: any, res: any) {
+const GLOBAL_USER_ID = 'global_user';
+
+export default async function handler(req: express.Request, res: express.Response) {
     // Enable CORS
-    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
     res.setHeader(
@@ -16,7 +19,7 @@ export default async function handler(req: any, res: any) {
     }
 
     if (req.method === 'GET') {
-        const { date, startDate, endDate, userId, isPublic } = req.query;
+        const { date, startDate, endDate, isPublic } = req.query;
 
         try {
             // Get by specific date
@@ -43,8 +46,7 @@ export default async function handler(req: any, res: any) {
                         date: {
                             gte: String(startDate),
                             lte: String(endDate),
-                        },
-                        ...(userId ? { userId: String(userId) } : {}),
+                        }
                     },
                     include: {
                         ReviewToTag: {
@@ -62,8 +64,7 @@ export default async function handler(req: any, res: any) {
             }
 
             // Get all reviews (with optional filters)
-            const where: any = {};
-            if (userId) where.userId = String(userId);
+            const where: { isPublic?: boolean } = {};
             if (isPublic !== undefined) where.isPublic = isPublic === 'true';
 
             const reviews = await prisma.review.findMany({
@@ -75,11 +76,6 @@ export default async function handler(req: any, res: any) {
                         }
                     },
                     sources: true,
-                    user: {
-                        select: {
-                            username: true,
-                        },
-                    },
                 },
                 orderBy: {
                     date: 'desc',
@@ -94,10 +90,10 @@ export default async function handler(req: any, res: any) {
     }
 
     if (req.method === 'POST') {
-        const { review, userId } = req.body;
+        const { review } = req.body;
 
-        if (!review || !userId) {
-            return res.status(400).json({ error: 'Review data and userId are required' });
+        if (!review) {
+            return res.status(400).json({ error: 'Review data is required' });
         }
 
         try {
@@ -125,12 +121,12 @@ export default async function handler(req: any, res: any) {
                     newsCount: review.metadata.newsCount,
                     generationTime: review.metadata.generationTime,
                     isPublic: review.metadata.isPublic,
-                    userId,
+                    userId: GLOBAL_USER_ID,
                     ReviewToTag: {
-                        create: tags.map((tag: any) => ({ tags: { connect: { id: tag.id } } })),
+                        create: tags.map((tag: { id: string }) => ({ tags: { connect: { id: tag.id } } })),
                     },
                     sources: {
-                        create: review.sources.map((source: any) => ({
+                        create: review.sources.map((source: { title: string; uri: string }) => ({
                             title: source.title,
                             uri: source.uri,
                         })),

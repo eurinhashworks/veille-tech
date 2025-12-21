@@ -14,7 +14,7 @@ export const updateApiKey = (newApiKey: string) => {
 const generateId = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
 // Définition des types pour les paramètres d'IA
-interface AiPreferences {
+export interface AiPreferences {
   style: 'analytical' | 'creative' | 'technical' | 'executive';
   tone: 'formal' | 'casual' | 'humorous' | 'serious';
   depth: 'brief' | 'detailed' | 'comprehensive';
@@ -50,8 +50,8 @@ const getCustomPrompt = (preferences: AiPreferences) => {
 };
 
 export const generateTechReview = async (
-  date: string, 
-  username: string, 
+  date: string,
+  username: string,
   isPublic: boolean,
   aiPreferences?: AiPreferences,
   useCustomApiKey: boolean = false
@@ -59,7 +59,7 @@ export const generateTechReview = async (
   // Déterminer quelle clé API utiliser
   let currentAiInstance = ai;
   let apiKeyToUse = defaultApiKey;
-  
+
   // Si l'utilisateur a configuré sa propre clé API et souhaite l'utiliser
   if (useCustomApiKey) {
     const customApiKey = localStorage.getItem('gemini_api_key');
@@ -176,15 +176,23 @@ export const generateTechReview = async (
           tools: [{ googleSearch: {} }],
         },
       }),
-      new Promise((_, reject) => 
+      new Promise((_, reject) =>
         setTimeout(() => reject(new Error('Timeout: La génération prend trop de temps')), 60000)
       )
     ]);
 
     const text = (response as any).text || "";
-    
+
     // 1. Extract Metadata (JSON)
-    let parsedMeta: any = {
+    interface MetaData {
+      flashSummary: string;
+      dominantCategory: string;
+      tags: string[];
+      newsCount: number;
+      aiAnalysis: string;
+    }
+
+    let parsedMeta: MetaData = {
       flashSummary: "Résumé indisponible",
       dominantCategory: "Mix",
       tags: [],
@@ -194,39 +202,40 @@ export const generateTechReview = async (
 
     const metaMatch = text.match(/---METADATA---([\s\S]*?)---END METADATA---/);
     if (metaMatch && metaMatch[1]) {
-        try {
-            const cleanJson = metaMatch[1].replace(/```json/g, '').replace(/```/g, '').trim();
-            parsedMeta = JSON.parse(cleanJson);
-        } catch (e) {
-            console.error("Error parsing metadata JSON:", e, metaMatch[1]);
-        }
+      try {
+        const cleanJson = metaMatch[1].replace(/```json/g, '').replace(/```/g, '').trim();
+        parsedMeta = JSON.parse(cleanJson);
+      } catch (e) {
+        console.error("Error parsing metadata JSON:", e, metaMatch[1]);
+      }
     } else {
-        // Fallback: try to find any JSON object in the beginning if delimiters are missing
-        const jsonFallback = text.match(/\{[\s\S]*?\}/);
-        if (jsonFallback) {
-             try {
-                parsedMeta = JSON.parse(jsonFallback[0]);
-             } catch(e) { console.warn("Fallback JSON parse failed"); }
-        }
+      // Fallback: try to find any JSON object in the beginning if delimiters are missing
+      const jsonFallback = text.match(/\{[\s\S]*?\}/);
+      if (jsonFallback) {
+        try {
+          parsedMeta = JSON.parse(jsonFallback[0]);
+        } catch (e) { console.warn("Fallback JSON parse failed"); }
+      }
     }
 
     // 2. Extract Content (Markdown)
     let markdownContent = "";
     const contentMatch = text.split('---CONTENT---');
     if (contentMatch.length > 1) {
-        markdownContent = contentMatch[1].replace('---END CONTENT---', '').trim();
+      markdownContent = contentMatch[1].replace('---END CONTENT---', '').trim();
     } else {
-        // Fallback: remove metadata part and take the rest
-        markdownContent = text.replace(/---METADATA---[\s\S]*?---END METADATA---/, '').trim();
-        // Cleanup accidental code blocks
-        markdownContent = markdownContent.replace(/```json/g, '').replace(/```/g, '').trim();
+      // Fallback: remove metadata part and take the rest
+      markdownContent = text.replace(/---METADATA---[\s\S]*?---END METADATA---/, '').trim();
+      // Cleanup accidental code blocks
+      markdownContent = markdownContent.replace(/```json/g, '').replace(/```/g, '').trim();
     }
-    
+
     // Extract sources from grounding metadata
     const sources: Source[] = [];
-    const chunks = (response as any).candidates?.[0]?.groundingMetadata?.groundingChunks;
+    const groundingMetadata = (response as { candidates?: { groundingMetadata?: { groundingChunks?: { web?: { title?: string; uri?: string } }[] } }[] }).candidates?.[0]?.groundingMetadata;
+    const chunks = groundingMetadata?.groundingChunks;
     if (chunks) {
-      chunks.forEach((chunk: any) => {
+      chunks.forEach((chunk) => {
         if (chunk.web?.uri) {
           sources.push({
             title: chunk.web.title || new URL(chunk.web.uri).hostname,
@@ -263,12 +272,12 @@ export const generateTechReview = async (
 
   } catch (error: any) {
     console.error("Erreur génération:", error);
-    
+
     // Si l'erreur est liée à une limite d'API, suggérer d'utiliser une clé personnalisée
     if (error.message && (error.message.includes('quota') || error.message.includes('limit'))) {
       throw new Error("Limite d'utilisation de l'API atteinte. Veuillez configurer votre propre clé API Google Gemini dans les paramètres.");
     }
-    
+
     throw error;
   }
 };

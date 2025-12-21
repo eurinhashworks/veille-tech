@@ -19,8 +19,16 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> 
 
 // ==================== USER OPERATIONS ====================
 
-export const createUser = async (username: string, email?: string) => {
-  return await fetchApi('/users', {
+export interface User {
+  id: string;
+  username: string;
+  email?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const createUser = async (username: string, email?: string): Promise<User> => {
+  return await fetchApi<User>('/users', {
     method: 'POST',
     body: JSON.stringify({ username, email }),
   });
@@ -119,24 +127,33 @@ export const isFavorite = async (userId: string, reviewId: string) => {
 
 // ==================== SEARCH HISTORY OPERATIONS ====================
 
+export interface SearchHistoryItem {
+  id: string;
+  query: string;
+  filters: Record<string, any>;
+  results: number;
+  createdAt: string;
+  user?: { username: string };
+}
+
 export const saveSearchHistory = async (
   userId: string,
   query: string,
-  filters: any,
+  filters: Record<string, any>,
   results: number
-) => {
-  return await fetchApi('/history', {
+): Promise<void> => {
+  return await fetchApi<void>('/history', {
     method: 'POST',
     body: JSON.stringify({ userId, query, filters, results }),
   });
 };
 
-export const getSearchHistory = async (userId: string, limit = 10) => {
-  return await fetchApi(`/history?userId=${userId}&limit=${limit}`);
+export const getSearchHistory = async (userId: string, limit = 10): Promise<SearchHistoryItem[]> => {
+  return await fetchApi<SearchHistoryItem[]>(`/history?userId=${userId}&limit=${limit}`);
 };
 
-export const clearSearchHistory = async (userId: string) => {
-  return await fetchApi(`/history?userId=${userId}`, {
+export const clearSearchHistory = async (userId: string): Promise<void> => {
+  return await fetchApi<void>(`/history?userId=${userId}`, {
     method: 'DELETE',
   });
 };

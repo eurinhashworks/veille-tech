@@ -5,7 +5,7 @@ const Login: React.FC = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="min-h-screen flex bg-white dark:bg-dark-950 font-sans">
+        <div className="h-screen overflow-hidden flex bg-white dark:bg-dark-950 font-sans">
             {/* Left Panel - Auth */}
             <div className="w-full lg:w-1/2 flex flex-col p-8 md:p-12 lg:p-20 relative z-10">
                 {/* Logo */}

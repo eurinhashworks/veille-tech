@@ -1,4 +1,4 @@
-import { generateTechReview } from './geminiService';
+import { generateTechReview, AiPreferences } from './geminiService';
 
 /**
  * Génère une revue technique avec gestion automatique des limites d'API
@@ -12,16 +12,17 @@ export const generateReviewWithLimitHandling = async (
   date: string,
   username: string,
   isPublic: boolean,
-  aiPreferences?: any
+  aiPreferences?: AiPreferences
 ) => {
   // D'abord, essayer avec la clé API par défaut
   try {
     return await generateTechReview(date, username, isPublic, aiPreferences, false);
-  } catch (error: any) {
+  } catch (error) {
+    const err = error as Error;
     // Si l'erreur est liée à une limite d'API, essayer avec la clé personnalisée
-    if (error.message && (error.message.includes('Limite') || error.message.includes('quota') || error.message.includes('limit'))) {
+    if (err.message && (err.message.includes('Limite') || err.message.includes('quota') || err.message.includes('limit'))) {
       const customApiKey = localStorage.getItem('gemini_api_key');
-      
+
       // Vérifier si l'utilisateur a configuré une clé API personnalisée
       if (customApiKey) {
         try {
@@ -35,7 +36,7 @@ export const generateReviewWithLimitHandling = async (
         throw new Error("Limite d'utilisation de l'API atteinte. Veuillez configurer votre propre clé API Google Gemini dans les paramètres pour continuer à générer des revues.");
       }
     }
-    
+
     // Pour toutes les autres erreurs, les renvoyer telles quelles
     throw error;
   }

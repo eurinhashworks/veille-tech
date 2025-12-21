@@ -49,7 +49,7 @@ app.use(express.json());
 app.use('/api', apiLimiter);
 
 // API Handling Helper
-const handleApi = (handler: any) => async (req: express.Request, res: express.Response) => {
+const handleApi = (handler: (req: express.Request, res: express.Response) => Promise<any>) => async (req: express.Request, res: express.Response) => {
     try {
         await handler(req, res);
     } catch (error) {

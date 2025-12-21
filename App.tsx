@@ -16,7 +16,11 @@ import Generator from './pages/Generator';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import ReviewDetail from './pages/ReviewDetail';
+import CommandCenter from './pages/CommandCenter';
+import IntelligenceDashboard from './pages/IntelligenceDashboard';
+import Help from './pages/Help';
 import TechBackground from './components/TechBackground';
+import Sidebar from './components/Sidebar';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ToastProvider, useToast } from './components/Toast';
 import { ReviewSkeleton, TimelineSkeleton } from './components/Skeleton';
@@ -53,6 +57,8 @@ const AppContent: React.FC = () => {
   const [showAiSettings, setShowAiSettings] = useState(false);
   const [progress, setProgress] = useState<number>(0);
   const [progressMessage, setProgressMessage] = useState<string>('');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const { showToast } = useToast();
 
@@ -168,10 +174,11 @@ const AppContent: React.FC = () => {
         showToast('Revue générée avec succès !', 'success');
         navigate(`/review/${newReview.metadata.id}`);
       }, 2000);
-    } catch (err: any) {
+    } catch (err) {
+      const error = err as Error;
       setStatus(GenerationStatus.ERROR);
-      setError(err.message || "Une erreur est survenue.");
-      showToast(err.message || "Erreur lors de la génération", 'error');
+      setError(error.message || "Une erreur est survenue.");
+      showToast(error.message || "Erreur lors de la génération", 'error');
       setProgress(0);
       setProgressMessage('');
     }
@@ -218,37 +225,11 @@ ${review.content}`;
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const navItems = [
-    { path: '/', label: 'Générateur', icon: Sparkles },
-    { path: '/search', label: 'Recherche', icon: SearchIcon },
-    { path: '/timeline', label: 'Timeline', icon: Calendar },
-    { path: '/calendar', label: 'Calendrier', icon: Calendar },
-    { path: '/favorites', label: 'Favoris', icon: Star },
-    { path: '/history', label: 'Historique', icon: Clock },
-    { path: '/archives', label: 'Archives', icon: FolderOpen },
-    { path: '/stats', label: 'Stats', icon: BarChart3 },
-  ];
 
-  const renderNavTabs = () => (
-    <div className="flex space-x-1 bg-dark-800/50 p-1 rounded-xl mb-8 border border-slate-700/50 backdrop-blur-sm overflow-x-auto scrollbar-hide">
-      {navItems.map((item) => {
-        const isActive = location.pathname === item.path;
-        return (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${isActive ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
-          >
-            <item.icon className="w-4 h-4" /> {item.label}
-          </Link>
-        );
-      })}
-    </div>
-  );
 
   // Performance optimization: Memoize visibility checks
   const isAppShellHidden = useMemo(() =>
-    location.pathname.match(/^\/($|login|about)/),
+    location.pathname.match(/^\/($|login|about|help)/),
     [location.pathname]);
 
   const currentReviewId = useMemo(() =>
@@ -265,72 +246,91 @@ ${review.content}`;
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 text-white flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 text-white flex">
       {!isAppShellHidden && <TechBackground />}
-      {!isAppShellHidden && <Header />}
 
-      <main className={`flex-grow ${isAppShellHidden ? '' : 'container mx-auto px-4 py-8 md:py-10 max-w-5xl'}`}>
-        {!isAppShellHidden && !location.pathname.startsWith('/review/') && renderNavTabs()}
+      {!isAppShellHidden && (
+        <Sidebar
+          isCollapsed={isSidebarCollapsed}
+          setIsCollapsed={setIsSidebarCollapsed}
+          isMobileOpen={isMobileSidebarOpen}
+          setIsMobileOpen={setIsMobileSidebarOpen}
+        />
+      )}
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.15 }} // Reduced from 0.3 for snappier feel
-          >
-            <Routes location={location}>
-              <Route path="/" element={<Landing />} />
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/generator"
-                element={
-                  <PageWrapper>
-                    <Generator
-                      date={date} setDate={setDate}
-                      username={username} setUsername={setUsername}
-                      isPublic={isPublic} setIsPublic={setIsPublic}
-                      status={status} error={error}
-                      progress={progress} progressMessage={progressMessage}
-                      aiStyle={aiStyle} aiTone={aiTone} aiDepth={aiDepth}
-                      showAiSettings={showAiSettings} setShowAiSettings={setShowAiSettings}
-                      handleAiStyleChange={setAiStyle} handleAiToneChange={setAiTone} handleAiDepthChange={setAiDepth}
-                      handleGenerate={handleGenerate}
-                    />
-                  </PageWrapper>
+      <div className="flex-grow flex flex-col min-w-0">
+        {!isAppShellHidden && (
+          <Header
+            isCollapsed={isSidebarCollapsed}
+            setIsCollapsed={setIsSidebarCollapsed}
+          />
+        )}
+
+        <main className={`flex-grow ${isAppShellHidden ? '' : 'container mx-auto px-4 py-8 md:py-10 max-w-5xl'}`}>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.15 }} // Reduced from 0.3 for snappier feel
+            >
+              <Routes location={location}>
+                <Route path="/" element={<Landing />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/dashboard" element={<PageWrapper><CommandCenter /></PageWrapper>} />
+                <Route path="/intelligence" element={<PageWrapper><IntelligenceDashboard /></PageWrapper>} />
+                <Route path="/help" element={<PageWrapper><Help /></PageWrapper>} />
+                <Route
+                  path="/generator"
+                  element={
+                    <PageWrapper>
+                      <Generator
+                        date={date} setDate={setDate}
+                        username={username} setUsername={setUsername}
+                        isPublic={isPublic} setIsPublic={setIsPublic}
+                        status={status} error={error}
+                        progress={progress} progressMessage={progressMessage}
+                        aiStyle={aiStyle} aiTone={aiTone} aiDepth={aiDepth}
+                        showAiSettings={showAiSettings} setShowAiSettings={setShowAiSettings}
+                        handleAiStyleChange={setAiStyle} handleAiToneChange={setAiTone} handleAiDepthChange={setAiDepth}
+                        handleGenerate={handleGenerate}
+                      />
+                    </PageWrapper>
+                  } />
+                <Route path="/timeline" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Timeline reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
+                <Route path="/archives" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <HistoryTable reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
+                <Route path="/stats" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Stats reviews={reviews} />}</PageWrapper>} />
+                <Route path="/search" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Search reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
+                <Route path="/calendar" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <CalendarView reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
+                <Route path="/favorites" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Favorites reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
+                <Route path="/history" element={<PageWrapper><History /></PageWrapper>} />
+                <Route path="/settings" element={<PageWrapper><Settings onClose={() => navigate('/')} /></PageWrapper>} />
+                <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
+                <Route path="/review/:id" element={
+                  loading ? (
+                    <PageWrapper><ReviewSkeleton /></PageWrapper>
+                  ) : currentReview ? (
+                    <PageWrapper>
+                      <ReviewDetail
+                        review={currentReview}
+                        onBack={() => navigate(-1)}
+                        onCopy={() => handleCopy(currentReview)}
+                        copied={copied}
+                        isFavorite={userFavorites.includes(currentReviewId!)}
+                        onFavoriteToggle={() => handleFavoriteToggle(currentReview)}
+                        showExport={showExport}
+                        setShowExport={setShowExport}
+                      />
+                    </PageWrapper>
+                  ) : <Navigate to="/" />
                 } />
-              <Route path="/timeline" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Timeline reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
-              <Route path="/archives" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <HistoryTable reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
-              <Route path="/stats" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Stats reviews={reviews} />}</PageWrapper>} />
-              <Route path="/search" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Search reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
-              <Route path="/calendar" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <CalendarView reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
-              <Route path="/favorites" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Favorites reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
-              <Route path="/history" element={<PageWrapper><History /></PageWrapper>} />
-              <Route path="/settings" element={<PageWrapper><Settings onClose={() => navigate('/')} /></PageWrapper>} />
-              <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
-              <Route path="/review/:id" element={
-                loading ? (
-                  <PageWrapper><ReviewSkeleton /></PageWrapper>
-                ) : currentReview ? (
-                  <PageWrapper>
-                    <ReviewDetail
-                      review={currentReview}
-                      onBack={() => navigate(-1)}
-                      onCopy={() => handleCopy(currentReview)}
-                      copied={copied}
-                      isFavorite={userFavorites.includes(currentReviewId!)}
-                      onFavoriteToggle={() => handleFavoriteToggle(currentReview)}
-                      showExport={showExport}
-                      setShowExport={setShowExport}
-                    />
-                  </PageWrapper>
-                ) : <Navigate to="/" />
-              } />
-            </Routes>
-          </motion.div>
-        </AnimatePresence>
-      </main>
+              </Routes>
+            </motion.div>
+          </AnimatePresence>
+        </main>
+      </div>
     </div>
   );
 };

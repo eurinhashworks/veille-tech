@@ -13,13 +13,13 @@ const saveReviewToStorage = async (review: Review): Promise<Review> => {
   try {
     const reviews = JSON.parse(localStorage.getItem('tech_reviews') || '[]');
     const existingIndex = reviews.findIndex((r: Review) => r.metadata.date === review.metadata.date);
-    
+
     if (existingIndex >= 0) {
       reviews[existingIndex] = review;
     } else {
       reviews.unshift(review);
     }
-    
+
     localStorage.setItem('tech_reviews', JSON.stringify(reviews.slice(0, 100))); // Limite à 100 revues
     console.log('💾 Revue sauvegardée dans localStorage');
     return review;
@@ -85,7 +85,7 @@ const getFavoritesFromStorage = async (): Promise<string[]> => {
   }
 };
 
-const saveSearchHistoryToStorage = async (query: string, filters: any, results: number): Promise<void> => {
+const saveSearchHistoryToStorage = async (query: string, filters: Record<string, unknown>, results: number): Promise<void> => {
   try {
     const history = JSON.parse(localStorage.getItem('search_history') || '[]');
     history.unshift({
@@ -101,7 +101,9 @@ const saveSearchHistoryToStorage = async (query: string, filters: any, results: 
   }
 };
 
-const getSearchHistoryFromStorage = async (limit = 10): Promise<any[]> => {
+import { SearchHistoryItem, User } from './databaseService';
+
+const getSearchHistoryFromStorage = async (limit = 10): Promise<SearchHistoryItem[]> => {
   try {
     const history = JSON.parse(localStorage.getItem('search_history') || '[]');
     return history.slice(0, limit);
@@ -114,7 +116,7 @@ const getSearchHistoryFromStorage = async (limit = 10): Promise<any[]> => {
 const getStatisticsFromStorage = async () => {
   try {
     const reviews = JSON.parse(localStorage.getItem('tech_reviews') || '[]');
-    
+
     if (reviews.length === 0) {
       return {
         totalReviews: 0,
@@ -124,17 +126,17 @@ const getStatisticsFromStorage = async () => {
         topCategory: 'Mix'
       };
     }
-    
+
     const totalNews = reviews.reduce((sum: number, r: Review) => sum + r.metadata.newsCount, 0);
     const avgGenerationTime = reviews.reduce((sum: number, r: Review) => sum + r.metadata.generationTime, 0) / reviews.length;
-    
+
     const categoryDistribution: Record<string, number> = {};
     reviews.forEach((r: Review) => {
       categoryDistribution[r.metadata.dominantCategory] = (categoryDistribution[r.metadata.dominantCategory] || 0) + 1;
     });
-    
+
     const topCategory = Object.entries(categoryDistribution).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Mix';
-    
+
     return {
       totalReviews: reviews.length,
       totalNews,
@@ -174,7 +176,7 @@ const reviewToPrismaFormat = (review: Review, userId: string) => {
   };
 };
 
-const prismaToReviewFormat = (prismaReview: any): Review => {
+const prismaToReviewFormat = (prismaReview: Record<string, any>): Review => {
   return {
     metadata: {
       id: prismaReview.id,
@@ -183,7 +185,7 @@ const prismaToReviewFormat = (prismaReview: any): Review => {
       username: prismaReview.user?.username || 'Anonyme',
       timestamp: new Date(prismaReview.createdAt).getTime(),
       generationTime: prismaReview.generationTime,
-      tags: prismaReview.tags?.map((t: any) => t.name) || [],
+      tags: prismaReview.tags?.map((t: { name: string }) => t.name) || [],
       dominantCategory: prismaReview.dominantCategory,
       newsCount: prismaReview.newsCount,
       flashSummary: prismaReview.flashSummary,
@@ -191,7 +193,7 @@ const prismaToReviewFormat = (prismaReview: any): Review => {
       isPublic: prismaReview.isPublic,
     },
     content: prismaReview.content,
-    sources: prismaReview.sources?.map((s: any) => ({
+    sources: prismaReview.sources?.map((s: { title: string; uri: string }) => ({
       title: s.title,
       uri: s.uri,
     })) || [],
@@ -205,19 +207,19 @@ export const saveReview = async (review: Review): Promise<Review> => {
     // Essayer d'utiliser Prisma
     const { saveReview: saveToDb } = await import('./databaseService');
     const { getOrCreateUser } = await import('./databaseService');
-    
+
     // Obtenir ou créer l'utilisateur
-    const user = await getOrCreateUser(review.metadata.username || 'Anonyme') as any;
-    
+    const user = await getOrCreateUser(review.metadata.username || 'Anonyme');
+
     // Sauvegarder dans la base de données
-    const saved = await saveToDb(review, user.id) as any;
-    
+    const saved = await saveToDb(review, user.id);
+
     console.log('✅ Revue sauvegardée dans PostgreSQL:', saved?.id || 'unknown');
-    
+
     return review;
   } catch (error) {
     console.warn('⚠️ Erreur Prisma, fallback vers localStorage:', error);
-    
+
     // Fallback vers localStorage
     return await saveReviewToStorage(review);
   }
@@ -227,16 +229,16 @@ export const getAllReviews = async (): Promise<Review[]> => {
   try {
     // Essayer d'utiliser Prisma
     const { getAllReviews: getFromDb } = await import('./databaseService');
-    
-    const prismaReviews = await getFromDb() as any[];
+
+    const prismaReviews = await getFromDb();
     const reviews = prismaReviews.map(prismaToReviewFormat);
-    
+
     console.log(`✅ ${reviews.length} revues chargées depuis PostgreSQL`);
-    
+
     return reviews;
   } catch (error) {
     console.warn('⚠️ Erreur Prisma, fallback vers localStorage:', error);
-    
+
     // Fallback vers localStorage
     return await getAllReviewsFromStorage();
   }
@@ -246,15 +248,15 @@ export const getReviewByDate = async (date: string): Promise<Review | null> => {
   try {
     // Essayer d'utiliser Prisma
     const { getReviewByDate: getFromDb } = await import('./databaseService');
-    
+
     const prismaReview = await getFromDb(date);
-    
+
     if (!prismaReview) return null;
-    
+
     return prismaToReviewFormat(prismaReview);
   } catch (error) {
     console.warn('⚠️ Erreur Prisma, fallback vers localStorage:', error);
-    
+
     // Fallback vers localStorage
     return await getReviewByDateFromStorage(date);
   }
@@ -287,8 +289,8 @@ export const removeFromFavorites = async (userId: string, reviewId: string): Pro
 export const getUserFavorites = async (userId: string): Promise<string[]> => {
   try {
     const { getFavorites } = await import('./databaseService');
-    const favorites = await getFavorites(userId) as any[];
-    return favorites.map((f: any) => f.reviewId);
+    const favorites = await getFavorites(userId);
+    return favorites.map((f: { reviewId: string }) => f.reviewId);
   } catch (error) {
     console.warn('⚠️ Erreur Prisma, fallback vers localStorage:', error);
     return await getFavoritesFromStorage();
@@ -300,7 +302,7 @@ export const getUserFavorites = async (userId: string): Promise<string[]> => {
 export const saveSearch = async (
   userId: string,
   query: string,
-  filters: any,
+  filters: Record<string, unknown>,
   results: number
 ): Promise<void> => {
   try {
@@ -313,10 +315,10 @@ export const saveSearch = async (
   }
 };
 
-export const getSearchHistory = async (userId: string, limit = 10): Promise<any[]> => {
+export const getSearchHistory = async (userId: string, limit = 10): Promise<SearchHistoryItem[]> => {
   try {
     const { getSearchHistory: getFromDb } = await import('./databaseService');
-    const history = await getFromDb(userId, limit) as any[];
+    const history = await getFromDb(userId, limit);
     return history;
   } catch (error) {
     console.warn('⚠️ Erreur Prisma, fallback vers localStorage:', error);
@@ -376,12 +378,12 @@ export const getAiPreferences = async (
 } | null> => {
   try {
     const { getUserSettings } = await import('./databaseService');
-    const settings: any = await getUserSettings(userId);
-    
+    const settings = await getUserSettings(userId) as UserSettings;
+
     if (settings?.aiPreferences) {
       return settings.aiPreferences;
     }
-    
+
     return null;
   } catch (error) {
     console.warn('⚠️ Erreur lors de la récupération des préférences IA:', error);
@@ -423,12 +425,12 @@ export const getUserSettings = async (): Promise<UserSettings> => {
     notifications: localStorage.getItem('notifications') === 'true',
     autoGenerate: localStorage.getItem('auto_generate') === 'true',
     aiPreferences: {
-      style: (localStorage.getItem('ai_style') as any) || 'analytical',
-      tone: (localStorage.getItem('ai_tone') as any) || 'formal',
-      depth: (localStorage.getItem('ai_depth') as any) || 'detailed'
+      style: (localStorage.getItem('ai_style') as 'analytical' | 'creative' | 'technical' | 'executive') || 'analytical',
+      tone: (localStorage.getItem('ai_tone') as 'formal' | 'casual' | 'humorous' | 'serious') || 'formal',
+      depth: (localStorage.getItem('ai_depth') as 'brief' | 'detailed' | 'comprehensive') || 'detailed'
     }
   };
-  
+
   return settings;
 };
 
@@ -439,7 +441,7 @@ export const saveUserSettings = async (settings: UserSettings): Promise<void> =>
   if (settings.defaultVisibility) localStorage.setItem('default_visibility', settings.defaultVisibility);
   if (settings.notifications !== undefined) localStorage.setItem('notifications', settings.notifications.toString());
   if (settings.autoGenerate !== undefined) localStorage.setItem('auto_generate', settings.autoGenerate.toString());
-  
+
   // Sauvegarder les préférences IA
   if (settings.aiPreferences) {
     localStorage.setItem('ai_style', settings.aiPreferences.style);
@@ -458,16 +460,16 @@ export const exportAllData = async () => {
   try {
     // Récupérer toutes les revues
     const reviews = await getAllReviews();
-    
+
     // Récupérer les favoris
     const favorites = await getUserFavorites('anonymous'); // Pour le moment, on utilise un ID anonyme
-    
+
     // Récupérer l'historique de recherche
     const searchHistory = await getSearchHistory('anonymous', 100); // Récupérer jusqu'à 100 éléments
-    
+
     // Récupérer les statistiques
     const statistics = await getStatistics();
-    
+
     return {
       reviews,
       favorites,
@@ -486,7 +488,7 @@ export const exportAllData = async () => {
  * Importe des données dans l'application
  * @param data Les données à importer
  */
-export const importData = async (data: any) => {
+export const importData = async (data: { reviews?: Review[]; favorites?: string[] }) => {
   try {
     // Importer les revues
     if (data.reviews && Array.isArray(data.reviews)) {
@@ -498,7 +500,7 @@ export const importData = async (data: any) => {
         }
       }
     }
-    
+
     // Importer les favoris
     if (data.favorites && Array.isArray(data.favorites)) {
       for (const reviewId of data.favorites) {
@@ -509,7 +511,7 @@ export const importData = async (data: any) => {
         }
       }
     }
-    
+
     console.log('✅ Données importées avec succès');
   } catch (error) {
     console.error('❌ Erreur lors de l\'import des données:', error);

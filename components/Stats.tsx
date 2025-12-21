@@ -75,10 +75,10 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
     currentVisitors: 0,
     totalFavorites: 0 // Initialisation du nombre de favoris
   });
-  
+
   // Utiliser le hook utilisateur pour obtenir l'utilisateur courant
   const { user, loading: userLoading } = useCurrentUser();
-  
+
   // État de chargement
   const [loading, setLoading] = useState(true);
 
@@ -86,59 +86,59 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
     const loadStats = async () => {
       try {
         setLoading(true);
-        
+
         const { getStatistics } = await import('../services/storageService');
         const { getSearchHistory } = await import('../services/storageService');
         const { getUserFavorites } = await import('../services/storageService');
-        
+
         // Charger les statistiques de base (disponibles pour tous les utilisateurs)
-        const baseStats: any = await getStatistics();
-        
+        const baseStats = await getStatistics() as Record<string, any>;
+
         // Charger l'historique de recherche global (pour tous les utilisateurs)
         // Si l'utilisateur est connecté, charger aussi son historique personnel
         let searchHistory = [];
         if (user) {
           searchHistory = await getSearchHistory(user.id, 1000);
         }
-        
+
         // Charger les favoris de l'utilisateur (si connecté)
         let userFavorites = [];
         if (user) {
           userFavorites = await getUserFavorites(user.id);
         }
-        
+
         // Calculer les statistiques de recherche
         const now = new Date();
         const today = now.toDateString();
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-        
-        const searchesToday = searchHistory.filter((s: any) => 
-          new Date(s.timestamp || s.createdAt).toDateString() === today
+
+        const searchesToday = searchHistory.filter((s: { timestamp?: number | string; createdAt?: string | number }) =>
+          new Date(Number(s.timestamp) || Number(s.createdAt) || 0).toDateString() === today
         ).length;
-        
-        const searchesThisWeek = searchHistory.filter((s: any) => 
-          new Date(s.timestamp || s.createdAt) >= weekAgo
+
+        const searchesThisWeek = searchHistory.filter((s: { timestamp?: number | string; createdAt?: string | number }) =>
+          new Date(Number(s.timestamp) || Number(s.createdAt) || 0) >= weekAgo
         ).length;
-        
-        const searchesThisMonth = searchHistory.filter((s: any) => 
-          new Date(s.timestamp || s.createdAt) >= monthAgo
+
+        const searchesThisMonth = searchHistory.filter((s: { timestamp?: number | string; createdAt?: string | number }) =>
+          new Date(Number(s.timestamp) || Number(s.createdAt) || 0) >= monthAgo
         ).length;
-        
+
         // Calculer les revues récentes
-        const reviewsThisWeek = reviews.filter(r => 
+        const reviewsThisWeek = reviews.filter(r =>
           new Date(r.metadata.date) >= weekAgo
         ).length;
-        
-        const reviewsThisMonth = reviews.filter(r => 
+
+        const reviewsThisMonth = reviews.filter(r =>
           new Date(r.metadata.date) >= monthAgo
         ).length;
-        
+
         // Calculer la moyenne de news par revue
-        const avgNewsPerReview = reviews.length > 0 
+        const avgNewsPerReview = reviews.length > 0
           ? Math.round(reviews.reduce((sum, r) => sum + r.metadata.newsCount, 0) / reviews.length)
           : 0;
-        
+
         // Trouver le jour le plus actif
         const dayCount: Record<string, number> = {};
         reviews.forEach(r => {
@@ -146,7 +146,7 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
           dayCount[day] = (dayCount[day] || 0) + 1;
         });
         const mostActiveDay = Object.entries(dayCount).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
-        
+
         // Distribution des tags
         const tagDist: Record<string, number> = {};
         reviews.forEach(r => {
@@ -154,13 +154,13 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
             tagDist[tag] = (tagDist[tag] || 0) + 1;
           });
         });
-        
+
         // Charger les statistiques des visiteurs
         const { getDailyVisitorStats, getTotalVisitors, getCurrentVisitors } = await import('../services/visitorService');
         const dailyStats = await getDailyVisitorStats();
         const totalVisitors = await getTotalVisitors();
         const currentVisitors = await getCurrentVisitors();
-        
+
         setStats({
           totalReviews: baseStats.totalReviews,
           totalNews: baseStats.totalNews,
@@ -225,28 +225,28 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard 
-            title="Total Revues" 
-            value={stats.totalReviews} 
-            icon={<FolderOpen className="w-5 h-5" />} 
+          <StatCard
+            title="Total Revues"
+            value={stats.totalReviews}
+            icon={<FolderOpen className="w-5 h-5" />}
             color="text-blue-400"
           />
-          <StatCard 
-            title="Total Actualités" 
-            value={stats.totalNews} 
-            icon={<TrendingUp className="w-5 h-5" />} 
+          <StatCard
+            title="Total Actualités"
+            value={stats.totalNews}
+            icon={<TrendingUp className="w-5 h-5" />}
             color="text-green-400"
           />
-          <StatCard 
-            title="Favoris" 
-            value={stats.totalFavorites} 
-            icon={<Star className="w-5 h-5" />} 
+          <StatCard
+            title="Favoris"
+            value={stats.totalFavorites}
+            icon={<Star className="w-5 h-5" />}
             color="text-yellow-400"
           />
-          <StatCard 
-            title="Temps Moyen" 
-            value={`${stats.avgGenerationTime}s`} 
-            icon={<Clock className="w-5 h-5" />} 
+          <StatCard
+            title="Temps Moyen"
+            value={`${stats.avgGenerationTime}s`}
+            icon={<Clock className="w-5 h-5" />}
             color="text-purple-400"
           />
         </div>
@@ -357,7 +357,7 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
                     <span className="text-slate-400">{count} ({percentage.toFixed(1)}%)</span>
                   </div>
                   <div className="w-full bg-slate-800 rounded-full h-2">
-                    <div 
+                    <div
                       className="bg-gradient-to-r from-primary to-accent-ia h-2 rounded-full transition-all duration-500"
                       style={{ width: `${width}%` }}
                     ></div>
@@ -377,8 +377,8 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
           </h2>
           <div className="mt-4 flex flex-wrap gap-2">
             {topTags.map(([tag, count]) => (
-              <span 
-                key={tag} 
+              <span
+                key={tag}
                 className="px-3 py-1.5 bg-primary/20 text-primary border border-primary/30 rounded-full text-sm font-medium"
               >
                 #{tag} <span className="text-slate-400">({count})</span>

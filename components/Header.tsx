@@ -1,23 +1,33 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Search, Sun, HelpCircle, Settings } from 'lucide-react';
+import { Search, HelpCircle, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import NotificationCenter from './NotificationCenter';
 
 interface HeaderProps {
+  isCollapsed: boolean;
+  setIsCollapsed: (collapsed: boolean) => void;
   onSearchClick?: () => void;
   onSettingsClick?: () => void;
-  onAboutClick?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = () => {
+const Header: React.FC<HeaderProps> = ({ isCollapsed, setIsCollapsed }) => {
   const navigate = useNavigate();
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-800 bg-dark-900/90 backdrop-blur-md">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/generator')}>
-          <img src="/logo.png" alt="EUREKA Logo" className="w-8 h-8 object-contain group-hover:scale-110 transition-transform" />
-          <span className="font-mono font-bold text-lg tracking-tight text-slate-100">
-            EUREKA
-          </span>
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
+        <div className="flex items-center">
+          {/* Simple Sidebar Toggle */}
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-2 text-slate-400 hover:text-white transition-colors"
+            title={isCollapsed ? "Développer le menu" : "Réduire le menu"}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="w-6 h-6" />
+            ) : (
+              <ChevronLeft className="w-6 h-6" />
+            )}
+          </button>
         </div>
 
         <div className="hidden md:flex flex-1 max-w-md mx-8">
@@ -41,6 +51,9 @@ const Header: React.FC<HeaderProps> = () => {
           >
             <Search className="w-5 h-5" />
           </button>
+
+          <NotificationCenter />
+
           <button
             onClick={() => navigate('/settings')}
             className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
@@ -48,7 +61,7 @@ const Header: React.FC<HeaderProps> = () => {
             <Settings className="w-5 h-5" />
           </button>
           <button
-            onClick={() => navigate('/about')}
+            onClick={() => navigate('/help')}
             className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
           >
             <HelpCircle className="w-5 h-5" />

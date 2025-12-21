@@ -1,8 +1,9 @@
+import express from 'express';
 import { prisma } from '../lib/prisma';
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req: express.Request, res: express.Response) {
     // Enable CORS
-    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
     res.setHeader(
@@ -49,7 +50,7 @@ export default async function handler(req: any, res: any) {
                 totalNews: totalNews._sum.newsCount || 0,
                 avgGenerationTime: avgGenerationTime._avg.generationTime || 0,
                 categoryDistribution: categoryDistribution.reduce(
-                    (acc: any, item: any) => {
+                    (acc: Record<string, number>, item: { dominantCategory: string; _count: { dominantCategory: number } }) => {
                         acc[item.dominantCategory] = item._count.dominantCategory;
                         return acc;
                     },

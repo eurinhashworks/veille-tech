@@ -9,6 +9,13 @@ export const createUserSchema = z.object({
     email: z.string().email('Email invalide').optional(),
 });
 
+export const sourceSchema = z.object({
+    title: z.string(),
+    uri: z.string().url('URI invalide').refine(val => !val.toLowerCase().startsWith('javascript:'), {
+        message: "URL scheme not allowed"
+    }),
+});
+
 export const getUserSchema = z.object({
     username: z.string().optional(),
     id: z.string().optional(),
@@ -25,7 +32,6 @@ export const createReviewSchema = z.object({
     newsCount: z.number().int().positive(),
     generationTime: z.number().positive(),
     isPublic: z.boolean(),
-    userId: z.string(),
     tags: z.array(z.string()).optional(),
     sources: z.array(z.object({
         title: z.string(),
@@ -39,24 +45,21 @@ export const searchReviewsSchema = z.object({
     tags: z.array(z.string()).optional(),
     dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
     dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-    userId: z.string().optional(),
-    isPublic: z.boolean().optional(),
+    limit: z.string().regex(/^\d+$/).transform(val => parseInt(val)).optional(),
+    isPublic: z.string().transform(val => val === 'true').optional(), // Query params are strings
 });
 
 // Favorite validation schemas
 export const addFavoriteSchema = z.object({
-    userId: z.string().min(1, 'UserId requis'),
     reviewId: z.string().min(1, 'ReviewId requis'),
 });
 
 export const removeFavoriteSchema = z.object({
-    userId: z.string().min(1, 'UserId requis'),
     reviewId: z.string().min(1, 'ReviewId requis'),
 });
 
 // Search history validation schemas
 export const saveSearchHistorySchema = z.object({
-    userId: z.string().min(1, 'UserId requis'),
     query: z.string().min(1, 'Query requis'),
     filters: z.record(z.string(), z.any()).optional(),
     results: z.number().int().nonnegative(),
@@ -64,23 +67,77 @@ export const saveSearchHistorySchema = z.object({
 
 // Settings validation schemas
 export const updateSettingsSchema = z.object({
-    userId: z.string().min(1, 'UserId requis'),
-    settings: z.object({
-        theme: z.enum(['dark', 'light', 'auto']).optional(),
-        defaultVisibility: z.enum(['public', 'private']).optional(),
-        notifications: z.boolean().optional(),
-        autoGenerate: z.boolean().optional(),
-        aiPreferences: z.object({
-            style: z.enum(['analytical', 'creative', 'technical', 'executive']).optional(),
-            tone: z.enum(['formal', 'casual', 'humorous', 'serious']).optional(),
-            depth: z.enum(['brief', 'detailed', 'comprehensive']).optional(),
-        }).optional(),
-    }),
+    theme: z.enum(['dark', 'light', 'auto']).optional(),
+    defaultVisibility: z.enum(['public', 'private']).optional(),
+    notifications: z.boolean().optional(),
+    autoGenerate: z.boolean().optional(),
+    aiPreferences: z.object({
+        style: z.enum(['analytical', 'creative', 'technical', 'executive']).optional(),
+        tone: z.enum(['formal', 'casual', 'humorous', 'serious']).optional(),
+        depth: z.enum(['brief', 'detailed', 'comprehensive']).optional(),
+        apiKey: z.string().optional(), // Server-side stored key
+    }).optional(),
 });
 
 // Visitor stats validation schemas
 export const visitorActionSchema = z.object({
     action: z.enum(['increment_daily', 'increment_current', 'decrement_current']),
+});
+
+// AI Generation Schema
+export const generateReviewSchema = z.object({
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Format de date invalide'),
+    username: z.string().optional(),
+    isPublic: z.boolean().optional(),
+    aiPreferences: z.object({
+        style: z.enum(['analytical', 'creative', 'technical', 'executive']).optional(),
+        tone: z.enum(['formal', 'casual', 'humorous', 'serious']).optional(),
+        depth: z.enum(['brief', 'detailed', 'comprehensive']).optional(),
+    }).optional(),
+    useCustomApiKey: z.boolean().optional(),
+});
+
+// Trends Schema
+export const trendAnalysisSchema = z.object({
+    daysBack: z.string().regex(/^\d+$/).transform(val => parseInt(val)).optional(),
+    limit: z.string().regex(/^\d+$/).transform(val => parseInt(val)).optional(),
+});
+
+// --- NEW FEATURES ---
+
+// Comments
+export const createCommentSchema = z.object({
+    content: z.string().min(1, 'Le commentaire ne peut pas être vide').max(1000, 'Commentaire trop long'),
+    reviewId: z.string().min(1),
+});
+
+// Notifications
+export const updateNotificationSchema = z.object({
+    read: z.boolean(),
+});
+
+// Integrations
+export const createIntegrationSchema = z.object({
+    provider: z.enum(['slack', 'discord', 'email', 'notion']),
+    config: z.record(z.string(), z.any()), // JSON config depend de provider
+});
+
+// Sharing
+export const createShareLinkSchema = z.object({
+    resourceId: z.string().min(1),
+});
+
+// Analytics
+export const trackEventSchema = z.object({
+    event: z.string().min(1),
+    metadata: z.record(z.string(), z.any()).optional(),
+});
+
+// Exports
+export const exportDataSchema = z.object({
+    format: z.enum(['json', 'md', 'html']),
+    resourceType: z.enum(['review', 'history', 'all']),
+    id: z.string().optional() // specific ID export
 });
 
 // Helper function to validate request body
