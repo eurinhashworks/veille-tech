@@ -19,11 +19,27 @@ export default async function handler(req: express.Request, res: express.Respons
     if (req.method === 'GET') {
         const { userId, reviewId, check } = req.query;
 
-        if (!userId) {
-            return res.status(400).json({ error: 'UserId is required' });
-        }
-
         try {
+            // Si pas de userId, retourner tous les favoris (modèle global)
+            if (!userId) {
+                const favorites = await prisma.favorite.findMany({
+                    include: {
+                        review: {
+                            include: {
+                                ReviewToTag: {
+                                    include: {
+                                        tags: true
+                                    }
+                                },
+                                sources: true
+                            }
+                        }
+                    },
+                    orderBy: { createdAt: 'desc' }
+                });
+                return res.status(200).json(favorites);
+            }
+
             // Check if specific review is favorite
             if (check === 'true' && reviewId) {
                 const favorite = await prisma.favorite.findUnique({
@@ -37,7 +53,7 @@ export default async function handler(req: express.Request, res: express.Respons
                 return res.status(200).json({ isFavorite: !!favorite });
             }
 
-            // Get all favorites
+            // Get all favorites for user
             const favorites = await prisma.favorite.findMany({
                 where: { userId: String(userId) },
                 include: {
@@ -48,9 +64,9 @@ export default async function handler(req: express.Request, res: express.Respons
                                     tags: true
                                 }
                             },
-                            sources: true,
-                        },
-                    },
+                            sources: true
+                        }
+                    }
                 },
                 orderBy: {
                     createdAt: 'desc',

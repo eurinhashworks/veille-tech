@@ -18,14 +18,24 @@ export default async function handler(req: any, res: any) {
     if (req.method === 'GET') {
         const { userId } = req.query;
 
-        if (!userId) {
-            return res.status(400).json({ error: 'UserId is required' });
-        }
+        // Pour le modèle sans auth, on utilise un settings global
+        const GLOBAL_SETTINGS_ID = 'global_settings';
 
         try {
-            const settings = await prisma.userSettings.findUnique({
-                where: { userId: String(userId) },
+            let settings = await prisma.userSettings.findUnique({
+                where: { id: GLOBAL_SETTINGS_ID },
             });
+
+            // Si pas de settings global, on le crée
+            if (!settings && userId) {
+                settings = await prisma.userSettings.create({
+                    data: {
+                        id: GLOBAL_SETTINGS_ID,
+                        userId: String(userId),
+                    },
+                });
+            }
+
             return res.status(200).json(settings);
         } catch (error) {
             console.error('Error fetching settings:', error);
