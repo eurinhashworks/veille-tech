@@ -7,10 +7,17 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Build and tool-specific
+.next
+.agent
 node_modules
 dist
 dist-ssr
 *.local
+
+# Research & temp docs
+api_veille_docs/
+RESEARCH_REPORT_2025-12-21.md
 
 # Environment variables
 .env
