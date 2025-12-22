@@ -1,7 +1,13 @@
-import { generateTechReview, AiPreferences } from './geminiService';
+import { Review } from '../types';
+
+export interface AiPreferences {
+  style: 'analytical' | 'creative' | 'technical' | 'executive';
+  tone: 'formal' | 'casual' | 'humorous' | 'serious';
+  depth: 'brief' | 'detailed' | 'comprehensive';
+}
 
 /**
- * Génère une revue technique avec gestion automatique des limites d'API
+ * Génère une revue technique via l'API backend (sécurisé)
  * @param date La date pour laquelle générer la revue
  * @param username Le nom d'utilisateur
  * @param isPublic Si la revue est publique
@@ -13,31 +19,36 @@ export const generateReviewWithLimitHandling = async (
   username: string,
   isPublic: boolean,
   aiPreferences?: AiPreferences
-) => {
-  // D'abord, essayer avec la clé API par défaut
+): Promise<Review> => {
   try {
-    return await generateTechReview(date, username, isPublic, aiPreferences, false);
-  } catch (error) {
-    const err = error as Error;
-    // Si l'erreur est liée à une limite d'API, essayer avec la clé personnalisée
-    if (err.message && (err.message.includes('Limite') || err.message.includes('quota') || err.message.includes('limit'))) {
-      const customApiKey = localStorage.getItem('gemini_api_key');
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        date,
+        username,
+        isPublic,
+        aiPreferences
+      }),
+    });
 
-      // Vérifier si l'utilisateur a configuré une clé API personnalisée
-      if (customApiKey) {
-        try {
-          return await generateTechReview(date, username, isPublic, aiPreferences, true);
-        } catch (customKeyError) {
-          // Si la clé personnalisée échoue aussi, renvoyer l'erreur d'origine avec un message plus clair
-          throw new Error(`Impossible de générer la revue avec votre clé API personnalisée. ${customKeyError.message || 'Veuillez vérifier votre clé API dans les paramètres.'}`);
-        }
-      } else {
-        // Si l'utilisateur n'a pas de clé personnalisée, renvoyer un message explicite
-        throw new Error("Limite d'utilisation de l'API atteinte. Veuillez configurer votre propre clé API Google Gemini dans les paramètres pour continuer à générer des revues.");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = errorData.error || `Erreur serveur (${response.status})`;
+
+      // Gestion spécifique des quotas/limites pour guider l'utilisateur
+      if (errorMessage.toLowerCase().includes('limit') || errorMessage.toLowerCase().includes('quota')) {
+        throw new Error("Limite d'utilisation de l'API atteinte. Veuillez réessayer plus tard ou configurer votre propre clé API dans les paramètres.");
       }
+
+      throw new Error(errorMessage);
     }
 
-    // Pour toutes les autres erreurs, les renvoyer telles quelles
+    return await response.json();
+  } catch (error) {
+    console.error("Erreur lors de l'appel à l'API de génération:", error);
     throw error;
   }
 };
