@@ -8,6 +8,7 @@ export const CONFIG = {
     // Server Configuration
     PORT: Number(process.env.PORT) || 5000,
     NODE_ENV: process.env.NODE_ENV || 'development',
+    APP_NAME: process.env.APP_NAME || 'EUREKA AI',
 
     // Database
     DATABASE_URL: process.env.DATABASE_URL,

@@ -1,0 +1,11 @@
+body {
+  font-family: sans-serif;
+  padding: 2rem;
+  background-color: #f4f4f9;
+  color: #333;
+}
+
+main {
+  max-width: 800px;
+  margin: 0 auto;
+}
