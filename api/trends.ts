@@ -3,6 +3,8 @@ import { TrendPredictionModel } from "../services/ml/models/TrendPredictionModel
 import { Review } from "../types";
 import { trendAnalysisSchema, validateRequest } from "../schemas/validation";
 import { Request, Response } from "express";
+import cacheService from "../lib/cacheService";
+import logger from "../lib/logger";
 
 // Helper to convert Prisma Review with tags to the format expected by TrendPredictionModel
 const prismaToReviewFormat = (pReview: any): Review => ({
@@ -39,6 +41,17 @@ export default async function handler(req: Request, res: Response) {
         const days = query.daysBack || 30;
         const limit = query.limit || 10;
         const trendFilter = query.trend;
+
+        // Cache key based on query params
+        const cacheKey = cacheService.generateKey({ type: 'trends', days, limit, trendFilter });
+        const cachedTrends = cacheService.get(cacheKey);
+
+        if (cachedTrends) {
+            logger.info('⚡ Cache Hit for trends analysis');
+            return res.status(200).json(cachedTrends);
+        }
+
+        const startTime = Date.now();
         const model = new TrendPredictionModel();
 
         // Fetch user's reviews + public reviews from DB
@@ -93,12 +106,17 @@ export default async function handler(req: Request, res: Response) {
         // 4. Sort by impact score and limit
         const sortedReports = reports.sort((a, b) => b.impactScore - a.impactScore).slice(0, limit);
 
+        // Cache for 5 minutes (300 seconds)
+        cacheService.set(cacheKey, sortedReports, 300);
+        const duration = (Date.now() - startTime) / 1000;
+        logger.info('✅ Trend analysis completed and cached', { duration: `${duration}s` });
+
         return res.status(200).json(sortedReports);
     } catch (error: any) {
         if (error.name === 'ZodError') {
             return res.status(400).json({ error: 'Paramètres d\'analyse invalides', details: error.errors });
         }
-        console.error("Trend analysis error:", error);
+        logger.error("Trend analysis error:", error);
         return res.status(500).json({ error: "Erreur lors de l'analyse des tendances." });
     }
 }

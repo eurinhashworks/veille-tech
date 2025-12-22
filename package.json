@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently --names \"FRONTEND,BACKEND\" --prefix-colors \"cyan,magenta\" \"pnpm exec vite\" \"pnpm exec cross-env NODE_ENV=development pnpm exec tsx server/index.ts\"",
+    "dev": "concurrently -n \"FE,BE\" -c \"cyan,magenta\" \"pnpm dev:fe\" \"pnpm dev:be\"",
+    "dev:fe": "vite",
+    "dev:be": "pnpm cross-env NODE_ENV=development tsx watch server/index.ts",
     "build": "pnpm prisma generate && pnpm exec vite build",
     "preview": "pnpm exec vite preview",
     "prisma:generate": "pnpm prisma generate",
@@ -37,6 +39,7 @@
     "ml-regression": "^6.3.0",
     "morgan": "^1.10.1",
     "natural": "^8.1.0",
+    "node-cache": "^5.1.2",
     "picocolors": "^1.1.1",
     "prisma": "5.22.0",
     "react": "^19.2.0",
@@ -45,6 +48,7 @@
     "recharts": "^3.6.0",
     "resend": "^6.6.0",
     "uuid": "^13.0.0",
+    "winston": "^3.19.0",
     "zod": "^4.2.1"
   },
   "devDependencies": {
@@ -56,6 +60,7 @@
     "@types/express-rate-limit": "^6.0.2",
     "@types/morgan": "^1.9.10",
     "@types/node": "^22.14.0",
+    "@types/node-cache": "^4.2.5",
     "@vitejs/plugin-react": "^5.0.0",
     "autoprefixer": "^10.4.22",
     "concurrently": "^9.2.1",

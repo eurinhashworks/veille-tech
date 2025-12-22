@@ -9,6 +9,7 @@ export const CONFIG = {
     API_PORT: Number(process.env.API_PORT) || 5000,
     API_BASE_URL: '/api',
     BACKEND_URL: process.env.BACKEND_URL || 'http://localhost:5000',
+    get API_URL() { return `${this.BACKEND_URL}${this.API_BASE_URL}`; },
 
     // Frontend Server Configuration (Vite)
     FRONTEND_PORT: Number(process.env.FRONTEND_PORT) || 3000,

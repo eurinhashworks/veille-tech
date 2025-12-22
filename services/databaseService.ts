@@ -1,6 +1,7 @@
 import { Review } from '../types';
+import { CONFIG } from '../config';
 
-const API_BASE = '/api';
+const API_BASE = CONFIG.API_URL;
 
 async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${endpoint}`, {

@@ -1,4 +1,5 @@
 import { Review } from '../types';
+import { CONFIG } from '../config';
 
 export interface AiPreferences {
   style: 'analytical' | 'creative' | 'technical' | 'executive';
@@ -21,7 +22,7 @@ export const generateReviewWithLimitHandling = async (
   aiPreferences?: AiPreferences
 ): Promise<Review> => {
   try {
-    const response = await fetch('/api/generate', {
+    const response = await fetch(`${CONFIG.API_URL}/generate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

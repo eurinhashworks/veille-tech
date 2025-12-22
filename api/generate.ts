@@ -3,6 +3,8 @@ import { Review, Source, CategoryType } from "../types";
 import { generateReviewSchema, validateRequest } from "../schemas/validation";
 import express from 'express';
 import { CONFIG } from "../config";
+import cacheService from "../lib/cacheService";
+import logger from "../lib/logger";
 
 const defaultApiKey = CONFIG.AI.GEMINI_API_KEY;
 let ai = new GoogleGenAI({ apiKey: defaultApiKey });
@@ -59,7 +61,29 @@ export default async function handler(req: express.Request, res: express.Respons
         const { date, username, isPublic, aiPreferences } = body;
         const effectiveUsername = username || `Utilisateur ${CONFIG.APP_NAME}`;
 
+        // Generate cache key from core parameters (date + preferences)
+        const cacheKey = cacheService.generateKey({ date, aiPreferences });
+
+        // Check cache
+        const cachedReview = cacheService.get<Review>(cacheKey);
+        if (cachedReview) {
+            logger.info(`⚡ Cache Hit for review: ${date}`, { user: effectiveUsername });
+            return res.status(200).json({
+                ...cachedReview,
+                metadata: {
+                    ...cachedReview.metadata,
+                    id: generateId(),
+                    username: effectiveUsername,
+                    isPublic: isPublic ?? true,
+                    timestamp: Date.now()
+                }
+            });
+        }
+
+        logger.info(`🔥 Cache Miss for review: ${date}. Calling Gemini API...`);
+
         if (!defaultApiKey) {
+            logger.error("Configuration API incomplète: Clé manquante.");
             return res.status(500).json({ error: "Configuration API incomplète." });
         }
 
@@ -119,7 +143,7 @@ export default async function handler(req: express.Request, res: express.Respons
             try {
                 parsedMeta = JSON.parse(metaMatch[1].trim());
             } catch (e) {
-                console.error("Meta parse error");
+                logger.error("Meta parse error", { error: e });
             }
         }
 
@@ -165,13 +189,17 @@ export default async function handler(req: express.Request, res: express.Respons
             }
         };
 
+        // Cache for 12 hours
+        cacheService.set(cacheKey, review, 43200);
+        logger.info(`✅ Review generated and cached for ${date}`, { duration: `${duration}s` });
+
         return res.status(200).json(review);
 
     } catch (error: any) {
         if (error.name === 'ZodError') {
             return res.status(400).json({ error: 'Données invalides', details: error.errors });
         }
-        console.error("Generation error:", error);
+        logger.error("Generation error:", error);
         return res.status(500).json({ error: "Erreur lors de la génération." });
     }
 }
