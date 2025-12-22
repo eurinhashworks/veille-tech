@@ -13,9 +13,9 @@ jobs:
       - name: Deploy Backend
         run: |
           echo "Triggering Backend Deployment..."
-          # curl -X POST ${{ secrets.DEPLOY_WEBHOOK_URL }}
+          # curl -X POST $DEPLOY_WEBHOOK_URL
 
       - name: Deploy Frontend
         run: |
           echo "Building and Deploying Frontend..."
-          # npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
+          # npx vercel --prod --token $VERCEL_TOKEN

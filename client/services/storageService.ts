@@ -2,7 +2,7 @@
 // Utilise Prisma pour la persistance en base de données PostgreSQL
 
 import { CONFIG } from '../config';
-import { Review } from '../types/types';
+import { Review, SearchHistoryItem } from '../types/types';
 
 // Détection de l'environnement
 const isServer = typeof window === 'undefined';
@@ -102,7 +102,7 @@ const saveSearchHistoryToStorage = async (query: string, filters: Record<string,
   }
 };
 
-import { SearchHistoryItem, User } from './databaseService';
+import { DbSearchHistoryItem, DbUser } from './databaseService';
 
 const getSearchHistoryFromStorage = async (limit = 10): Promise<SearchHistoryItem[]> => {
   try {
@@ -320,7 +320,12 @@ export const getSearchHistory = async (userId: string, limit = 10): Promise<Sear
   try {
     const { getSearchHistory: getFromDb } = await import('./databaseService');
     const history = await getFromDb(userId, limit);
-    return history;
+    return history.map(item => ({
+      query: item.query,
+      filters: item.filters,
+      results: item.results,
+      timestamp: new Date(item.createdAt).getTime()
+    }));
   } catch (error) {
     console.warn('⚠️ Erreur Prisma, fallback vers localStorage:', error);
     const storageHistory = await getSearchHistoryFromStorage(limit);

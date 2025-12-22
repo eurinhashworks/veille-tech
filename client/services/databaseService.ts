@@ -1,4 +1,4 @@
-import { Review, SearchHistoryItem, User, UserSettings, UserStats } from '../types/types';
+import { Review, UserSettings } from '../types/types';
 import { CONFIG } from '../config';
 
 const API_BASE = CONFIG.API_URL;
@@ -20,7 +20,7 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> 
 
 // ==================== USER OPERATIONS ====================
 
-export interface User {
+export interface DbUser {
   id: string;
   username: string;
   email?: string;
@@ -28,18 +28,18 @@ export interface User {
   updatedAt: string;
 }
 
-export const createUser = async (username: string, email?: string): Promise<User> => {
-  return await fetchApi<User>('/users', {
+export const createUser = async (username: string, email?: string): Promise<DbUser> => {
+  return await fetchApi<DbUser>('/users', {
     method: 'POST',
     body: JSON.stringify({ username, email }),
   });
 };
 
-export const getUserByUsername = async (username: string) => {
-  return await fetchApi(`/users?username=${encodeURIComponent(username)}`);
+export const getUserByUsername = async (username: string): Promise<DbUser> => {
+  return await fetchApi<DbUser>(`/users?username=${encodeURIComponent(username)}`);
 };
 
-export const getOrCreateUser = async (username: string) => {
+export const getOrCreateUser = async (username: string): Promise<DbUser> => {
   try {
     return await getUserByUsername(username);
   } catch (error) {
@@ -51,14 +51,14 @@ export const getOrCreateUser = async (username: string) => {
 // ==================== REVIEW OPERATIONS ====================
 
 export const saveReview = async (review: Review, userId: string) => {
-  return await fetchApi('/reviews', {
+  return await fetchApi<{ id: string }>('/reviews', {
     method: 'POST',
     body: JSON.stringify({ review, userId }),
   });
 };
 
 export const getReviewByDate = async (date: string) => {
-  return await fetchApi(`/reviews?date=${encodeURIComponent(date)}`);
+  return await fetchApi<any>(`/reviews?date=${encodeURIComponent(date)}`);
 };
 
 export const getAllReviews = async (userId?: string, isPublic?: boolean) => {
@@ -66,7 +66,7 @@ export const getAllReviews = async (userId?: string, isPublic?: boolean) => {
   if (userId) params.append('userId', userId);
   if (isPublic !== undefined) params.append('isPublic', String(isPublic));
 
-  return await fetchApi(`/reviews?${params.toString()}`);
+  return await fetchApi<any[]>(`/reviews?${params.toString()}`);
 };
 
 export const getReviewsByDateRange = async (
@@ -77,7 +77,7 @@ export const getReviewsByDateRange = async (
   const params = new URLSearchParams({ startDate, endDate });
   if (userId) params.append('userId', userId);
 
-  return await fetchApi(`/reviews?${params.toString()}`);
+  return await fetchApi<any[]>(`/reviews?${params.toString()}`);
 };
 
 export const searchReviews = async (
@@ -97,26 +97,26 @@ export const searchReviews = async (
   if (filters?.dateTo) params.append('dateTo', filters.dateTo);
   if (filters?.userId) params.append('userId', filters.userId);
 
-  return await fetchApi(`/search?${params.toString()}`);
+  return await fetchApi<any[]>(`/search?${params.toString()}`);
 };
 
 // ==================== FAVORITE OPERATIONS ====================
 
 export const addFavorite = async (userId: string, reviewId: string) => {
-  return await fetchApi('/favorites', {
+  return await fetchApi<void>('/favorites', {
     method: 'POST',
     body: JSON.stringify({ userId, reviewId }),
   });
 };
 
 export const removeFavorite = async (userId: string, reviewId: string) => {
-  return await fetchApi(`/favorites?userId=${userId}&reviewId=${reviewId}`, {
+  return await fetchApi<void>(`/favorites?userId=${userId}&reviewId=${reviewId}`, {
     method: 'DELETE',
   });
 };
 
 export const getFavorites = async (userId: string) => {
-  return await fetchApi(`/favorites?userId=${userId}`);
+  return await fetchApi<{ reviewId: string }[]>(`/favorites?userId=${userId}`);
 };
 
 export const isFavorite = async (userId: string, reviewId: string) => {
@@ -128,7 +128,7 @@ export const isFavorite = async (userId: string, reviewId: string) => {
 
 // ==================== SEARCH HISTORY OPERATIONS ====================
 
-export interface SearchHistoryItem {
+export interface DbSearchHistoryItem {
   id: string;
   query: string;
   filters: Record<string, any>;
@@ -149,8 +149,8 @@ export const saveSearchHistory = async (
   });
 };
 
-export const getSearchHistory = async (userId: string, limit = 10): Promise<SearchHistoryItem[]> => {
-  return await fetchApi<SearchHistoryItem[]>(`/history?userId=${userId}&limit=${limit}`);
+export const getSearchHistory = async (userId: string, limit = 10): Promise<DbSearchHistoryItem[]> => {
+  return await fetchApi<DbSearchHistoryItem[]>(`/history?userId=${userId}&limit=${limit}`);
 };
 
 export const clearSearchHistory = async (userId: string): Promise<void> => {
@@ -175,14 +175,14 @@ export const updateUserSettings = async (
     };
   }
 ) => {
-  return await fetchApi('/settings', {
+  return await fetchApi<void>('/settings', {
     method: 'POST',
     body: JSON.stringify({ userId, settings }),
   });
 };
 
 export const getUserSettings = async (userId: string) => {
-  return await fetchApi(`/settings?userId=${userId}`);
+  return await fetchApi<UserSettings>(`/settings?userId=${userId}`);
 };
 
 // ==================== STATISTICS ====================
@@ -190,15 +190,15 @@ export const getUserSettings = async (userId: string) => {
 export const getReviewStats = async (userId?: string) => {
   const params = new URLSearchParams();
   if (userId) params.append('userId', userId);
-  return await fetchApi(`/stats?${params.toString()}`);
+  return await fetchApi<any>(`/stats?${params.toString()}`);
 };
 
 // ==================== TAGS ====================
 
 export const getAllTags = async () => {
-  return await fetchApi('/tags');
+  return await fetchApi<string[]>('/tags');
 };
 
 export const getPopularTags = async (limit = 10) => {
-  return await fetchApi(`/tags?limit=${limit}`);
+  return await fetchApi<string[]>(`/tags?limit=${limit}`);
 };
