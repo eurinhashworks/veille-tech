@@ -38,3 +38,38 @@ export enum GenerationStatus {
   SUCCESS = 'SUCCESS',
   ERROR = 'ERROR'
 }
+
+export interface User {
+  id: string;
+  username: string;
+  isAdmin?: boolean;
+}
+
+export interface GenerationOptions {
+  style: 'analytical' | 'creative' | 'technical' | 'executive';
+  tone: 'formal' | 'casual' | 'humorous' | 'serious';
+  depth: 'brief' | 'detailed' | 'comprehensive';
+}
+
+export interface SearchHistoryItem {
+  query: string;
+  filters: Record<string, unknown>;
+  results: number;
+  timestamp: number;
+}
+
+export interface UserSettings {
+  theme?: string;
+  defaultVisibility?: string;
+  notifications?: boolean;
+  autoGenerate?: boolean;
+  aiPreferences?: GenerationOptions;
+}
+
+export interface UserStats {
+  totalReviews: number;
+  totalNews: number;
+  avgGenerationTime: number;
+  categoryDistribution: Record<string, number>;
+  topCategory: string;
+}

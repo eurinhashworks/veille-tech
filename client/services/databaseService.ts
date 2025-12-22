@@ -1,4 +1,4 @@
-import { Review } from '../types';
+import { Review, SearchHistoryItem, User, UserSettings, UserStats } from '../types/types';
 import { CONFIG } from '../config';
 
 const API_BASE = CONFIG.API_URL;

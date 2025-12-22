@@ -1,4 +1,4 @@
-import { Review } from '../types';
+import { Review, GenerationOptions } from '../types/types';
 import { CONFIG } from '../config';
 
 export interface AiPreferences {
