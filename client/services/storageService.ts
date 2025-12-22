@@ -1,4 +1,3 @@
-```typescript
 // Storage Service - Gère le stockage avec Prisma (base de données) et fallback localStorage
 // Utilise Prisma pour la persistance en base de données PostgreSQL
 
@@ -34,7 +33,7 @@ const saveReviewToStorage = async (review: Review): Promise<Review> => {
 const getAllReviewsFromStorage = async (): Promise<Review[]> => {
   try {
     const reviews = JSON.parse(localStorage.getItem('tech_reviews') || '[]');
-    console.log(`💾 ${ reviews.length } revues chargées depuis localStorage`);
+    console.log(`💾 ${reviews.length} revues chargées depuis localStorage`);
     return reviews;
   } catch (error) {
     console.error('❌ Erreur chargement localStorage:', error);
@@ -235,7 +234,7 @@ export const getAllReviews = async (): Promise<Review[]> => {
     const prismaReviews = await getFromDb();
     const reviews = prismaReviews.map(prismaToReviewFormat);
 
-    console.log(`✅ ${ reviews.length } revues chargées depuis PostgreSQL`);
+    console.log(`✅ ${reviews.length} revues chargées depuis PostgreSQL`);
 
     return reviews;
   } catch (error) {
