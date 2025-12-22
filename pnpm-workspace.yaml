@@ -1,4 +1,3 @@
-ignoredBuiltDependencies:
-  - '@prisma/engines'
-  - esbuild
-  - prisma
+packages:
+  - "client"
+  - "server"
