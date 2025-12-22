@@ -1,0 +1,40 @@
+name: Quality Gate 🛡️
+
+on:
+  pull_request:
+    branches: [ develop, main ]
+
+jobs:
+  backend-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      # - name: Linting
+      #   run: npm run lint
+      - name: Tests Unitaires (Jest/Supertest)
+        run: npm run test
+        env:
+          GOOGLE_API_KEY: "dummy_key_for_test"
+
+  frontend-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./client
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - name: Type Check (TypeScript)
+        run: npm run typecheck
+      - name: Build Test
+        run: npm run build

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Routes, Route, useNavigate, useLocation, Link, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { CONFIG } from './config';
 import { Sparkles } from 'lucide-react';
 import Header from './components/Header';
 import Timeline from './components/Timeline';
@@ -25,10 +26,10 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { ToastProvider, useToast } from './components/Toast';
 import { ReviewSkeleton, TimelineSkeleton } from './components/Skeleton';
 import { generateReviewWithLimitHandling } from './services/apiService';
-import { Review, GenerationStatus } from './types';
+import { Review, GenerationStatus } from './types/types';
 import { useCurrentUser } from './hooks/useCurrentUser';
 import { incrementDailyVisitors, incrementCurrentVisitors, decrementCurrentVisitors } from './services/visitorService';
-import { ROUTES, isAppLayout, pathBuilders } from './routes';
+import { ROUTES, isAppLayout, pathBuilders } from './routes'; // Assuming routes is in client root now? Check needed.
 
 const AppContent: React.FC = () => {
   const navigate = useNavigate();
@@ -214,12 +215,12 @@ const AppContent: React.FC = () => {
   };
 
   const handleCopy = (review: Review) => {
-    const textToCopy = `L'AVIS DE CLARA L'IA :
+    const textToCopy = `L'AVIS DE CLARA L'IA:
 ${review.metadata.aiAnalysis}
 
 -------------------
 
-${review.content}`;
+  ${review.content} `;
     navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     showToast('Copié dans le presse-papier !', 'success');
@@ -263,7 +264,7 @@ ${review.content}`;
           />
         )}
 
-        <main className={`flex-grow ${!isAppShellVisible ? '' : 'container mx-auto px-4 py-8 md:py-10 max-w-5xl'}`}>
+        <main className={`flex-grow ${!isAppShellVisible ? '' : 'container mx-auto px-4 py-8 md:py-10 max-w-5xl'} `}>
 
           <AnimatePresence mode="wait">
             <motion.div

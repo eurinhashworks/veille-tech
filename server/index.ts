@@ -4,15 +4,15 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import pc from 'picocolors';
-import logger from '../lib/logger';
-import { prisma } from '../lib/prisma';
-import { apiLimiter } from '../middleware/rateLimiter';
-import { CONFIG } from '../config';
+import logger from './lib/logger';
+import { prisma } from './lib/prisma';
+import { apiLimiter } from './middleware/rateLimiter';
+import { CONFIG } from './config';
 
 logger.info('🏁 Starting Backend Server...');
 
 const app = express();
-const port = process.env.PORT || CONFIG.API_PORT;
+const port = process.env.PORT || CONFIG.PORT;
 
 // Logging: Custom beautiful morgan format
 const loggerFormat = (tokens: any, req: any, res: any) => {
@@ -78,24 +78,24 @@ const handleApi = (handler: (req: express.Request, res: express.Response) => Pro
 };
 
 // Import API handlers
-import usersHandler from '../api/users';
-import reviewsHandler from '../api/reviews';
-import statsHandler from '../api/stats';
-import searchHandler from '../api/search';
-import favoritesHandler from '../api/favorites';
-import historyHandler from '../api/history';
-import settingsHandler from '../api/settings';
-import tagsHandler from '../api/tags';
-import visitorsHandler from '../api/visitors';
-import analyticsHandler from '../api/analytics';
-import commentsHandler from '../api/comments';
-import exportHandler from '../api/export';
-import generateHandler from '../api/generate';
-import integrationsHandler from '../api/integrations';
-import notificationsHandler from '../api/notifications';
-import testEmailHandler from '../api/test-email';
-import sharingHandler from '../api/sharing';
-import trendsHandler from '../api/trends';
+import usersHandler from './api/users';
+import reviewsHandler from './api/reviews';
+import statsHandler from './api/stats';
+import searchHandler from './api/search';
+import favoritesHandler from './api/favorites';
+import historyHandler from './api/history';
+import settingsHandler from './api/settings';
+import tagsHandler from './api/tags';
+import visitorsHandler from './api/visitors';
+import analyticsHandler from './api/analytics';
+import commentsHandler from './api/comments';
+import exportHandler from './api/export';
+import generateHandler from './api/generate';
+import integrationsHandler from './api/integrations';
+import notificationsHandler from './api/notifications';
+import testEmailHandler from './api/test-email';
+import sharingHandler from './api/sharing';
+import trendsHandler from './api/trends';
 
 // Routes
 app.all('/api/users', handleApi(usersHandler));

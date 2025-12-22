@@ -1,83 +1,33 @@
 {
-  "name": "eureka-ai-veille-tech",
+  "name": "eureka-ai-monorepo",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -n \"FE,BE\" -c \"cyan,magenta\" \"pnpm dev:fe\" \"pnpm dev:be\"",
-    "dev:fe": "vite",
-    "dev:be": "pnpm cross-env NODE_ENV=development tsx watch server/index.ts",
-    "build": "pnpm prisma generate && pnpm exec vite build",
-    "preview": "pnpm exec vite preview",
-    "prisma:generate": "pnpm prisma generate",
-    "prisma:validate": "prisma validate",
-    "typecheck": "tsc --noEmit",
-    "test": "pnpm exec vitest run",
-    "test:e2e": "playwright test",
-    "audit": "pnpm audit --prod"
-  },
-  "dependencies": {
-    "@google/genai": "^1.34.0",
-    "@prisma/client": "5.22.0",
-    "@tensorflow/tfjs": "^4.22.0",
-    "@tensorflow/tfjs-node": "^4.22.0",
-    "@visx/visx": "^3.12.0",
-    "compromise": "^14.14.5",
-    "cors": "^2.8.5",
-    "d3": "^7.9.0",
-    "d3-array": "^3.2.4",
-    "d3-scale": "^4.0.2",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.2.1",
-    "framer-motion": "^12.23.26",
-    "graphology": "^0.26.0",
-    "graphology-components": "^1.5.4",
-    "graphology-metrics": "^2.4.0",
-    "helmet": "^8.1.0",
-    "lucide-react": "^0.554.0",
-    "ml-matrix": "^6.12.1",
-    "ml-regression": "^6.3.0",
-    "morgan": "^1.10.1",
-    "natural": "^8.1.0",
-    "node-cache": "^5.1.2",
-    "picocolors": "^1.1.1",
-    "prisma": "5.22.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "react-router-dom": "^7.11.0",
-    "recharts": "^3.6.0",
-    "resend": "^6.6.0",
-    "uuid": "^13.0.0",
-    "winston": "^3.19.0",
-    "zod": "^4.2.1"
+    "dev": "concurrently -n \"FE,BE\" -c \"cyan,magenta\" \"pnpm --filter @eureka/client dev\" \"pnpm --filter @eureka/server dev\"",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write .",
+    "prepare": "husky install"
   },
   "devDependencies": {
-    "@playwright/test": "^1.57.0",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.1",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/express-rate-limit": "^6.0.2",
-    "@types/morgan": "^1.9.10",
-    "@types/node": "^22.14.0",
-    "@types/node-cache": "^4.2.5",
-    "@vitejs/plugin-react": "^5.0.0",
-    "autoprefixer": "^10.4.22",
-    "concurrently": "^9.2.1",
-    "cross-env": "^10.1.0",
-    "dotenv": "^17.2.3",
-    "jsdom": "^27.3.0",
-    "msw": "^2.12.4",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.17",
-    "tsx": "^4.21.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0",
-    "vitest": "^4.0.16"
+    "concurrently": "^9.0.0",
+    "husky": "^9.0.0",
+    "prettier": "^3.0.0"
   },
   "pnpm": {
     "overrides": {
       "jws": ">=4.0.1"
-    }
+    },
+    "ignoredBuiltDependencies": [
+      "@prisma/client",
+      "@tensorflow/tfjs-node",
+      "core-js",
+      "msw"
+    ]
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
