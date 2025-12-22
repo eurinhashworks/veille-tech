@@ -10,9 +10,14 @@ export const createUserSchema = z.object({
 });
 
 export const sourceSchema = z.object({
-    title: z.string(),
-    uri: z.string().url('URI invalide').refine(val => !val.toLowerCase().startsWith('javascript:'), {
-        message: "URL scheme not allowed"
+    title: z.string().min(1, 'Le titre de la source est requis'),
+    uri: z.string().url('URI invalide').refine(val => {
+        const lowerVal = val.toLowerCase().trim();
+        return !lowerVal.startsWith('javascript:') &&
+            !lowerVal.startsWith('data:') &&
+            !lowerVal.startsWith('vbscript:');
+    }, {
+        message: "Schéma d'URL non autorisé (javascript:, data:, vbscript:)"
     }),
 });
 
@@ -101,6 +106,7 @@ export const generateReviewSchema = z.object({
 export const trendAnalysisSchema = z.object({
     daysBack: z.string().regex(/^\d+$/).transform(val => parseInt(val)).optional(),
     limit: z.string().regex(/^\d+$/).transform(val => parseInt(val)).optional(),
+    trend: z.enum(['rising', 'falling']).optional(),
 });
 
 // --- NEW FEATURES ---

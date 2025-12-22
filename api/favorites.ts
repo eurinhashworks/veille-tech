@@ -1,21 +1,8 @@
 import express from 'express';
 import { prisma } from '../lib/prisma';
+import { addFavoriteSchema, removeFavoriteSchema, validateRequest } from '../schemas/validation';
 
 export default async function handler(req: express.Request, res: express.Response) {
-    // Enable CORS
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-    );
-
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
-
     if (req.method === 'GET') {
         const { userId, reviewId, check } = req.query;
 
@@ -81,13 +68,9 @@ export default async function handler(req: express.Request, res: express.Respons
     }
 
     if (req.method === 'POST') {
-        const { userId, reviewId } = req.body;
-
-        if (!userId || !reviewId) {
-            return res.status(400).json({ error: 'UserId and ReviewId are required' });
-        }
-
         try {
+            const { userId, reviewId } = validateRequest(addFavoriteSchema.extend({ userId: z.string().min(1) }), req.body);
+
             const favorite = await prisma.favorite.create({
                 data: {
                     userId,
@@ -95,30 +78,32 @@ export default async function handler(req: express.Request, res: express.Respons
                 },
             });
             return res.status(201).json(favorite);
-        } catch (error) {
+        } catch (error: any) {
+            if (error.name === 'ZodError') {
+                return res.status(400).json({ error: 'Données invalides', details: error.errors });
+            }
             console.error('Error adding favorite:', error);
             return res.status(500).json({ error: 'Internal server error' });
         }
     }
 
     if (req.method === 'DELETE') {
-        const { userId, reviewId } = req.query;
-
-        if (!userId || !reviewId) {
-            return res.status(400).json({ error: 'UserId and ReviewId are required' });
-        }
-
         try {
+            const { userId, reviewId } = validateRequest(removeFavoriteSchema.extend({ userId: z.string().min(1) }), req.query);
+
             await prisma.favorite.delete({
                 where: {
                     userId_reviewId: {
-                        userId: String(userId),
-                        reviewId: String(reviewId),
+                        userId,
+                        reviewId,
                     },
                 },
             });
             return res.status(200).json({ success: true });
-        } catch (error) {
+        } catch (error: any) {
+            if (error.name === 'ZodError') {
+                return res.status(400).json({ error: 'Données invalides', details: error.errors });
+            }
             console.error('Error removing favorite:', error);
             return res.status(500).json({ error: 'Internal server error' });
         }
@@ -126,3 +111,5 @@ export default async function handler(req: express.Request, res: express.Respons
 
     return res.status(405).json({ error: 'Method not allowed' });
 }
+
+import { z } from 'zod';

@@ -1,11 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import {
-    Sparkles, Calendar, FolderOpen, BarChart3, Star,
-    Clock, Brain, Search, Layout, Settings, LogOut, ChevronLeft, Menu,
-    LayoutDashboard, HelpCircle
-} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SIDEBAR_ROUTES, ROUTES } from '../routes';
 
 interface SidebarProps {
     isCollapsed: boolean;
@@ -18,31 +14,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed, isMobile
     const navigate = useNavigate();
     const location = useLocation();
 
-    const navItems = [
-        { path: '/dashboard', label: 'Command Center', icon: LayoutDashboard },
-        { path: '/generator', label: 'Générateur', icon: Sparkles },
-        { path: '/timeline', label: 'Timeline', icon: Layout },
-        { path: '/search', label: 'Recherche', icon: Search },
-        { path: '/calendar', label: 'Calendrier', icon: Calendar },
-        { path: '/favorites', label: 'Favoris', icon: Star },
-        { path: '/history', label: 'Historique', icon: Clock },
-        { path: '/archives', label: 'Archives', icon: FolderOpen },
-        { path: '/stats', label: 'Statistiques', icon: BarChart3 },
-        { path: '/intelligence', label: 'IA Intelligence', icon: Brain },
-        { path: '/help', label: 'Aide', icon: HelpCircle },
-    ];
-
     const handleNav = (path: string) => {
         navigate(path);
         setIsMobileOpen(false);
     };
 
     const isActive = (path: string) => location.pathname === path;
-
-    const sidebarVariants = {
-        expanded: { width: 260 },
-        collapsed: { width: 80 },
-    };
 
     return (
         <>
@@ -83,7 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed, isMobile
 
                 {/* Navigation Section */}
                 <div className="flex-grow px-3 space-y-1 overflow-y-scroll scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
-                    {navItems.map((item) => (
+                    {SIDEBAR_ROUTES.map((item) => (
                         <button
                             key={item.path}
                             onClick={() => handleNav(item.path)}
@@ -92,7 +69,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed, isMobile
                                 : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
                                 }`}
                         >
-                            <item.icon className={`w-5 h-5 shrink-0 ${isActive(item.path) ? 'text-primary' : 'group-hover:scale-110 transition-transform'}`} />
+                            {item.icon && <item.icon className={`w-5 h-5 shrink-0 ${isActive(item.path) ? 'text-primary' : 'group-hover:scale-110 transition-transform'}`} />}
                             {!isCollapsed && (
                                 <motion.span
                                     initial={{ opacity: 0 }}
@@ -115,20 +92,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed, isMobile
                 {/* Bottom Section */}
                 <div className="p-4 space-y-2 border-t border-slate-800/50">
                     <button
-                        onClick={() => handleNav('/settings')}
-                        className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all ${isActive('/settings') ? 'bg-slate-800/50 text-white' : ''
+                        onClick={() => handleNav(ROUTES.SETTINGS.path)}
+                        className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all ${isActive(ROUTES.SETTINGS.path) ? 'bg-slate-800/50 text-white' : ''
                             }`}
                     >
-                        <Settings className="w-5 h-5 shrink-0" />
-                        {!isCollapsed && <span className="text-sm font-medium">Paramètres</span>}
+                        {ROUTES.SETTINGS.icon && <ROUTES.SETTINGS.icon className="w-5 h-5 shrink-0" />}
+                        {!isCollapsed && <span className="text-sm font-medium">{ROUTES.SETTINGS.label}</span>}
                     </button>
 
                     <button
-                        onClick={() => handleNav('/login')}
+                        onClick={() => handleNav(ROUTES.LOGIN.path)}
                         className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all`}
                     >
-                        <LogOut className="w-5 h-5 shrink-0" />
-                        {!isCollapsed && <span className="text-sm font-medium">Déconnexion</span>}
+                        {ROUTES.LOGIN.icon && <ROUTES.LOGIN.icon className="w-5 h-5 shrink-0" />}
+                        {!isCollapsed && <span className="text-sm font-medium">{ROUTES.LOGIN.label}</span>}
                     </button>
 
                 </div>

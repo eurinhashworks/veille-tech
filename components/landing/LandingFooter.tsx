@@ -1,4 +1,5 @@
-import React from 'react';
+import { Link } from 'react-router-dom';
+import { ROUTES } from '../../routes';
 
 const LandingFooter: React.FC = () => {
     return (
@@ -24,7 +25,7 @@ const LandingFooter: React.FC = () => {
                     <div>
                         <h4 className="font-bold mb-6 text-sm tracking-wider uppercase text-slate-900 dark:text-white">Société</h4>
                         <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-                            <li><a className="hover:text-primary transition" href="/about">Entreprise</a></li>
+                            <li><Link className="hover:text-primary transition" to={ROUTES.ABOUT.path}>Entreprise</Link></li>
                             <li><a className="hover:text-primary transition" href="#">Programme Affiliation</a></li>
                             <li><a className="hover:text-primary transition" href="#">Carrières</a></li>
                             <li><a className="hover:text-primary transition" href="#">Presse</a></li>

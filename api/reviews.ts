@@ -1,23 +1,10 @@
 import express from 'express';
 import { prisma } from '../lib/prisma';
+import { createReviewSchema, validateRequest } from '../schemas/validation';
 
 const GLOBAL_USER_ID = 'global_user';
 
 export default async function handler(req: express.Request, res: express.Response) {
-    // Enable CORS
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-    );
-
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
-
     if (req.method === 'GET') {
         const { date, startDate, endDate, isPublic } = req.query;
 
@@ -90,15 +77,24 @@ export default async function handler(req: express.Request, res: express.Respons
     }
 
     if (req.method === 'POST') {
-        const { review } = req.body;
-
-        if (!review) {
-            return res.status(400).json({ error: 'Review data is required' });
-        }
-
         try {
+            // Validate request body
+            const {
+                content,
+                sources,
+                date,
+                formattedDate,
+                flashSummary,
+                aiAnalysis,
+                dominantCategory,
+                newsCount,
+                generationTime,
+                isPublic,
+                tags: tagNames
+            } = validateRequest(createReviewSchema, req.body.review);
+
             // Create or get tags
-            const tagOperations = review.metadata.tags.map(async (tagName: string) => {
+            const tagOperations = (tagNames || []).map(async (tagName: string) => {
                 return await prisma.tag.upsert({
                     where: { name: tagName },
                     update: {},
@@ -111,22 +107,22 @@ export default async function handler(req: express.Request, res: express.Respons
             // Create review
             const newReview = await prisma.review.create({
                 data: {
-                    id: review.metadata.id,
-                    date: review.metadata.date,
-                    formattedDate: review.metadata.formattedDate,
-                    content: review.content,
-                    flashSummary: review.metadata.flashSummary,
-                    aiAnalysis: review.metadata.aiAnalysis,
-                    dominantCategory: review.metadata.dominantCategory,
-                    newsCount: review.metadata.newsCount,
-                    generationTime: review.metadata.generationTime,
-                    isPublic: review.metadata.isPublic,
+                    id: req.body.review.metadata?.id || Math.random().toString(36).substring(2, 15),
+                    date,
+                    formattedDate,
+                    content,
+                    flashSummary,
+                    aiAnalysis,
+                    dominantCategory,
+                    newsCount,
+                    generationTime,
+                    isPublic,
                     userId: GLOBAL_USER_ID,
                     ReviewToTag: {
                         create: tags.map((tag: { id: string }) => ({ tags: { connect: { id: tag.id } } })),
                     },
                     sources: {
-                        create: review.sources.map((source: { title: string; uri: string }) => ({
+                        create: (sources || []).map((source: { title: string; uri: string }) => ({
                             title: source.title,
                             uri: source.uri,
                         })),
@@ -143,7 +139,10 @@ export default async function handler(req: express.Request, res: express.Respons
             });
 
             return res.status(201).json(newReview);
-        } catch (error) {
+        } catch (error: any) {
+            if (error.name === 'ZodError') {
+                return res.status(400).json({ error: 'Données invalides', details: error.errors });
+            }
             console.error('Error creating review:', error);
             return res.status(500).json({ error: 'Internal server error' });
         }

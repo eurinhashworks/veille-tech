@@ -1,20 +1,8 @@
 import { prisma } from '../lib/prisma';
+import { updateSettingsSchema, validateRequest } from '../schemas/validation';
+import { z } from 'zod';
 
 export default async function handler(req: any, res: any) {
-    // Enable CORS
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-    );
-
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
-
     if (req.method === 'GET') {
         const { userId } = req.query;
 
@@ -44,13 +32,13 @@ export default async function handler(req: any, res: any) {
     }
 
     if (req.method === 'POST') {
-        const { userId, settings } = req.body;
-
-        if (!userId || !settings) {
-            return res.status(400).json({ error: 'UserId and settings are required' });
-        }
-
         try {
+            const bodySchema = z.object({
+                userId: z.string().min(1),
+                settings: updateSettingsSchema
+            });
+            const { userId, settings } = validateRequest(bodySchema, req.body);
+
             const updatedSettings = await prisma.userSettings.upsert({
                 where: { userId },
                 update: settings,
@@ -60,7 +48,10 @@ export default async function handler(req: any, res: any) {
                 },
             });
             return res.status(200).json(updatedSettings);
-        } catch (error) {
+        } catch (error: any) {
+            if (error.name === 'ZodError') {
+                return res.status(400).json({ error: 'Paramètres de réglages invalides', details: error.errors });
+            }
             console.error('Error updating settings:', error);
             return res.status(500).json({ error: 'Internal server error' });
         }

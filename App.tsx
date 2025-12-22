@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Routes, Route, useNavigate, useLocation, Link, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Sparkles, Calendar, FolderOpen, BarChart3, Star, Clock, Search as SearchIcon } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import Header from './components/Header';
 import Timeline from './components/Timeline';
 import HistoryTable from './components/HistoryTable';
@@ -28,6 +28,7 @@ import { generateReviewWithLimitHandling } from './services/apiService';
 import { Review, GenerationStatus } from './types';
 import { useCurrentUser } from './hooks/useCurrentUser';
 import { incrementDailyVisitors, incrementCurrentVisitors, decrementCurrentVisitors } from './services/visitorService';
+import { ROUTES, isAppLayout, pathBuilders } from './routes';
 
 const AppContent: React.FC = () => {
   const navigate = useNavigate();
@@ -117,7 +118,7 @@ const AppContent: React.FC = () => {
         setTimeout(() => {
           setSelectedReview(existing);
           setStatus(GenerationStatus.SUCCESS);
-          navigate(`/review/${existing.metadata.id}`);
+          navigate(pathBuilders.review(existing.metadata.id));
         }, 800);
         return;
       }
@@ -172,7 +173,7 @@ const AppContent: React.FC = () => {
         setProgress(0);
         setProgressMessage('');
         showToast('Revue générée avec succès !', 'success');
-        navigate(`/review/${newReview.metadata.id}`);
+        navigate(pathBuilders.review(newReview.metadata.id));
       }, 2000);
     } catch (err) {
       const error = err as Error;
@@ -225,12 +226,8 @@ ${review.content}`;
     setTimeout(() => setCopied(false), 2000);
   };
 
-
-
-  // Performance optimization: Memoize visibility checks
-  const isAppShellHidden = useMemo(() =>
-    location.pathname.match(/^\/($|login|about|help)/),
-    [location.pathname]);
+  // NEW: Automated shell visibility check based on layout metadata
+  const isAppShellVisible = useMemo(() => isAppLayout(location.pathname), [location.pathname]);
 
   const currentReviewId = useMemo(() =>
     location.pathname.startsWith('/review/') ? location.pathname.split('/').pop() : null,
@@ -246,10 +243,10 @@ ${review.content}`;
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 text-white flex">
-      {!isAppShellHidden && <TechBackground />}
+    <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 text-white flex transition-colors duration-500">
+      {isAppShellVisible && <TechBackground />}
 
-      {!isAppShellHidden && (
+      {isAppShellVisible && (
         <Sidebar
           isCollapsed={isSidebarCollapsed}
           setIsCollapsed={setIsSidebarCollapsed}
@@ -259,14 +256,14 @@ ${review.content}`;
       )}
 
       <div className="flex-grow flex flex-col min-w-0">
-        {!isAppShellHidden && (
+        {isAppShellVisible && (
           <Header
             isCollapsed={isSidebarCollapsed}
             setIsCollapsed={setIsSidebarCollapsed}
           />
         )}
 
-        <main className={`flex-grow ${isAppShellHidden ? '' : 'container mx-auto px-4 py-8 md:py-10 max-w-5xl'}`}>
+        <main className={`flex-grow ${!isAppShellVisible ? '' : 'container mx-auto px-4 py-8 md:py-10 max-w-5xl'}`}>
 
           <AnimatePresence mode="wait">
             <motion.div
@@ -274,16 +271,20 @@ ${review.content}`;
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.15 }} // Reduced from 0.3 for snappier feel
+              transition={{ duration: 0.15 }}
             >
               <Routes location={location}>
-                <Route path="/" element={<Landing />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/dashboard" element={<PageWrapper><CommandCenter /></PageWrapper>} />
-                <Route path="/intelligence" element={<PageWrapper><IntelligenceDashboard /></PageWrapper>} />
-                <Route path="/help" element={<PageWrapper><Help /></PageWrapper>} />
+                {/* Marketing & Auth */}
+                <Route path={ROUTES.LANDING.path} element={<Landing />} />
+                <Route path={ROUTES.LOGIN.path} element={<Login />} />
+                <Route path={ROUTES.ABOUT.path} element={<PageWrapper><About /></PageWrapper>} />
+
+                {/* Dashboard & App */}
+                <Route path={ROUTES.DASHBOARD.path} element={<PageWrapper><CommandCenter /></PageWrapper>} />
+                <Route path={ROUTES.INTELLIGENCE.path} element={<PageWrapper><IntelligenceDashboard /></PageWrapper>} />
+                <Route path={ROUTES.HELP.path} element={<PageWrapper><Help /></PageWrapper>} />
                 <Route
-                  path="/generator"
+                  path={ROUTES.GENERATOR.path}
                   element={
                     <PageWrapper>
                       <Generator
@@ -299,16 +300,16 @@ ${review.content}`;
                       />
                     </PageWrapper>
                   } />
-                <Route path="/timeline" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Timeline reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
-                <Route path="/archives" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <HistoryTable reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
-                <Route path="/stats" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Stats reviews={reviews} />}</PageWrapper>} />
-                <Route path="/search" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Search reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
-                <Route path="/calendar" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <CalendarView reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
-                <Route path="/favorites" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Favorites reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
-                <Route path="/history" element={<PageWrapper><History /></PageWrapper>} />
-                <Route path="/settings" element={<PageWrapper><Settings onClose={() => navigate('/')} /></PageWrapper>} />
-                <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
-                <Route path="/review/:id" element={
+                <Route path={ROUTES.TIMELINE.path} element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Timeline reviews={reviews} onSelectReview={(r) => navigate(pathBuilders.review(r.metadata.id))} />}</PageWrapper>} />
+                <Route path={ROUTES.ARCHIVES.path} element={<PageWrapper>{loading ? <TimelineSkeleton /> : <HistoryTable reviews={reviews} onSelectReview={(r) => navigate(pathBuilders.review(r.metadata.id))} />}</PageWrapper>} />
+                <Route path={ROUTES.STATS.path} element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Stats reviews={reviews} />}</PageWrapper>} />
+                <Route path={ROUTES.SEARCH.path} element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Search reviews={reviews} onSelectReview={(r) => navigate(pathBuilders.review(r.metadata.id))} />}</PageWrapper>} />
+                <Route path={ROUTES.CALENDAR.path} element={<PageWrapper>{loading ? <TimelineSkeleton /> : <CalendarView reviews={reviews} onSelectReview={(r) => navigate(pathBuilders.review(r.metadata.id))} />}</PageWrapper>} />
+                <Route path={ROUTES.FAVORITES.path} element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Favorites reviews={reviews} onSelectReview={(r) => navigate(pathBuilders.review(r.metadata.id))} />}</PageWrapper>} />
+                <Route path={ROUTES.HISTORY.path} element={<PageWrapper><History /></PageWrapper>} />
+                <Route path={ROUTES.SETTINGS.path} element={<PageWrapper><Settings onClose={() => navigate(ROUTES.LANDING.path)} /></PageWrapper>} />
+
+                <Route path={ROUTES.REVIEW_DETAIL.path} element={
                   loading ? (
                     <PageWrapper><ReviewSkeleton /></PageWrapper>
                   ) : currentReview ? (
@@ -324,8 +325,11 @@ ${review.content}`;
                         setShowExport={setShowExport}
                       />
                     </PageWrapper>
-                  ) : <Navigate to="/" />
+                  ) : <Navigate to={ROUTES.LANDING.path} />
                 } />
+
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to={ROUTES.LANDING.path} />} />
               </Routes>
             </motion.div>
           </AnimatePresence>
@@ -350,7 +354,7 @@ const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -10 }}
-    transition={{ duration: 0.15 }} // Reduced from 0.2
+    transition={{ duration: 0.15 }}
   >
     {children}
   </motion.div>

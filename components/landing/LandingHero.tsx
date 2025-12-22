@@ -1,4 +1,5 @@
-import React from 'react';
+import { Link } from 'react-router-dom';
+import { ROUTES } from '../../routes';
 
 const LandingHero: React.FC = () => {
     return (
@@ -24,18 +25,18 @@ const LandingHero: React.FC = () => {
             <div className="flex flex-col items-center gap-4">
                 <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Vous ne savez pas par où commencer ? Essayez un de ces domaines :</p>
                 <div className="flex flex-wrap justify-center gap-3">
-                    <a href="/login" className="flex items-center gap-2 bg-primary/10 border border-primary/20 px-5 py-2.5 rounded-full text-sm font-semibold text-primary hover:bg-primary hover:text-white transition-all shadow-sm">
+                    <Link to={ROUTES.LOGIN.path} className="flex items-center gap-2 bg-primary/10 border border-primary/20 px-5 py-2.5 rounded-full text-sm font-semibold text-primary hover:bg-primary hover:text-white transition-all shadow-sm">
                         <span className="material-icons text-base">smart_toy</span> IA & GPT
-                    </a>
-                    <a href="/login" className="flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 px-5 py-2.5 rounded-full text-sm font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-500 hover:text-white transition-all shadow-sm">
+                    </Link>
+                    <Link to={ROUTES.LOGIN.path} className="flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 px-5 py-2.5 rounded-full text-sm font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-500 hover:text-white transition-all shadow-sm">
                         <span className="material-icons text-base">code</span> Dev Tools
-                    </a>
-                    <a href="/login" className="flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 px-5 py-2.5 rounded-full text-sm font-semibold text-purple-600 dark:text-purple-400 hover:bg-purple-500 hover:text-white transition-all shadow-sm">
+                    </Link>
+                    <Link to={ROUTES.LOGIN.path} className="flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 px-5 py-2.5 rounded-full text-sm font-semibold text-purple-600 dark:text-purple-400 hover:bg-purple-500 hover:text-white transition-all shadow-sm">
                         <span className="material-icons text-base">cloud</span> SaaS
-                    </a>
-                    <a href="/login" className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 px-5 py-2.5 rounded-full text-sm font-semibold text-green-600 dark:text-green-400 hover:bg-green-500 hover:text-white transition-all shadow-sm">
+                    </Link>
+                    <Link to={ROUTES.LOGIN.path} className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 px-5 py-2.5 rounded-full text-sm font-semibold text-green-600 dark:text-green-400 hover:bg-green-500 hover:text-white transition-all shadow-sm">
                         <span className="material-icons text-base">lock</span> Sécurité
-                    </a>
+                    </Link>
                 </div>
             </div>
         </div>

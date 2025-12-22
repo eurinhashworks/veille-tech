@@ -1,26 +1,13 @@
 import express from 'express';
 import { prisma } from '../lib/prisma';
+import { getUserSchema, validateRequest } from '../schemas/validation';
 
 export default async function handler(req: express.Request, res: express.Response) {
-    // Enable CORS
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-    );
-
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
-
     if (req.method === 'GET') {
-        const { userId } = req.query;
-        const where = userId ? { userId: String(userId) } : {};
-
         try {
+            const { id: userId } = validateRequest(getUserSchema, req.query);
+            const where = userId ? { userId } : {};
+
             const [totalReviews, totalNews, avgGenerationTime, categoryDistribution] =
                 await Promise.all([
                     prisma.review.count({ where }),
@@ -59,7 +46,10 @@ export default async function handler(req: express.Request, res: express.Respons
             };
 
             return res.status(200).json(stats);
-        } catch (error) {
+        } catch (error: any) {
+            if (error.name === 'ZodError') {
+                return res.status(400).json({ error: 'Paramètres invalides', details: error.errors });
+            }
             console.error('Error fetching stats:', error);
             return res.status(500).json({ error: 'Internal server error' });
         }

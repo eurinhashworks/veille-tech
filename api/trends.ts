@@ -5,7 +5,6 @@ import { trendAnalysisSchema, validateRequest } from "../schemas/validation";
 import { Request, Response } from "express";
 
 // Helper to convert Prisma Review with tags to the format expected by TrendPredictionModel
-// Helper to convert Prisma Review with tags to the format expected by TrendPredictionModel
 const prismaToReviewFormat = (pReview: any): Review => ({
     metadata: {
         id: pReview.id,
@@ -30,17 +29,16 @@ const prismaToReviewFormat = (pReview: any): Review => ({
 
 export default async function handler(req: Request, res: Response) {
     if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Method not allowed' });
+        return res.status(405).json({ error: 'Méthode non autorisée' });
     }
 
-    // For the auth-less model, we use 'global_user' or just fetch public reviews
     const GLOBAL_USER_ID = 'global_user';
 
     try {
-        const query = validateRequest(trendAnalysisSchema, req.query) as any;
+        const query = validateRequest(trendAnalysisSchema, req.query);
         const days = query.daysBack || 30;
         const limit = query.limit || 10;
-        const trendFilter = query.trend as string; // 'rising' or 'falling'
+        const trendFilter = query.trend;
         const model = new TrendPredictionModel();
 
         // Fetch user's reviews + public reviews from DB
@@ -56,7 +54,9 @@ export default async function handler(req: Request, res: Response) {
                     include: {
                         tags: true
                     }
-                }
+                },
+                sources: true,
+                user: { select: { username: true } }
             },
             orderBy: {
                 date: 'desc'
@@ -94,12 +94,11 @@ export default async function handler(req: Request, res: Response) {
         const sortedReports = reports.sort((a, b) => b.impactScore - a.impactScore).slice(0, limit);
 
         return res.status(200).json(sortedReports);
-    } catch (error) {
-        const err = error as Error;
-        console.error("Server-side trend analysis error:", err);
+    } catch (error: any) {
         if (error.name === 'ZodError') {
-            return res.status(400).json({ error: 'Validation error', details: error.errors });
+            return res.status(400).json({ error: 'Paramètres d\'analyse invalides', details: error.errors });
         }
-        return res.status(500).json({ error: "Erreur lors de l'analyse des tendances sur le serveur." });
+        console.error("Trend analysis error:", error);
+        return res.status(500).json({ error: "Erreur lors de l'analyse des tendances." });
     }
 }

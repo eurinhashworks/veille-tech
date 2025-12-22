@@ -1,25 +1,16 @@
 import express from 'express';
 import { prisma } from '../lib/prisma';
+import { z } from 'zod';
+import { validateRequest } from '../schemas/validation';
 
 export default async function handler(req: express.Request, res: express.Response) {
-    // Enable CORS
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-    );
-
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
-
     if (req.method === 'GET') {
-        const { limit } = req.query;
-
         try {
+            const querySchema = z.object({
+                limit: z.string().regex(/^\d+$/).transform(val => parseInt(val)).optional()
+            });
+            const { limit } = validateRequest(querySchema, req.query);
+
             const tags = await prisma.tag.findMany({
                 include: {
                     ReviewToTag: {
@@ -38,11 +29,14 @@ export default async function handler(req: express.Request, res: express.Respons
                         _count: 'desc',
                     },
                 },
-                ...(limit ? { take: Number(limit) } : {}),
+                ...(limit ? { take: limit } : {}),
             });
 
             return res.status(200).json(tags);
-        } catch (error) {
+        } catch (error: any) {
+            if (error.name === 'ZodError') {
+                return res.status(400).json({ error: 'Paramètre limit invalide', details: error.errors });
+            }
             console.error('Error fetching tags:', error);
             return res.status(500).json({ error: 'Internal server error' });
         }

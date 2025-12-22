@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, HelpCircle, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
 import NotificationCenter from './NotificationCenter';
+import { ROUTES } from '../routes';
 
 interface HeaderProps {
   isCollapsed: boolean;
@@ -12,6 +13,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ isCollapsed, setIsCollapsed }) => {
   const navigate = useNavigate();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-800 bg-dark-900/90 backdrop-blur-md">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
@@ -31,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({ isCollapsed, setIsCollapsed }) => {
         </div>
 
         <div className="hidden md:flex flex-1 max-w-md mx-8">
-          <div className="relative w-full cursor-pointer" onClick={() => navigate('/search')}>
+          <div className="relative w-full cursor-pointer" onClick={() => navigate(ROUTES.SEARCH.path)}>
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <Search className="w-4 h-4 text-slate-500" />
             </div>
@@ -46,7 +48,7 @@ const Header: React.FC<HeaderProps> = ({ isCollapsed, setIsCollapsed }) => {
 
         <nav className="flex items-center gap-2">
           <button
-            onClick={() => navigate('/search')}
+            onClick={() => navigate(ROUTES.SEARCH.path)}
             className="md:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
           >
             <Search className="w-5 h-5" />
@@ -55,13 +57,13 @@ const Header: React.FC<HeaderProps> = ({ isCollapsed, setIsCollapsed }) => {
           <NotificationCenter />
 
           <button
-            onClick={() => navigate('/settings')}
+            onClick={() => navigate(ROUTES.SETTINGS.path)}
             className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
           >
             <Settings className="w-5 h-5" />
           </button>
           <button
-            onClick={() => navigate('/help')}
+            onClick={() => navigate(ROUTES.HELP.path)}
             className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
           >
             <HelpCircle className="w-5 h-5" />

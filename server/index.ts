@@ -70,6 +70,14 @@ import historyHandler from '../api/history';
 import settingsHandler from '../api/settings';
 import tagsHandler from '../api/tags';
 import visitorsHandler from '../api/visitors';
+import analyticsHandler from '../api/analytics';
+import commentsHandler from '../api/comments';
+import exportHandler from '../api/export';
+import generateHandler from '../api/generate';
+import integrationsHandler from '../api/integrations';
+import notificationsHandler from '../api/notifications';
+import sharingHandler from '../api/sharing';
+import trendsHandler from '../api/trends';
 
 // Routes
 app.all('/api/users', handleApi(usersHandler));
@@ -81,6 +89,14 @@ app.all('/api/history', handleApi(historyHandler));
 app.all('/api/settings', handleApi(settingsHandler));
 app.all('/api/tags', handleApi(tagsHandler));
 app.all('/api/visitors', handleApi(visitorsHandler));
+app.all('/api/analytics', handleApi(analyticsHandler));
+app.all('/api/comments', handleApi(commentsHandler));
+app.all('/api/export', handleApi(exportHandler));
+app.all('/api/generate', handleApi(generateHandler));
+app.all('/api/integrations', handleApi(integrationsHandler));
+app.all('/api/notifications', handleApi(notificationsHandler));
+app.all('/api/sharing', handleApi(sharingHandler));
+app.all('/api/trends', handleApi(trendsHandler));
 
 // Health check
 app.get('/health', (req, res) => {

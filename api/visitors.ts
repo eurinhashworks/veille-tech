@@ -1,22 +1,17 @@
 import express from 'express';
 import { prisma } from '../lib/prisma';
+import { visitorActionSchema, validateRequest } from '../schemas/validation';
+import { z } from 'zod';
 
 export default async function handler(req: express.Request, res: express.Response) {
-    // CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
-
     // GET - Retrieve stats
     if (req.method === 'GET') {
-        const { type } = req.query;
-
         try {
+            const querySchema = z.object({
+                type: z.enum(['daily', 'total', 'current'])
+            });
+            const { type } = validateRequest(querySchema, req.query);
+
             if (type === 'daily') {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
@@ -34,9 +29,10 @@ export default async function handler(req: express.Request, res: express.Respons
                 const currentVisitors = await prisma.currentVisitors.findFirst();
                 return res.status(200).json(currentVisitors || { count: 0 });
             }
-
-            return res.status(400).json({ error: 'Invalid type parameter' });
-        } catch (error) {
+        } catch (error: any) {
+            if (error.name === 'ZodError') {
+                return res.status(400).json({ error: 'Paramètre invalide', details: error.errors });
+            }
             console.error('Error fetching visitor stats:', error);
             return res.status(500).json({ error: 'Internal server error' });
         }
@@ -44,9 +40,9 @@ export default async function handler(req: express.Request, res: express.Respons
 
     // POST - Increment stats
     if (req.method === 'POST') {
-        const { action } = req.body;
-
         try {
+            const { action } = validateRequest(visitorActionSchema, req.body);
+
             if (action === 'increment_daily') {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
@@ -88,9 +84,10 @@ export default async function handler(req: express.Request, res: express.Respons
                 }
                 return res.status(200).json(currentVisitors || { count: 0 });
             }
-
-            return res.status(400).json({ error: 'Invalid action' });
-        } catch (error) {
+        } catch (error: any) {
+            if (error.name === 'ZodError') {
+                return res.status(400).json({ error: 'Action invalide', details: error.errors });
+            }
             console.error('Error updating visitor stats:', error);
             return res.status(500).json({ error: 'Internal server error' });
         }
