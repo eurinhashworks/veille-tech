@@ -77,6 +77,7 @@ import exportHandler from '../api/export';
 import generateHandler from '../api/generate';
 import integrationsHandler from '../api/integrations';
 import notificationsHandler from '../api/notifications';
+import testEmailHandler from '../api/test-email';
 import sharingHandler from '../api/sharing';
 import trendsHandler from '../api/trends';
 
@@ -94,6 +95,7 @@ app.all('/api/analytics', handleApi(analyticsHandler));
 app.all('/api/comments', handleApi(commentsHandler));
 app.all('/api/export', handleApi(exportHandler));
 app.all('/api/generate', handleApi(generateHandler));
+app.all('/api/test-email', handleApi(testEmailHandler));
 app.all('/api/integrations', handleApi(integrationsHandler));
 app.all('/api/notifications', handleApi(notificationsHandler));
 app.all('/api/sharing', handleApi(sharingHandler));

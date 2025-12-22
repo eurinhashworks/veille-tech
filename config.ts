@@ -15,6 +15,12 @@ export const CONFIG = {
     // Environment
     ENV: 'development', // Force development as requested
 
+    // Mail Configuration (Resend)
+    MAIL: {
+        DOMAIN: 'net.eurinhash.com',
+        FROM: 'Eureka AI <notifications@net.eurinhash.com>',
+    },
+
     // Metadata
     APP_NAME: 'EUREKA AI',
     VERSION: '1.1.0'
