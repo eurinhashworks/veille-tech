@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"pnpm exec vite\" \"pnpm exec tsx server/index.ts\"",
+    "dev": "concurrently \"pnpm exec vite\" \"NODE_ENV=development pnpm exec tsx server/index.ts\"",
     "build": "prisma generate && vite build",
     "preview": "vite preview",
     "prisma:generate": "prisma generate",

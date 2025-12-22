@@ -4,9 +4,10 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { prisma } from '../lib/prisma';
 import { apiLimiter } from '../middleware/rateLimiter';
+import { CONFIG } from '../config';
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || CONFIG.API_PORT;
 
 // Security: Helmet for HTTP headers
 app.use(helmet({
