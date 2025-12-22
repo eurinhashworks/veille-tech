@@ -250,13 +250,11 @@ pnpm exec prisma db pull
 ```
 
 ### Erreur: "Schema is out of sync"
-
 ```bash
 pnpm exec prisma migrate dev
 ```
 
 ### Erreur: "Client not generated"
-
 ```bash
 pnpm exec prisma generate
 ```

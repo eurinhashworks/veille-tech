@@ -1,11 +1,12 @@
-name: CI
+name: Release
 
 on:
-  pull_request:
-    branches: ["main"]
+  push:
+    tags:
+      - 'v*'
 
 jobs:
-  build-and-test:
+  build-validate-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,10 +33,18 @@ jobs:
         run: pnpm run test -- --coverage
 
       - name: Prisma validate & migrations status
-        run: pnpm run prisma:validate
+        run: |
+          pnpm run prisma:validate
+          pnpm exec prisma migrate status
 
       - name: Build
         run: pnpm run build
+
+      - name: Save build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
@@ -50,7 +59,14 @@ jobs:
 
       - name: E2E tests (Playwright)
         run: pnpm run test:e2e
-        continue-on-error: true
 
       - name: Security audit (production dependencies)
         run: pnpm run audit
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/**
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

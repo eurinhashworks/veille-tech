@@ -2,8 +2,9 @@ import { GoogleGenAI } from "@google/genai";
 import { Review, Source, CategoryType } from "../types";
 import { generateReviewSchema, validateRequest } from "../schemas/validation";
 import express from 'express';
+import { CONFIG } from "../config";
 
-const defaultApiKey = process.env.API_KEY || '';
+const defaultApiKey = CONFIG.AI.GEMINI_API_KEY;
 let ai = new GoogleGenAI({ apiKey: defaultApiKey });
 
 // Helper for simple ID generation
@@ -56,7 +57,7 @@ export default async function handler(req: express.Request, res: express.Respons
     try {
         const body = validateRequest(generateReviewSchema, req.body);
         const { date, username, isPublic, aiPreferences } = body;
-        const effectiveUsername = username || "Utilisateur EUREKA";
+        const effectiveUsername = username || `Utilisateur ${CONFIG.APP_NAME}`;
 
         if (!defaultApiKey) {
             return res.status(500).json({ error: "Configuration API incomplète." });
@@ -97,7 +98,7 @@ export default async function handler(req: express.Request, res: express.Respons
   `;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: CONFIG.AI.MODEL,
             contents: [{ role: "user", parts: [{ text: prompt }] }],
             config: { tools: [{ googleSearch: {} }] },
         });

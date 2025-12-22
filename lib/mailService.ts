@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 import { CONFIG } from '../config';
 
 // Initialisation de Resend avec la clé API de l'environnement
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(CONFIG.MAIL.API_KEY);
 
 export interface EmailOptions {
     to: string | string[];

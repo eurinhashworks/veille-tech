@@ -2,12 +2,30 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import morgan from 'morgan';
+import pc from 'picocolors';
 import { prisma } from '../lib/prisma';
 import { apiLimiter } from '../middleware/rateLimiter';
 import { CONFIG } from '../config';
 
 const app = express();
 const port = process.env.PORT || CONFIG.API_PORT;
+
+// Logging: Custom beautiful morgan format
+const loggerFormat = (tokens: any, req: any, res: any) => {
+    const status = tokens.status(req, res);
+    const statusColor = status >= 500 ? pc.red : status >= 400 ? pc.yellow : status >= 300 ? pc.cyan : pc.green;
+
+    return [
+        pc.gray(`[${new Date().toISOString()}]`),
+        pc.magenta(pc.bold(tokens.method(req, res))),
+        pc.white(tokens.url(req, res)),
+        statusColor(pc.bold(status)),
+        pc.gray(`- ${tokens['response-time'](req, res)} ms`)
+    ].join(' ');
+};
+
+app.use(morgan(loggerFormat));
 
 // Security: Helmet for HTTP headers
 app.use(helmet({
@@ -22,22 +40,15 @@ app.use(helmet({
 }));
 
 // Security: CORS configuration with whitelist
-const allowedOrigins = [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'http://192.168.100.10:3000',
-    // Add production domain when deployed
-    // 'https://veille-tech.eurinhash.com'
-];
-
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (mobile apps, Postman, etc.)
         if (!origin) return callback(null, true);
 
-        if (allowedOrigins.indexOf(origin) !== -1) {
+        if (CONFIG.CORS.ALLOWED_ORIGINS.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
+            console.warn(pc.red(`CORS blocked for: ${origin}`));
             callback(new Error('Not allowed by CORS'));
         }
     },
@@ -54,7 +65,7 @@ const handleApi = (handler: (req: express.Request, res: express.Response) => Pro
     try {
         await handler(req, res);
     } catch (error) {
-        console.error('API Error:', error);
+        console.error(pc.red('API Error:'), error);
         if (!res.headersSent) {
             res.status(500).json({ error: 'Internal Server Error' });
         }
@@ -108,7 +119,7 @@ app.get('/health', (req, res) => {
 
 app.listen(port, () => {
     console.log(`
-  🚀 Server ready at http://localhost:${port}
-  ⭐️ API running at http://localhost:${port}/api
+  ${pc.bgBlue(pc.white(pc.bold(' BACKEND ')))} ${pc.blue('🚀 Server ready at')} ${pc.cyan(pc.underline(`http://localhost:${port}`))}
+  ${pc.bgMagenta(pc.white(pc.bold(' API ')))} ${pc.magenta('⭐️ API running at')} ${pc.cyan(pc.underline(`http://localhost:${port}/api`))}
   `);
 });

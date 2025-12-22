@@ -1,11 +1,11 @@
-name: CI
+name: Staging Validation
 
 on:
-  pull_request:
+  push:
     branches: ["main"]
 
 jobs:
-  build-and-test:
+  validate-and-preview:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,10 +32,18 @@ jobs:
         run: pnpm run test -- --coverage
 
       - name: Prisma validate & migrations status
-        run: pnpm run prisma:validate
+        run: |
+          pnpm run prisma:validate
+          pnpm exec prisma migrate status
 
       - name: Build
         run: pnpm run build
+
+      - name: Save build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
@@ -48,9 +56,8 @@ jobs:
             sleep 1
           done
 
-      - name: E2E tests (Playwright)
+      - name: E2E smoke tests (Playwright)
         run: pnpm run test:e2e
-        continue-on-error: true
 
       - name: Security audit (production dependencies)
         run: pnpm run audit
