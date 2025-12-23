@@ -1,19 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '../../../lib/server/prisma';
-import { getUserSchema, validateRequest } from '../../../lib/schemas/validation';
-import cacheService from '../../../lib/server/cacheService';
-import logger from '../../../lib/server/logger';
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/server/prisma';
+import { getUserSchema, validateRequest } from '@/lib/schemas/validation';
+import cacheService from '@/lib/server/cacheService';
+import logger from '@/lib/server/logger';
 
-// We only handle GET requests for stats
-export async function GET(req: NextRequest) {
+export async function GET(req: Request) {
     try {
         const { searchParams } = new URL(req.url);
-        const userId = searchParams.get('id');
-        
-        // The validation function might need to be adapted to work with URLSearchParams instead of req.query
-        // For now, we manually construct an object for it to validate.
-        const queryParams = { id: userId };
-        validateRequest(getUserSchema, queryParams);
+        const queryParams = { id: searchParams.get('id') };
+
+        // The validation function might need to be adapted if it directly uses express `req`
+        // For now, we assume it can work with a plain object.
+        const { id: userId } = validateRequest(getUserSchema, queryParams);
 
         // Cache key based on userId (or 'global' if none)
         const cacheKey = cacheService.generateKey({ type: 'stats', userId: userId || 'global' });

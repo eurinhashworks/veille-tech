@@ -1,14 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { auth } from './auth';
 
-export function middleware(request: NextRequest) {
-  // Log the incoming request
-  console.log(`[Middleware] ${request.method} ${request.nextUrl.pathname}`);
-  
-  // Continue the request pipeline
-  return NextResponse.next();
-}
+export default auth;
 
-// See "Matching Paths" below to learn more
+// Optionally, don't invoke Middleware on some paths
+// Read more: https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
 export const config = {
-  matcher: '/api/:path*',
+    matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };

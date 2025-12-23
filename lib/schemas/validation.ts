@@ -28,6 +28,7 @@ export const getUserSchema = z.object({
 
 // Review validation schemas
 export const createReviewSchema = z.object({
+    id: z.string().optional(), // Allow id to be passed for review creation
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Format de date invalide (YYYY-MM-DD)'),
     formattedDate: z.string(),
     content: z.string().min(100, 'Le contenu doit contenir au moins 100 caractères'),
