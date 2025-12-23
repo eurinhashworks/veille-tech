@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers'; // Import headers
 import { prisma } from '@/lib/server/prisma';
-import { updateSettingsSchema, validateRequest } from '@/lib/schemas/validation';
 import { auth } from '@/auth';
+import { validateRequest, updateSettingsSchema } from '@/lib/schemas/validation';
 
 // GET /api/settings - Gets settings for the authenticated user
 export async function GET(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
 
     if (!userId) {
@@ -39,7 +40,7 @@ export async function GET(req: Request) {
 
 // PUT /api/settings - Updates settings for the authenticated user
 export async function PUT(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
 
     if (!userId) {

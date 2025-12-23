@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers'; // Import headers
 import { prisma } from '@/lib/server/prisma';
 import { auth } from '@/auth';
-import { z } from 'zod';
 import { validateRequest } from '@/lib/schemas/validation';
+import { z } from 'zod'; // Import z from zod
 
 // GET /api/favorites?reviewId=...&check=true
 export async function GET(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
 
     const { searchParams } = new URL(req.url);
@@ -63,7 +64,7 @@ export async function GET(req: Request) {
 
 // POST /api/favorites
 export async function POST(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
 
     if (!userId) {
@@ -93,7 +94,7 @@ export async function POST(req: Request) {
 
 // DELETE /api/favorites?reviewId=...
 export async function DELETE(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
 
     if (!userId) {

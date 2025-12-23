@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers'; // Import headers
 import { prisma } from '@/lib/server/prisma';
 import { createShareLinkSchema, validateRequest } from '@/lib/schemas/validation';
 import { v4 as uuidv4 } from 'uuid'; // v4 as uuidv4 from 'uuid'
@@ -7,7 +8,7 @@ import { z } from 'zod';
 
 // POST /api/sharing - Create Share Link (Protected)
 export async function POST(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
     if (!userId) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });

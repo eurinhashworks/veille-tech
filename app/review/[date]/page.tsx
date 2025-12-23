@@ -27,7 +27,7 @@ export default async function ReviewDetailPage({ params }: { params: { date: str
         <header className="mb-8">
           <h1 className="text-4xl font-bold mb-2">{review.formattedDate}</h1>
           <div className="text-slate-400">
-            <span>Par {review.user?.name || 'Auteur inconnu'}</span>
+            <span>Par {review.user?.username || 'Auteur inconnu'}</span>
             <span className="mx-2">•</span>
             <span>{review.dominantCategory}</span>
           </div>

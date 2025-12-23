@@ -1,5 +1,5 @@
 import React from 'react';
-import { Review, CategoryType } from '../types';
+import { Review, CategoryType } from '@/types/types';
 
 interface HistoryTableProps {
   reviews: Review[];
@@ -7,7 +7,7 @@ interface HistoryTableProps {
 }
 
 const CategoryBadge: React.FC<{ category: CategoryType }> = ({ category }) => {
-  const styles = {
+  const styles: Record<CategoryType, string> = {
     'Web': 'text-accent-web bg-accent-web/10',
     'Cloud': 'text-accent-cloud bg-accent-cloud/10',
     'DevOps': 'text-accent-devops bg-accent-devops/10',
@@ -47,10 +47,10 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ reviews, onSelectReview }) 
               </td>
               <td className="px-6 py-4">
                 <div className="flex items-center gap-2">
-                   <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-[10px] text-white font-bold">
-                     {review.metadata.username.charAt(0).toUpperCase()}
-                   </div>
-                   {review.metadata.username}
+                  <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-[10px] text-white font-bold">
+                    {review.metadata.username.charAt(0).toUpperCase()}
+                  </div>
+                  {review.metadata.username}
                 </div>
               </td>
               <td className="px-6 py-4">
@@ -63,7 +63,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({ reviews, onSelectReview }) 
                 {review.metadata.generationTime}s
               </td>
               <td className="px-6 py-4 text-right">
-                <button 
+                <button
                   onClick={() => onSelectReview(review)}
                   className="text-primary hover:text-primary-hover font-medium text-xs border border-primary/30 px-3 py-1 rounded hover:bg-primary/10 transition-colors"
                 >

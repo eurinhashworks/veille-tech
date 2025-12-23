@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers'; // Import headers
 import { prisma } from '@/lib/server/prisma';
-import { createIntegrationSchema, validateRequest } from '@/lib/schemas/validation';
 import { auth } from '@/auth';
+import { validateRequest, createIntegrationSchema } from '@/lib/schemas/validation'; // Import validateRequest and createIntegrationSchema
 
 // GET /api/integrations - Get integrations for the authenticated user
 export async function GET(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
     if (!userId) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
@@ -24,7 +25,7 @@ export async function GET(req: Request) {
 
 // POST /api/integrations - Create an integration for the authenticated user
 export async function POST(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
     if (!userId) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });

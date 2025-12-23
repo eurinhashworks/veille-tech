@@ -7,7 +7,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(CONFIG.MAIL.API_KEY);
 
-export const { auth, signIn, signOut } = betterAuth({
+export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
@@ -40,3 +40,5 @@ export const { auth, signIn, signOut } = betterAuth({
     // Optional: Enable debug logs in dev
     // debug: process.env.NODE_ENV === 'development',
 });
+
+export const { signIn, signOut } = auth;

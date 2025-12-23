@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
-import { geminiModel } from '@/lib/gemini'; // Using the centralized model from lib/gemini.ts
+import { headers } from 'next/headers'; // Import headers
+import { generateContent } from '@/lib/gemini';
+import { geminiModel } from '@/lib/gemini'; // Import geminiModel
+import { prisma } from '@/lib/server/prisma';
 import { Review, Source, CategoryType } from '@/types/types';
 import { generateReviewSchema, validateRequest } from '@/lib/schemas/validation';
 import { CONFIG } from '@/lib/server/config';
@@ -48,18 +51,18 @@ const getCustomPrompt = (preferences: AiPreferences) => {
 };
 
 export async function POST(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
-    const { id: userId, username } = session.user;
+    const { id: userId, name } = session.user;
 
     try {
         const body = await req.json();
         // We no longer get username/isPublic from body, so we use a different validation schema
         const validatedBody = validateRequest(generateReviewSchema.omit({ username: true }), body);
         const { date, aiPreferences, isPublic } = validatedBody;
-        const effectiveUsername = username || `Utilisateur Anonyme`;
+        const effectiveUsername = name || `Utilisateur Anonyme`;
 
         const cacheKey = cacheService.generateKey({ date, aiPreferences });
         const cachedReview = cacheService.get<Review>(cacheKey);

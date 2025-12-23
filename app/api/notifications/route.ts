@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers'; // Import headers
 import { prisma } from '@/lib/server/prisma';
-import { updateNotificationSchema, validateRequest } from '@/lib/schemas/validation';
 import { auth } from '@/auth';
-import { z } from 'zod';
+import { validateRequest, updateNotificationSchema } from '@/lib/schemas/validation';
+import { z } from 'zod'; // Import z from zod
 
 // GET /api/notifications - Get notifications for the authenticated user
 export async function GET(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
     if (!userId) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
@@ -27,7 +28,7 @@ export async function GET(req: Request) {
 
 // PATCH /api/notifications?id=... - Mark a notification as read/unread
 export async function PATCH(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
     if (!userId) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });

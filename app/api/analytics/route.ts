@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
-import { trackEventSchema, validateRequest } from '@/lib/schemas/validation';
+import { headers } from 'next/headers'; // Import headers
 import { auth } from '@/auth';
+import { prisma } from '@/lib/server/prisma';
+import { validateRequest, trackEventSchema } from '@/lib/schemas/validation'; // Import validateRequest and trackEventSchema
 
 export async function POST(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id || 'anonymous';
 
     try {

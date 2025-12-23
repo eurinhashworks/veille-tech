@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers'; // Import headers
 import { prisma } from '@/lib/server/prisma';
 import { auth } from '@/auth';
-import { z } from 'zod';
-import { validateRequest, saveSearchHistorySchema } from '@/lib/schemas/validation';
+import { validateRequest, saveSearchHistorySchema } from '@/lib/schemas/validation'; // Import validateRequest and saveSearchHistorySchema
 
 // GET /api/history?limit=...
 export async function GET(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
 
     if (!userId) {
@@ -38,7 +38,7 @@ export async function GET(req: Request) {
 
 // POST /api/history
 export async function POST(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
 
     if (!userId) {
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
 
 // DELETE /api/history
 export async function DELETE(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
 
     if (!userId) {

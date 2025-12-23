@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers'; // Import headers
 import { prisma } from '@/lib/server/prisma';
-import { searchReviewsSchema, validateRequest } from '@/lib/schemas/validation';
 import { auth } from '@/auth';
-import { z } from 'zod';
+import { validateRequest, searchReviewsSchema } from '@/lib/schemas/validation'; // Import validateRequest and searchReviewsSchema
+import { z } from 'zod'; // Import z from zod
 
 export async function GET(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const authenticatedUserId = session?.user?.id;
 
     try {

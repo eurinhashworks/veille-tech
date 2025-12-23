@@ -1,19 +1,12 @@
-import {
-    NextResponse
-} from 'next/server';
-import {
-    prisma
-} from '@/lib/server/prisma';
-import {
-    exportDataSchema,
-    validateRequest
-} from '@/lib/schemas/validation';
-import {
-    auth
-} from '@/auth';
+import { NextResponse } from 'next/server';
+import { headers } from 'next/headers'; // Import headers
+import { prisma } from '@/lib/server/prisma';
+import { auth } from '@/auth';
+import { validateRequest } from '@/lib/schemas/validation';
+import { exportDataSchema } from '@/lib/schemas/validation';
 
 export async function POST(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
     if (!userId) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });

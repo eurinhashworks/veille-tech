@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers'; // Import headers
 import { prisma } from '@/lib/server/prisma';
-import { createCommentSchema, validateRequest } from '@/lib/schemas/validation';
 import { auth } from '@/auth';
-import { z } from 'zod';
+import { validateRequest, createCommentSchema } from '@/lib/schemas/validation'; // Import validateRequest and createCommentSchema
+import { z } from 'zod'; // Import z from zod
 
-// GET /api/comments?reviewId=...
 export async function GET(req: Request) {
-    // Authentication is implicitly handled by the middleware, but we need the session for queries
-    const session = await auth();
+    // Authentication is implicitly handled by the middleware, but we need the session for queries 
+    const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
@@ -36,7 +36,7 @@ export async function GET(req: Request) {
 
 // POST /api/comments
 export async function POST(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
     if (!userId) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
 
 // DELETE /api/comments?id=...
 export async function DELETE(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
     if (!userId) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });

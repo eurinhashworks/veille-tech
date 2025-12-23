@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers'; // Import headers
 import { prisma } from '@/lib/server/prisma';
 import { createReviewSchema, validateRequest } from '@/lib/schemas/validation';
 import { auth } from '@/auth';
@@ -50,7 +51,7 @@ export async function GET(req: Request) {
 
 // POST /api/reviews
 export async function POST(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: await headers() });
     const userId = session?.user?.id;
 
     if (!userId) {
