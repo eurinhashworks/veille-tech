@@ -1,11 +1,15 @@
-body {
-  font-family: sans-serif;
-  padding: 2rem;
-  background-color: #f4f4f9;
-  color: #333;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary: 16 185 129; /* Emerald 500 */
+    --background: 255 255 255;
+    --foreground: 15 23 42;
+  }
 }
 
-main {
-  max-width: 800px;
-  margin: 0 auto;
+body {
+  @apply bg-slate-50 text-slate-900 dark:bg-dark-900 dark:text-slate-100;
 }

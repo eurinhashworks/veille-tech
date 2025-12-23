@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Brain, ChevronRight, TrendingUp } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { TrendReport } from '../../services/trendService';
+import { useRouter } from 'next/navigation';
+import { TrendReport } from '@/lib/services/trendService';
 
 interface TrendsWidgetProps {
     topTrends: TrendReport[];
@@ -10,7 +10,8 @@ interface TrendsWidgetProps {
 }
 
 const TrendsWidget: React.FC<TrendsWidgetProps> = ({ topTrends, variants }) => {
-    const navigate = useNavigate();
+    const router = useRouter();
+    const navigate = (path: string) => router.push(path);
 
     return (
         <motion.div

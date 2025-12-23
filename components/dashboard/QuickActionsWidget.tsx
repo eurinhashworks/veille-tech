@@ -1,14 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Search, Target, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 interface QuickActionsWidgetProps {
     variants: any;
 }
 
 const QuickActionsWidget: React.FC<QuickActionsWidgetProps> = ({ variants }) => {
-    const navigate = useNavigate();
+    const router = useRouter();
+    const navigate = (path: string) => router.push(path);
 
     return (
         <motion.div

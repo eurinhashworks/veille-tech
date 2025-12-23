@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FileText, ChevronRight, Clock, Zap } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { Review } from '../../types/types';
 
 interface LastReviewWidgetProps {
@@ -10,7 +10,8 @@ interface LastReviewWidgetProps {
 }
 
 const LastReviewWidget: React.FC<LastReviewWidgetProps> = ({ lastReview, variants }) => {
-    const navigate = useNavigate();
+    const router = useRouter();
+    const navigate = (path: string) => router.push(path);
 
     return (
         <motion.div

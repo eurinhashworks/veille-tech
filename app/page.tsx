@@ -1,8 +1,21 @@
+import LandingNav from '@/components/landing/LandingNav';
+import LandingHero from '@/components/landing/LandingHero';
+import LandingFeatures from '@/components/landing/LandingFeatures';
+import LandingTestimonials from '@/components/landing/LandingTestimonials';
+import LandingPricing from '@/components/landing/LandingPricing';
+import LandingFAQ from '@/components/landing/LandingFAQ';
+import LandingFooter from '@/components/landing/LandingFooter';
+
 export default function HomePage() {
   return (
-    <main>
-      <h1>Bienvenue sur Eureka AI (Migration en cours)</h1>
-      <p>Ceci est la nouvelle page d'accueil de l'application unifiée Next.js.</p>
-    </main>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 overflow-x-hidden">
+      <LandingNav />
+      <LandingHero />
+      <LandingFeatures />
+      <LandingTestimonials />
+      <LandingPricing />
+      <LandingFAQ />
+      <LandingFooter />
+    </div>
   );
 }
