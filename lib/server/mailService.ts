@@ -2,7 +2,8 @@ import { Resend } from 'resend';
 import { CONFIG } from '@/lib/server/config';
 
 // Initialisation de Resend avec la clé API de l'environnement
-const resend = new Resend(CONFIG.MAIL.API_KEY);
+// On utilise une clé bidon si la clé est manquante pour éviter de faire planter le build Next.js
+const resend = new Resend(CONFIG.MAIL.API_KEY || 're_dummy_key_for_build');
 
 export interface EmailOptions {
     to: string | string[];

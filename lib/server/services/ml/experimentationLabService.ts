@@ -1,5 +1,5 @@
 import { ExperimentationLabModel, Experiment, ExperimentResult, ExperimentConfig, ExperimentData } from './models/ExperimentationLabModel';
-import { Review } from '../../types';
+import { Review } from '../../../../types/types';
 
 // Simuler les fonctions d'accès à la base de données
 async function saveExperiment(experiment: Experiment): Promise<Experiment> {

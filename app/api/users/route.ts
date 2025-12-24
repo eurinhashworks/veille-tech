@@ -4,7 +4,9 @@ import { validateRequest, getUserSchema } from '@/lib/schemas/validation';
 import { auth } from '@/auth';
 
 export async function GET(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({
+        headers: req.headers,
+    });
     const authenticatedUserId = session?.user?.id;
 
     try {

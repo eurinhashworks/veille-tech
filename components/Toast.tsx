@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CheckCircle, AlertCircle, Info, X } from 'lucide-react';
@@ -52,10 +54,10 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                         >
                             <div
                                 className={`flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border ${toast.type === 'success'
-                                        ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200'
-                                        : toast.type === 'error'
-                                            ? 'bg-rose-950/90 border-rose-500/50 text-rose-200'
-                                            : 'bg-slate-900/90 border-slate-700 text-slate-200'
+                                    ? 'bg-emerald-950/90 border-emerald-500/50 text-emerald-200'
+                                    : toast.type === 'error'
+                                        ? 'bg-rose-950/90 border-rose-500/50 text-rose-200'
+                                        : 'bg-slate-900/90 border-slate-700 text-slate-200'
                                     }`}
                             >
                                 {toast.type === 'success' && <CheckCircle className="w-5 h-5 text-emerald-400" />}

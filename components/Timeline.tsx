@@ -1,5 +1,5 @@
 import React from 'react';
-import { Review, CategoryType } from '../types';
+import { Review, CategoryType } from '../types/types';
 
 interface TimelineProps {
   reviews: Review[];

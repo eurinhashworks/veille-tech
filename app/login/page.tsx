@@ -12,7 +12,14 @@ const LoginPage = () => {
     const [step, setStep] = useState<'email' | 'otp'>('email');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const router = useRouter(); // Replaced useNavigate
+    const [mounted, setMounted] = React.useState(false);
+    const router = useRouter();
+
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) return null;
 
     const handleSendOtp = async (e: React.FormEvent) => {
         e.preventDefault();

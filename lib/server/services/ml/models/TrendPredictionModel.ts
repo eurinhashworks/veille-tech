@@ -1,6 +1,6 @@
 import { SimpleLinearRegression } from 'ml-regression';
 import { mean } from 'd3-array';
-import { Review } from '../../../types';
+import { Review } from '../../../../../types/types';
 
 export interface TrendData {
   technology: string;

@@ -1,6 +1,6 @@
 import { AdaptiveIntelligenceModel, AdaptationProfile, LearningPattern, AdaptationRule } from './models/AdaptiveIntelligenceModel';
 import { UserProfile } from './models/UserProfileModel';
-import { Review } from '../../types';
+import { Review } from '../../../../types/types';
 import { getSearchHistory, getUserSettings, saveUserSettings, getUserFavorites } from '../../services/storageService';
 
 export class AdaptiveIntelligenceService {
@@ -34,11 +34,19 @@ export class AdaptiveIntelligenceService {
     const history = await getSearchHistory(userId);
     const favorites = await getUserFavorites(userId);
 
+    // Convertir l'historique de recherche au format d'historique d'interaction attendu
+    const interactionHistory = history.map(item => ({
+      reviewId: item.id, // Utilisation de l'ID de l'élément d'historique comme ID de revue
+      timeSpent: 30, // Temps par défaut passé sur chaque élément
+      clicked: true, // Statut par défaut
+      favorited: favorites.some(fav => fav.reviewId === item.id) // Vérifier si cet élément a été mis en favori
+    }));
+
     return {
       userId,
       techStack: [],
       interests: [], // Devrait être extrait des favoris si nécessaire
-      interactionHistory: history,
+      interactionHistory,
       skillLevel: 0.5
     };
   }
@@ -50,7 +58,9 @@ export class AdaptiveIntelligenceService {
     if (history.length > 5) {
       // Analyser la fréquence des recherches
       const queries = history.map(h => h.query.toLowerCase());
-      const categories = history.map(h => h.filters?.category).filter(Boolean);
+      const categories = history
+        .map(h => typeof h.filters === 'object' && h.filters !== null ? (h.filters as any).category : undefined)
+        .filter(Boolean);
 
       // Détecter une préférence pour l'IA
       if (categories.filter(c => c === 'IA').length > history.length / 2) {

@@ -1,6 +1,6 @@
 import { DecisionSupportModel, StrategicDecision, DecisionContext } from './models/DecisionSupportModel';
 import { TrendAnalysisService } from './trendAnalysisService';
-import { Review } from '../../types';
+import { Review } from '../../../../types/types';
 
 // Simuler les fonctions d'accès à la base de données
 async function getUserPreferences(userId: string) {

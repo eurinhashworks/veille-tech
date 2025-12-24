@@ -91,14 +91,14 @@ export class UserNetwork {
     if (!this.graph.hasNode(userId)) {
       return 0;
     }
-    
+
     try {
       // Calculer la centralité de betweenness (mesure de l'influence)
       const centrality = graphMetrics.centrality.betweenness(this.graph);
       return centrality[userId] || 0;
     } catch (error) {
       // Si la centralité échoue (graphes très simples), utiliser le degré
-      return graphMetrics.centrality.degree(this.graph, userId);
+      return this.graph.degree(userId);
     }
   }
   
@@ -118,12 +118,12 @@ export class UserNetwork {
     const interests2 = user2.interests || [];
     
     // Calculer la similarité de Jaccard pour les stacks technologiques
-    const techIntersection = techStack1.filter(tech => techStack2.includes(tech)).length;
+    const techIntersection = techStack1.filter((tech: string) => techStack2.includes(tech)).length;
     const techUnion = new Set([...techStack1, ...techStack2]).size;
     const techSimilarity = techUnion > 0 ? techIntersection / techUnion : 0;
-    
+
     // Calculer la similarité de Jaccard pour les intérêts
-    const interestIntersection = interests1.filter(interest => interests2.includes(interest)).length;
+    const interestIntersection = interests1.filter((interest: string) => interests2.includes(interest)).length;
     const interestUnion = new Set([...interests1, ...interests2]).size;
     const interestSimilarity = interestUnion > 0 ? interestIntersection / interestUnion : 0;
     

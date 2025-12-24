@@ -32,9 +32,16 @@ export default async function ReviewDetailPage({ params }: { params: { date: str
             <span>{review.dominantCategory}</span>
           </div>
           <div className="flex flex-wrap gap-2 mt-4">
-            {review.ReviewToTag.map(({ tags }) => (
-              <span key={tags.id} className="bg-primary/20 text-primary text-xs font-semibold px-2.5 py-0.5 rounded-full">
-                {tags.name}
+            {review.ReviewToTag.map((reviewToTag: {
+              A: string;
+              B: string;
+              tags: {
+                id: string;
+                name: string;
+              };
+            }) => (
+              <span key={reviewToTag.tags.id} className="bg-primary/20 text-primary text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                {reviewToTag.tags.name}
               </span>
             ))}
           </div>
@@ -53,7 +60,11 @@ export default async function ReviewDetailPage({ params }: { params: { date: str
         <section className="mb-12">
           <h2 className="text-2xl font-semibold border-b border-slate-700 pb-2 mb-4">Sources ({review.sources.length})</h2>
           <ul className="space-y-2">
-            {review.sources.map((source) => (
+            {review.sources.map((source: {
+              id: string;
+              title: string;
+              uri: string;
+            }) => (
               <li key={source.id}>
                 <a href={source.uri} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
                   {source.title}

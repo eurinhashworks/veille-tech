@@ -3,7 +3,9 @@ import { sendEmail } from '@/lib/server/mailService'; // Updated path
 import { auth } from '@/auth';
 
 export async function POST(req: Request) {
-    const session = await auth();
+    const session = await auth.api.getSession({
+        headers: req.headers,
+    });
     // Only authenticated users can send test emails
     if (!session?.user?.id) {
         return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });

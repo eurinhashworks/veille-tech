@@ -48,11 +48,14 @@ async function testExperimentationLab() {
 
     console.log(`Données d'expérience simulées: ${testData.length}`);
 
+    // Créer un config d'expérience pour les tests
+    const config = experimentService['model'].createRecommendationExperimentConfig();
+
     // Calculer les résultats de l'expérience (directement via le modèle)
     const results = experimentService['model'].calculateExperimentResults(
       recommendationExp.id,
       testData,
-      recommendationExp.parameters
+      config
     );
 
     console.log(`Résultats calculés:`);
@@ -83,11 +86,14 @@ async function testExperimentationLab() {
       }
     ];
 
+    // Créer un config d'expérience pour les tests
+    const trendConfig = experimentService['model'].createPredictionExperimentConfig();
+
     // Calculer les résultats de la deuxième expérience
     const trendResults = experimentService['model'].calculateExperimentResults(
       trendExp.id,
       trendTestData,
-      trendExp.parameters
+      trendConfig
     );
 
     console.log(`Résultats de la 2ème expérience:`);

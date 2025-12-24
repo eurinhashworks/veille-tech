@@ -1,5 +1,5 @@
 import { TrendAnalysisService } from './trendAnalysisService';
-import { Review } from '../../types';
+import { Review } from '../../../../types/types';
 
 // Données de test
 const mockReviews: Review[] = [
@@ -9,6 +9,7 @@ const mockReviews: Review[] = [
       date: '2025-01-15',
       formattedDate: 'mercredi 15 janvier 2025',
       username: 'testUser',
+      userId: 'test-user-123',
       timestamp: Date.now(),
       generationTime: 10.5,
       tags: ['React', 'TypeScript', 'Web'],
@@ -29,6 +30,7 @@ const mockReviews: Review[] = [
       date: '2025-01-15',
       formattedDate: 'mercredi 15 janvier 2025',
       username: 'testUser',
+      userId: 'test-user-123',
       timestamp: Date.now(),
       generationTime: 12.3,
       tags: ['AWS', 'Cloud', 'DevOps'],
@@ -49,6 +51,7 @@ const mockReviews: Review[] = [
       date: '2025-01-14',
       formattedDate: 'mardi 14 janvier 2025',
       username: 'testUser',
+      userId: 'test-user-123',
       timestamp: Date.now() - 86400000,
       generationTime: 8.7,
       tags: ['React', 'JavaScript'],

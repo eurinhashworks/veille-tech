@@ -1,5 +1,5 @@
 import { PersonalizationService } from './personalizationService';
-import { Review, CategoryType } from '../../types';
+import { Review, CategoryType } from '../../../../types/types';
 
 // Données de test
 const mockReviews: Review[] = [
@@ -9,6 +9,7 @@ const mockReviews: Review[] = [
       date: '2025-01-15',
       formattedDate: 'mercredi 15 janvier 2025',
       username: 'testUser',
+      userId: 'test-user-123',
       timestamp: Date.now(),
       generationTime: 10.5,
       tags: ['React', 'TypeScript', 'Web'],
@@ -29,6 +30,7 @@ const mockReviews: Review[] = [
       date: '2025-01-15',
       formattedDate: 'mercredi 15 janvier 2025',
       username: 'testUser',
+      userId: 'test-user-123',
       timestamp: Date.now(),
       generationTime: 12.3,
       tags: ['AWS', 'Cloud', 'DevOps'],

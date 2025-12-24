@@ -1,5 +1,5 @@
 import { WorkflowIntegrationService } from './workflowIntegrationService';
-import { Review } from '../../types';
+import { Review } from '../../../../types/types';
 
 // Données de test
 const mockReview: Review = {
@@ -8,6 +8,7 @@ const mockReview: Review = {
     date: '2025-01-15',
     formattedDate: 'mercredi 15 janvier 2025',
     username: 'testUser',
+    userId: 'user123',
     timestamp: Date.now(),
     generationTime: 10.5,
     tags: ['React', 'TypeScript', 'Web'],

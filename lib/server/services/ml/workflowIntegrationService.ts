@@ -1,5 +1,5 @@
 import { WorkflowIntegrationModel, WorkflowConnector, WorkflowAction, WorkflowContext, IntegrationPayload } from './models/WorkflowIntegrationModel';
-import { Review } from '../../types';
+import { Review } from '../../../../types/types';
 
 // Simuler les fonctions d'accès à la base de données
 async function getUserConnectors(userId: string): Promise<WorkflowConnector[]> {

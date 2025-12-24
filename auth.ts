@@ -5,7 +5,7 @@ import { prisma } from "@/lib/server/prisma"; // Updated path
 import { CONFIG } from '@/lib/server/config'; // Updated path
 import { Resend } from 'resend';
 
-const resend = new Resend(CONFIG.MAIL.API_KEY);
+const resend = new Resend(CONFIG.MAIL.API_KEY || 're_dummy_key_for_build');
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
@@ -41,4 +41,5 @@ export const auth = betterAuth({
     // debug: process.env.NODE_ENV === 'development',
 });
 
-export const { signIn, signOut } = auth;
+// Export the auth instance and specific methods
+export default auth;

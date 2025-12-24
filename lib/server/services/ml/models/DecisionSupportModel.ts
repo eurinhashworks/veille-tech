@@ -1,4 +1,4 @@
-import { Review } from '../../../types';
+import { Review } from '../../../../../types/types';
 import { TrendReport } from '../models/TrendPredictionModel';
 
 export interface DecisionFactor {

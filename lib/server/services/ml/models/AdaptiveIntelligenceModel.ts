@@ -1,4 +1,4 @@
-import { Review } from '../../../types';
+import { Review } from '../../../../../types/types';
 import { UserProfile } from '../models/UserProfileModel';
 
 export interface AdaptationRule {

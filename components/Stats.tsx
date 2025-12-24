@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Activity, Clock, Search, Calendar, Users, Eye, BarChart3, FolderOpen, Star } from 'lucide-react';
-import { Review } from '../types';
-import { useCurrentUser } from '../hooks/useCurrentUser';
+import { Review } from '../types/types';
+import { useSession } from '../lib/auth-client';
 import Spinner from './Spinner';
 
 // Composant StatCard
@@ -76,8 +76,9 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
     totalFavorites: 0 // Initialisation du nombre de favoris
   });
 
-  // Utiliser le hook utilisateur pour obtenir l'utilisateur courant
-  const { user, loading: userLoading } = useCurrentUser();
+  // Utiliser le hook de session pour obtenir l'utilisateur courant
+  const { data: session, isPending: userLoading } = useSession();
+  const user = session?.user;
 
   // État de chargement
   const [loading, setLoading] = useState(true);
@@ -87,16 +88,16 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
       try {
         setLoading(true);
 
-        const { getStatistics } = await import('../services/storageService');
-        const { getSearchHistory } = await import('../services/storageService');
-        const { getUserFavorites } = await import('../services/storageService');
+        const { getStatistics } = await import('../lib/server/services/storageService');
+        const { getSearchHistory } = await import('../lib/server/services/storageService');
+        const { getUserFavorites } = await import('../lib/server/services/storageService');
 
         // Charger les statistiques de base (disponibles pour tous les utilisateurs)
         const baseStats = await getStatistics() as Record<string, any>;
 
         // Charger l'historique de recherche global (pour tous les utilisateurs)
         // Si l'utilisateur est connecté, charger aussi son historique personnel
-        let searchHistory = [];
+        let searchHistory: any[] = [];
         if (user) {
           searchHistory = await getSearchHistory(user.id, 1000);
         }
@@ -156,7 +157,7 @@ const Stats: React.FC<StatsProps> = ({ reviews }) => {
         });
 
         // Charger les statistiques des visiteurs
-        const { getDailyVisitorStats, getTotalVisitors, getCurrentVisitors } = await import('../services/visitorService');
+        const { getDailyVisitorStats, getTotalVisitors, getCurrentVisitors } = await import('../lib/server/services/visitorService');
         const dailyStats = await getDailyVisitorStats();
         const totalVisitors = await getTotalVisitors();
         const currentVisitors = await getCurrentVisitors();

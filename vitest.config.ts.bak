@@ -18,4 +18,10 @@ export default defineConfig({
             '@': path.resolve(__dirname, './'),
         },
     },
+    // Pour éviter les erreurs de compilation dans le build Next.js
+    build: {
+        rollupOptions: {
+            external: ['vitest']
+        }
+    }
 });

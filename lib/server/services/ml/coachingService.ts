@@ -1,6 +1,6 @@
 import { CoachingModel, CoachingTip, CoachingGoal, CoachingSession, SkillAssessment } from './models/CoachingModel';
 import { UserProfile } from './models/UserProfileModel';
-import { Review } from '../../types';
+import { Review } from '../../../../types/types';
 
 // Simuler les fonctions d'accès à la base de données
 async function getUserProfile(userId: string): Promise<UserProfile> {

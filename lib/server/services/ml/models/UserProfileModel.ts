@@ -1,6 +1,6 @@
 import * as tf from '@tensorflow/tfjs';
 import natural from 'natural';
-import { Review, CategoryType } from '../../../types';
+import { Review, CategoryType } from '../../../../../types/types';
 
 export interface UserProfile {
   userId: string;

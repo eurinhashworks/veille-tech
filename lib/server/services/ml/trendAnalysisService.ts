@@ -1,5 +1,5 @@
 import { TrendPredictionModel, TrendReport } from './models/TrendPredictionModel';
-import { Review } from '../../types';
+import { Review } from '../../../../types/types';
 import { getAllReviews } from '../../services/storageService';
 
 export class TrendAnalysisService {

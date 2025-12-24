@@ -1,4 +1,4 @@
-import { Review } from '../../../types';
+import { Review } from '../../../../../types/types';
 
 export interface WorkflowConnector {
   id: string;
