@@ -1,4 +1,7 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Send, User as UserIcon, MessageSquare } from 'lucide-react';
 import { useToast } from './Toast';
 
@@ -77,9 +80,9 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ reviewId }) => {
                 ) : (
                     comments.map(comment => (
                         <div key={comment.id} className="flex gap-4">
-                            <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0 border border-slate-600">
+                            <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0 border border-slate-600 overflow-hidden relative">
                                 {comment.user.image ? (
-                                    <img src={comment.user.image} alt={comment.user.username} className="w-full h-full rounded-full object-cover" />
+                                    <Image src={comment.user.image} alt={comment.user.username} fill className="object-cover" />
                                 ) : (
                                     <UserIcon size={14} className="text-slate-400" />
                                 )}

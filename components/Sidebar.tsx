@@ -1,5 +1,8 @@
+"use client";
+
 import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import Image from "next/image";
 import { motion, AnimatePresence } from 'framer-motion';
 import { SIDEBAR_ROUTES, ROUTES } from '@/lib/routes';
 
@@ -51,7 +54,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, setIsCollapsed, isMobile
                 {/* Logo Section */}
                 <div className={`p-6 flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''} shrink-0`}>
                     <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
-                        <img src="/logo.png" alt="EUREKA" className="w-6 h-6" />
+                        <Image src="/logo.png" alt="EUREKA" width={24} height={24} className="w-6 h-6" />
                     </div>
                     {!isCollapsed && (
                         <span className="font-bold text-2xl tracking-tight text-white">EUREKA</span>
