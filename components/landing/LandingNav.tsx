@@ -1,11 +1,12 @@
 import Link from 'next/link';
+import Image from "next/image";
 import { ROUTES } from '@/lib/routes';
 
 const LandingNav: React.FC = () => {
     return (
         <nav className="container mx-auto px-6 py-4 flex justify-between items-center relative z-20">
             <div className="flex items-center gap-3">
-                <img src="/logo.png" alt="EUREKA Logo" className="w-10 h-10 object-contain" />
+                <Image src="/logo.png" alt="EUREKA Logo" width={40} height={40} className="w-10 h-10 object-contain" />
                 <span className="text-xl font-bold tracking-tight dark:text-white">EUREKA</span>
             </div>
 

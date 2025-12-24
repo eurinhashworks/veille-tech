@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { headers } from 'next/headers'; // Import headers
-import { prisma } from '@/lib/server/prisma';
+import { headers } from 'next/headers';
 import { auth } from '@/auth';
-import { validateRequest, searchReviewsSchema } from '@/lib/schemas/validation'; // Import validateRequest and searchReviewsSchema
-import { z } from 'zod'; // Import z from zod
+import { validateRequest, searchReviewsSchema } from '@/lib/schemas/validation';
+import { z } from 'zod';
+import { searchReviews } from '@/lib/services/searchService';
 
 export async function GET(req: Request) {
     const session = await auth.api.getSession({ headers: await headers() });
@@ -27,61 +27,13 @@ export async function GET(req: Request) {
             return NextResponse.json({ error: 'Critères de recherche requis' }, { status: 400 });
         }
 
-        const tagList = tags || [];
-
-        const whereClause: any = {
-            AND: [
-                // Text search
-                q
-                    ? {
-                        OR: [
-                            { content: { contains: q, mode: 'insensitive' } },
-                            { flashSummary: { contains: q, mode: 'insensitive' } },
-                            { aiAnalysis: { contains: q, mode: 'insensitive' } },
-                        ],
-                    }
-                    : {},
-                // Filters
-                category && category !== 'Mix' // 'Mix' is equivalent to 'all' in some contexts, but schema uses specific enum
-                    ? { dominantCategory: category }
-                    : {},
-                tagList.length > 0
-                    ? {
-                        ReviewToTag: {
-                            some: {
-                                tags: {
-                                    name: {
-                                        in: tagList,
-                                    },
-                                },
-                            },
-                        },
-                    }
-                    : {},
-                dateFrom ? { date: { gte: dateFrom } } : {},
-                dateTo ? { date: { lte: dateTo } } : {},
-                effectiveUserId ? { userId: effectiveUserId } : {},
-            ].filter(Boolean), // Filter out empty objects
-        };
-
-        const results = await prisma.review.findMany({
-            where: whereClause,
-            include: {
-                ReviewToTag: {
-                    include: {
-                        tags: true
-                    }
-                },
-                sources: true,
-                user: {
-                    select: {
-                        username: true,
-                    },
-                },
-            },
-            orderBy: {
-                date: 'desc',
-            },
+        const results = await searchReviews({
+            q,
+            category,
+            tags,
+            dateFrom,
+            dateTo,
+            userId: effectiveUserId
         });
 
         return NextResponse.json(results);

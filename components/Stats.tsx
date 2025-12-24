@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Activity, Clock, Search, Calendar, Users, Eye, BarChart3, FolderOpen, Star } from 'lucide-react';
 import { Review } from '../types/types';
