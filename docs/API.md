@@ -42,3 +42,8 @@ Format standard :
   "details": [] // Optionnel (pour validation Zod)
 }
 ```
+Sign in email sent
+Click the link sent to hijapa6837@m3player.com to finish signing in.
+Don't see it? Resend email
+By continuing, you agree to Warp's Terms of Service
+Having trouble logging in? Visit our docs. Or, report an issue
