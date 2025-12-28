@@ -1,6 +1,6 @@
 import { prisma } from '../lib/prisma';
-import { createShareLinkSchema, validateRequest } from '../schemas/validation';
-import { AuthenticatedRequest } from '../types/request';
+import { createShareLinkSchema, validateRequest } from '../../schemas/validation';
+import { AuthenticatedRequest } from '../../types/request';
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 

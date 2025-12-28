@@ -1,8 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authClient } from '../lib/auth-client';
+import { Loader2 } from 'lucide-react';
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleGoogleSignIn = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            await authClient.signIn.social({
+                provider: 'google',
+                callbackURL: `${window.location.origin}/dashboard`, 
+            });
+        } catch (err: any) {
+            setError("Erreur de connexion Google.");
+            console.error(err);
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="h-screen overflow-hidden flex bg-white dark:bg-dark-950 font-sans">
@@ -24,12 +43,21 @@ const Login: React.FC = () => {
 
                     {/* Google Button */}
                     <button
-                        onClick={() => navigate('/generator')}
-                        className="flex items-center justify-center gap-4 w-full bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 py-4 rounded-xl font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm"
+                        onClick={handleGoogleSignIn}
+                        disabled={isLoading}
+                        className="flex items-center justify-center gap-4 w-full bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 py-4 rounded-xl font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-6 h-6" />
-                        Se connecter avec Google
+                        {isLoading ? (
+                            <Loader2 className="w-6 h-6 animate-spin text-slate-600 dark:text-slate-400" />
+                        ) : (
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-6 h-6" />
+                        )}
+                        <span>{isLoading ? 'Connexion...' : 'Se connecter avec Google'}</span>
                     </button>
+                    
+                    {error && (
+                        <p className="mt-4 text-center text-sm text-red-500">{error}</p>
+                    )}
 
                     <p className="mt-8 text-center text-[10px] text-slate-400 leading-relaxed">
                         Connexion sécurisée. Nous ne publierons jamais rien sans votre accord.<br />

@@ -78,12 +78,9 @@ const Generator: React.FC<GeneratorProps> = ({
                             <input type="radio" checked={isPublic} onChange={() => setIsPublic(true)} className="hidden" />
                             <Globe className="w-4 h-4" /> Publique
                         </label>
-                        <label className={`flex-1 border ${!isPublic ? 'border-primary bg-primary/10 text-primary' : 'border-slate-700 bg-dark-900 text-slate-500 hover:bg-dark-800'} rounded-lg p-3 cursor-not-allowed transition-all text-center text-sm font-medium flex items-center justify-center gap-2 relative opacity-50`}>
-                            <input type="radio" checked={!isPublic} onChange={() => setIsPublic(false)} className="hidden" disabled />
+                        <label className={`flex-1 border ${!isPublic ? 'border-primary bg-primary/10 text-primary' : 'border-slate-700 bg-dark-900 text-slate-500 hover:bg-dark-800'} rounded-lg p-3 cursor-pointer transition-all text-center text-sm font-medium flex items-center justify-center gap-2`}>
+                            <input type="radio" checked={!isPublic} onChange={() => setIsPublic(false)} className="hidden" />
                             <Lock className="w-4 h-4" /> Privée
-                            <span className="absolute -top-2 -right-2 bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full">
-                                BIENTÔT
-                            </span>
                         </label>
                     </div>
 
@@ -114,8 +111,8 @@ const Generator: React.FC<GeneratorProps> = ({
                                                 key={option.value}
                                                 onClick={() => handleAiStyleChange(option.value)}
                                                 className={`p-3 rounded-lg text-left transition-all ${aiStyle === option.value
-                                                        ? 'bg-primary/20 border border-primary text-white'
-                                                        : 'bg-dark-900 border border-slate-700 text-slate-300 hover:border-slate-600'
+                                                    ? 'bg-primary/20 border border-primary text-white'
+                                                    : 'bg-dark-900 border border-slate-700 text-slate-300 hover:border-slate-600'
                                                     }`}
                                             >
                                                 <div className="font-medium text-sm">{option.label}</div>
@@ -138,8 +135,8 @@ const Generator: React.FC<GeneratorProps> = ({
                                                 key={option.value}
                                                 onClick={() => handleAiToneChange(option.value)}
                                                 className={`p-3 rounded-lg text-left transition-all ${aiTone === option.value
-                                                        ? 'bg-primary/20 border border-primary text-white'
-                                                        : 'bg-dark-900 border border-slate-700 text-slate-300 hover:border-slate-600'
+                                                    ? 'bg-primary/20 border border-primary text-white'
+                                                    : 'bg-dark-900 border border-slate-700 text-slate-300 hover:border-slate-600'
                                                     }`}
                                             >
                                                 <div className="font-medium text-sm">{option.label}</div>
@@ -161,8 +158,8 @@ const Generator: React.FC<GeneratorProps> = ({
                                                 key={option.value}
                                                 onClick={() => handleAiDepthChange(option.value)}
                                                 className={`p-3 rounded-lg text-left transition-all ${aiDepth === option.value
-                                                        ? 'bg-primary/20 border border-primary text-white'
-                                                        : 'bg-dark-900 border border-slate-700 text-slate-300 hover:border-slate-600'
+                                                    ? 'bg-primary/20 border border-primary text-white'
+                                                    : 'bg-dark-900 border border-slate-700 text-slate-300 hover:border-slate-600'
                                                     }`}
                                             >
                                                 <div className="font-medium text-sm">{option.label}</div>

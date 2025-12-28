@@ -1,6 +1,6 @@
 import { prisma } from '../lib/prisma';
-import { createIntegrationSchema, validateRequest } from '../schemas/validation';
-import { AuthenticatedRequest } from '../types/request';
+import { createIntegrationSchema, validateRequest } from '../../schemas/validation';
+import { AuthenticatedRequest } from '../../types/request';
 import { Response } from 'express';
 
 export default async function handler(req: AuthenticatedRequest, res: Response) {

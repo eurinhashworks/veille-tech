@@ -16,6 +16,7 @@
     "@tensorflow/tfjs": "^4.22.0",
     "@tensorflow/tfjs-node": "^4.22.0",
     "@visx/visx": "^3.12.0",
+    "better-auth": "^1.4.9",
     "compromise": "^14.14.5",
     "cors": "^2.8.5",
     "d3": "^7.9.0",
@@ -42,6 +43,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
+    "@tailwindcss/postcss": "^4.1.18",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
     "@types/cors": "^2.8.19",

@@ -161,19 +161,15 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
                     Publique
                   </span>
                 </label>
-                <label className={`flex-1 border ${defaultVisibility === 'private' ? 'border-primary bg-primary/10' : 'border-slate-700'} rounded-lg p-3 cursor-not-allowed transition-all relative opacity-50`}>
+                <label className={`flex-1 border ${defaultVisibility === 'private' ? 'border-primary bg-primary/10' : 'border-slate-700'} rounded-lg p-3 cursor-pointer transition-all`}>
                   <input
                     type="radio"
                     checked={defaultVisibility === 'private'}
                     onChange={() => setDefaultVisibility('private')}
                     className="hidden"
-                    disabled
                   />
                   <span className={defaultVisibility === 'private' ? 'text-primary font-medium' : 'text-slate-400'}>
                     Privée
-                  </span>
-                  <span className="absolute -top-2 -right-2 bg-yellow-500 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full">
-                    BIENTÔT
                   </span>
                 </label>
               </div>

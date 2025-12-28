@@ -7,11 +7,17 @@ export default defineConfig(({ mode }) => {
   return {
     server: {
       port: 3000,
+      strictPort: true, // Force l'erreur si le port 3000 est pris
       host: '0.0.0.0',
+      hmr: {
+        protocol: 'ws',
+        host: 'localhost',
+        port: 3000,
+      },
       proxy: {
         '/api': {
-          target: 'http://localhost:3001',
-          changeOrigin: true,
+          target: 'http://127.0.0.1:3001',
+          changeOrigin: false,
           secure: false,
         }
       }
@@ -23,7 +29,7 @@ export default defineConfig(({ mode }) => {
     },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(__dirname, './src'),
       }
     }
   };

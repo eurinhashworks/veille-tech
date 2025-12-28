@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -10,17 +11,70 @@ datasource db {
 
 model User {
   id            String          @id @default(cuid())
-  username      String          @unique
-  email         String?         @unique
+  name          String?
+  email         String          @unique
+  emailVerified Boolean         @default(false)
+  image         String?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  
+  // Relations existantes du projet EUREKA
   favorites     Favorite[]
   reviews       Review[]
   searchHistory SearchHistory[]
   settings      UserSettings?
+  notifications Notification[]
 
-  @@map("users")
+  @@map("user")
 }
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+// --- MODELES METIER EUREKA (INCHANGÉS) ---
 
 model Review {
   id               String        @id @default(cuid())
@@ -129,6 +183,23 @@ model CurrentVisitors {
   updatedAt DateTime @updatedAt
 
   @@map("current_visitors")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([read])
+  @@map("notifications")
 }
 
 model ReviewToTag {

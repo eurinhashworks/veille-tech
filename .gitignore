@@ -30,3 +30,8 @@ dist-ssr
 .vercel
 
 /generated/prisma
+.next/
+out/
+build/
+.turbo/
+package-lock.json

@@ -1,7 +1,7 @@
 import { prisma } from "../lib/prisma";
-import { TrendPredictionModel } from "../services/ml/models/TrendPredictionModel";
-import { Review } from "../types";
-import { trendAnalysisSchema, validateRequest } from "../schemas/validation";
+import { TrendPredictionModel } from "../../src/services/ml/models/TrendPredictionModel";
+import { Review } from "../../src/types";
+import { trendAnalysisSchema, validateRequest } from "../../schemas/validation";
 import { Request, Response } from "express";
 
 // Helper to convert Prisma Review with tags to the format expected by TrendPredictionModel

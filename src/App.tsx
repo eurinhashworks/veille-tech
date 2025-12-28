@@ -21,6 +21,7 @@ import IntelligenceDashboard from './pages/IntelligenceDashboard';
 import Help from './pages/Help';
 import TechBackground from './components/TechBackground';
 import Sidebar from './components/Sidebar';
+import ProtectedRoute from './components/ProtectedRoute';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ToastProvider, useToast } from './components/Toast';
 import { ReviewSkeleton, TimelineSkeleton } from './components/Skeleton';
@@ -45,7 +46,10 @@ const AppContent: React.FC = () => {
   // Generation Form State
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [username, setUsername] = useState<string>('');
-  const [isPublic, setIsPublic] = useState<boolean>(true);
+  const [isPublic, setIsPublic] = useState<boolean>(() => {
+    const defaultVisibility = localStorage.getItem('default_visibility') || 'public';
+    return defaultVisibility === 'public';
+  });
   const [status, setStatus] = useState<GenerationStatus>(GenerationStatus.IDLE);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -279,34 +283,36 @@ ${review.content}`;
               <Routes location={location}>
                 <Route path="/" element={<Landing />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/dashboard" element={<PageWrapper><CommandCenter /></PageWrapper>} />
-                <Route path="/intelligence" element={<PageWrapper><IntelligenceDashboard /></PageWrapper>} />
+                <Route path="/dashboard" element={<ProtectedRoute><PageWrapper><CommandCenter /></PageWrapper></ProtectedRoute>} />
+                <Route path="/intelligence" element={<ProtectedRoute><PageWrapper><IntelligenceDashboard /></PageWrapper></ProtectedRoute>} />
                 <Route path="/help" element={<PageWrapper><Help /></PageWrapper>} />
                 <Route
                   path="/generator"
                   element={
-                    <PageWrapper>
-                      <Generator
-                        date={date} setDate={setDate}
-                        username={username} setUsername={setUsername}
-                        isPublic={isPublic} setIsPublic={setIsPublic}
-                        status={status} error={error}
-                        progress={progress} progressMessage={progressMessage}
-                        aiStyle={aiStyle} aiTone={aiTone} aiDepth={aiDepth}
-                        showAiSettings={showAiSettings} setShowAiSettings={setShowAiSettings}
-                        handleAiStyleChange={setAiStyle} handleAiToneChange={setAiTone} handleAiDepthChange={setAiDepth}
-                        handleGenerate={handleGenerate}
-                      />
-                    </PageWrapper>
+                    <ProtectedRoute>
+                      <PageWrapper>
+                        <Generator
+                          date={date} setDate={setDate}
+                          username={username} setUsername={setUsername}
+                          isPublic={isPublic} setIsPublic={setIsPublic}
+                          status={status} error={error}
+                          progress={progress} progressMessage={progressMessage}
+                          aiStyle={aiStyle} aiTone={aiTone} aiDepth={aiDepth}
+                          showAiSettings={showAiSettings} setShowAiSettings={setShowAiSettings}
+                          handleAiStyleChange={setAiStyle} handleAiToneChange={setAiTone} handleAiDepthChange={setAiDepth}
+                          handleGenerate={handleGenerate}
+                        />
+                      </PageWrapper>
+                    </ProtectedRoute>
                   } />
                 <Route path="/timeline" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Timeline reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
                 <Route path="/archives" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <HistoryTable reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
                 <Route path="/stats" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Stats reviews={reviews} />}</PageWrapper>} />
                 <Route path="/search" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Search reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
                 <Route path="/calendar" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <CalendarView reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
-                <Route path="/favorites" element={<PageWrapper>{loading ? <TimelineSkeleton /> : <Favorites reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper>} />
+                <Route path="/favorites" element={<ProtectedRoute><PageWrapper>{loading ? <TimelineSkeleton /> : <Favorites reviews={reviews} onSelectReview={(r) => navigate(`/review/${r.metadata.id}`)} />}</PageWrapper></ProtectedRoute>} />
                 <Route path="/history" element={<PageWrapper><History /></PageWrapper>} />
-                <Route path="/settings" element={<PageWrapper><Settings onClose={() => navigate('/')} /></PageWrapper>} />
+                <Route path="/settings" element={<ProtectedRoute><PageWrapper><Settings onClose={() => navigate('/')} /></PageWrapper></ProtectedRoute>} />
                 <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
                 <Route path="/review/:id" element={
                   loading ? (

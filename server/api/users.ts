@@ -1,5 +1,5 @@
 import { prisma } from '../lib/prisma';
-import { createUserSchema, getUserSchema, validateRequest } from '../schemas/validation';
+import { createUserSchema, getUserSchema, validateRequest } from '../../schemas/validation';
 
 export default async function handler(req: any, res: any) {
     // Enable CORS

@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
-import { Review, Source, CategoryType } from "../types";
-import { generateReviewSchema, validateRequest } from "../schemas/validation";
+import { Review, Source, CategoryType } from "../../src/types";
+import { generateReviewSchema, validateRequest } from "../../schemas/validation";
 import express from 'express';
 
 const defaultApiKey = process.env.API_KEY || '';
