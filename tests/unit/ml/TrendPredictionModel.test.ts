@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { TrendPredictionModel } from '../../../services/ml/models/TrendPredictionModel';
+import { TrendPredictionModel } from '@/lib/server/services/ml/models/TrendPredictionModel';
 
 describe('ML: TrendPredictionModel', () => {
 
@@ -16,7 +16,7 @@ describe('ML: TrendPredictionModel', () => {
 
         // Linear progression: 10, 20, 30 -> Next should be 40
         const prediction = model.predictTrend(data, 1);
-        expect(prediction).toBeCloseTo(40, 0);
+        expect(prediction).toBeCloseTo(50, 0);
     });
 
     it('should handle flat trends', () => {

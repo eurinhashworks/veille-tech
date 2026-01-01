@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary: 16 185 129; /* Emerald 500 */
+    --background: 255 255 255;
+    --foreground: 15 23 42;
+  }
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 dark:bg-dark-900 dark:text-slate-100;
+}

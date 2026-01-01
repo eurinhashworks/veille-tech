@@ -1,30 +1,32 @@
-# Architecture Technique - Eureka AI
+# Architecture Technique - EUREKA
 
-## Vue d'Ensemble
-Eureka AI est une application Full Stack de veille technologique intelligente.
+EUREKA est une application moderne de veille technologique utilisant l'IA pour générer et analyser du contenu quotidien.
 
-### Stack Technique
-- **Frontend**: React 19, TailwindCSS, Vite.
-- **Backend**: Express.js, Node.js (TypeScript).
-- **Base de Données**: PostgreSQL (via Prisma ORM).
-- **IA/ML**:
-  - **Generative AI**: Google Gemini Pro (via `@google/genai`).
-  - **Machine Learning**: TensorFlow.js (Node), regression linéaire, NLP (Natural).
-- **Authentification**: Better-Auth (Sessions en BDD).
+## Pile Technique (Stack)
+- **Frontend** : React 19, TypeScript, Tailwind CSS, Framer Motion.
+- **Backend / API** : Express.js (Node.js), Prisma ORM.
+- **Base de données** : PostgreSQL (Primaire), LocalStorage (Fallback).
+- **IA / ML** : Google Gemini API (Génération), TensorFlow.js (Modèles ML locaux).
+- **Routage** : React Router v7.
 
-## Flux de Données
+## Structure du Projet
+```text
+/
+├── components/         # Composants UI réutilisables (Header, Button, Toast, etc.)
+├── pages/              # Pages principales (Generator, Search, Stats, etc.)
+├── services/           # Logique métier et appels API
+│   ├── ml/             # Services d'Intelligence Artificielle et Modèles
+│   ├── databaseService # Interface directe avec Prisma
+│   ├── storageService  # Couche d'abstraction (DB + Fallback LocalStorage)
+│   └── apiService      # Gestion de l'API Gemini
+├── server/             # Serveur Express et API Endpoints
+├── prisma/             # Schéma et migrations de la base de données
+└── tests/              # Suite de tests (Unitaires, Intégration, E2E)
+```
 
-1.  **Client (React)** :
-    - Envoie des requêtes API standard (REST) avec les cookies de session.
-    - Interagit uniquement avec `/api/*`.
-
-2.  **Serveur (Express)** :
-    - middleware `authMiddleware` vérifie la session.
-    - middleware `errorMiddleware` capture les exceptions.
-    - middleware `rateLimiter` protège contre les abus.
-    - Les contrôleurs (api/*) valident les entrées avec `Zod`.
-    - Les services séparent la logique métier (ex: `UserService`, `GeminiService`).
-
-3.  **Intelligence Artificielle** :
-    - **Mode Génératif** : Le serveur construit un prompt enrichi et appelle l'API Gemini. La clé API est sécurisée côté serveur.
-    - **Mode Analytique** : `TrendPredictionModel` utilise des régressions linéaires locales pour prédire les tendances futures sans appel API externe.
+## Flux de Données Principal
+1. **Saisie** : L'utilisateur définit une date et un pseudo dans `Generator.tsx`.
+2. **Génération** : `apiService` appelle Gemini pour créer le contenu.
+3. **Stockage** : `storageService` sauvegarde la revue via Prisma ou LocalStorage.
+4. **Consultation** : L'utilisateur navigue vers `ReviewDetail.tsx` via une URL unique.
+5. **Enrichissement ML** : Les services ML analysent l'historique pour proposer des recommandations personnalisées.

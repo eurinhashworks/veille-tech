@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { generateReviewSchema, validateRequest } from '../../schemas/validation';
+import { generateReviewSchema, validateRequest } from '@/lib/schemas/validation';
 
 describe('API Integration: Generation Validation', () => {
 

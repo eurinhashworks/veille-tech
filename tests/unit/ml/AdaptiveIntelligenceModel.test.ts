@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { AdaptiveIntelligenceModel, LearningPattern, AdaptationRule } from '../../../services/ml/models/AdaptiveIntelligenceModel';
-import { UserProfile } from '../../../services/ml/models/UserProfileModel';
+import { AdaptiveIntelligenceModel, LearningPattern, AdaptationRule } from '@/lib/server/services/ml/models/AdaptiveIntelligenceModel';
+import { UserProfile } from '@/lib/server/services/ml/models/UserProfileModel';
 
 describe('ML: AdaptiveIntelligenceModel', () => {
     const model = new AdaptiveIntelligenceModel();

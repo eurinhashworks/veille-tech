@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { DecisionSupportModel, DecisionContext } from '../../../services/ml/models/DecisionSupportModel';
+import { DecisionSupportModel, DecisionContext } from '@/lib/server/services/ml/models/DecisionSupportModel';
 
 describe('ML: DecisionSupportModel', () => {
     const model = new DecisionSupportModel();
